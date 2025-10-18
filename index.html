@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐾 PetCare Marketplace</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#667eea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="PetCare">
+    <meta name="description" content="Encuentra el mejor cuidado para tu mascota en Uruguay">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐾%3C/text%3E%3C/svg%3E">
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f8f9fa;
+            color: #2c3e50;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Install Button */
+        .install-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
+            transition: all 0.3s;
+        }
+
+        .install-btn:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .nav-tab {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 16px;
+        }
+
+        .nav-tab.active {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Service Cards */
+        .service-card {
+            cursor: pointer;
+            border: 2px solid transparent;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            background: #f8f9fa;
+            transition: all 0.3s;
+        }
+
+        .service-card:hover {
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .service-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .service-icon {
+            font-size: 32px;
+            margin-right: 15px;
+        }
+
+        .service-info h3 {
+            font-size: 18px;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .service-price {
+            font-size: 16px;
+            font-weight: 600;
+            color: #27ae60;
+        }
+
+        .service-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+
+        .service-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Messages */
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #28a745;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid #dc3545;
+        }
+
+        /* Map Container */
+        .map-container {
+            height: 300px;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Chat Styles */
+        .chat-container {
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8f9fa;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+
+        .chat-message.sent {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+        }
+
+        .chat-message.received {
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        .chat-input-container {
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+        }
+
+        /* Booking Styles */
+        .booking-card {
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+        }
+
+        .booking-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        /* Hidden by default */
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                max-width: 100%;
+                padding: 15px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .nav-tabs {
+                justify-content: center;
+            }
+
+            .service-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">🐾 PetCare Marketplace</div>
+            <div class="user-info">
+                <span id="userGreeting">Bienvenido a PetCare</span>
+                <button id="installBtn" class="install-btn">📱 Instalar App</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showScreen('home')">🏠 Inicio</button>
+            <button class="nav-tab" onclick="showScreen('services')">🔍 Servicios</button>
+            <button class="nav-tab" onclick="showScreen('bookings')">📅 Reservas</button>
+            <button class="nav-tab" onclick="showScreen('chat')">💬 Chat</button>
+            <button class="nav-tab" onclick="showScreen('payments')">💳 Pagos</button>
+            <button class="nav-tab" onclick="showScreen('map')">🗺️ Mapa</button>
+        </div>
+
+        <!-- Messages -->
+        <div id="messages"></div>
+
+        <!-- Home Screen -->
+        <div id="homeScreen" class="screen active">
+            <div class="card">
+                <h2>Encuentra el mejor cuidado para tu mascota</h2>
+                <p>Conectamos dueños de mascotas con cuidadores profesionales verificados en todo Uruguay.</p>
+                
+                <div style="display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <select id="quickCategory" class="form-input">
+                            <option value="">Selecciona una categoría</option>
+                            <option value="medical">🏥 Servicios Médicos</option>
+                            <option value="care">🏠 Cuidado y Hospedaje</option>
+                            <option value="grooming">✂️ Estética y Belleza</option>
+                            <option value="training">🎓 Entrenamiento</option>
+                            <option value="walking">🚶 Paseo de Mascotas</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1; min-width: 200px;">
+                        <select id="quickLocation" class="form-input">
+                            <option value="">Selecciona ubicación</option>
+                            <option value="Centro">Centro</option>
+                            <option value="Pocitos">Pocitos</option>
+                            <option value="Carrasco">Carrasco</option>
+                            <option value="Punta Gorda">Punta Gorda</option>
+                            <option value="Malvín">Malvín</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" onclick="searchServices()">Buscar</button>
+                </div>
+            </div>
+
+            <!-- Featured Services -->
+            <div class="card">
+                <h3>Servicios Destacados</h3>
+                <div id="featuredServices">
+                    <div class="service-card" onclick="selectService('Veterinaria San Martín', 800)">
+                        <div class="service-header">
+                            <div class="service-icon">🏥</div>
+                            <div class="service-info">
+                                <h3>Veterinaria San Martín</h3>
+                                <div class="service-price">$800/consulta</div>
+                            </div>
+                        </div>
+                        <div class="service-description">
+                            Atención veterinaria completa con más de 20 años de experiencia. Consultas, vacunación, cirugías menores.
+                        </div>
+                        <div class="service-meta">
+                            <div class="rating">
+                                <span>⭐⭐⭐⭐⭐</span>
+                                <span>4.8 (127 reseñas)</span>
+                            </div>
+                            <span>📍 Centro</span>
+                        </div>
+                    </div>
+
+                    <div class="service-card" onclick="selectService('Hotel Canino Pocitos', 600)">
+                        <div class="service-header">
+                            <div class="service-icon">🏠</div>
+                            <div class="service-info">
+                                <h3>Hotel Canino Pocitos</h3>
+                                <div class="service-price">$600/día</div>
+                            </div>
+                        </div>
+                        <div class="service-description">
+                            Hospedaje para mascotas con amplios espacios verdes, cuidado personalizado las 24 horas.
+                        </div>
+                        <div class="service-meta">
+                            <div class="rating">
+                                <span>⭐⭐⭐⭐⭐</span>
+                                <span>4.9 (89 reseñas)</span>
+                            </div>
+                            <span>📍 Pocitos</span>
+                        </div>
+                    </div>
+
+                    <div class="service-card" onclick="selectService('Peluquería Canina Bella', 450)">
+                        <div class="service-header">
+                            <div class="service-icon">✂️</div>
+                            <div class="service-info">
+                                <h3>Peluquería Canina Bella</h3>
+                                <div class="service-price">$450/sesión</div>
+                            </div>
+                        </div>
+                        <div class="service-description">
+                            Corte, baño, uñas y limpieza de oídos. Productos premium para el cuidado de tu mascota.
+                        </div>
+                        <div class="service-meta">
+                            <div class="rating">
+                                <span>⭐⭐⭐⭐⭐</span>
+                                <span>4.7 (156 reseñas)</span>
+                            </div>
+                            <span>📍 Carrasco</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Screen -->
+        <div id="servicesScreen" class="screen">
+            <div class="card">
+                <h2>🔍 Buscar Servicios</h2>
+                <div id="servicesList">
+                    <p>Aquí aparecerán todos los servicios disponibles...</p>
+                    <div class="loading" style="margin: 20px auto; display: block;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings Screen -->
+        <div id="bookingsScreen" class="screen">
+            <div class="card">
+                <h2>📅 Mis Reservas</h2>
+                <div id="bookingsList">
+                    <div class="card booking-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4>Veterinaria San Martín</h4>
+                            <span class="booking-status status-confirmed">Confirmada</span>
+                        </div>
+                        <p><strong>Fecha:</strong> 25 Oct 2024, 14:00</p>
+                        <p><strong>Servicio:</strong> Consulta general</p>
+                        <p><strong>Precio:</strong> $800</p>
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-secondary" onclick="cancelBooking(1)">Cancelar</button>
+                            <button class="btn btn-primary" onclick="startChat('Veterinaria San Martín')">Contactar</button>
+                        </div>
+                    </div>
+
+                    <div class="card booking-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h4>Hotel Canino Pocitos</h4>
+                            <span class="booking-status status-pending">Pendiente</span>
+                        </div>
+                        <p><strong>Fecha:</strong> 28 Oct 2024 - 30 Oct 2024</p>
+                        <p><strong>Servicio:</strong> Hospedaje (3 días)</p>
+                        <p><strong>Precio:</strong> $1,800</p>
+                        <div style="margin-top: 15px;">
+                            <button class="btn btn-secondary" onclick="cancelBooking(2)">Cancelar</button>
+                            <button class="btn btn-primary" onclick="startChat('Hotel Canino Pocitos')">Contactar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Screen -->
+        <div id="chatScreen" class="screen">
+            <div class="card">
+                <h2>💬 Chat con Proveedores</h2>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="chat-message received">
+                            <strong>Veterinaria San Martín</strong><br>
+                            Hola! Confirmamos tu cita para el 25 de octubre a las 14:00. ¿Hay algo específico que debamos saber sobre tu mascota?
+                        </div>
+                        <div class="chat-message sent">
+                            Hola! Mi perro ha estado un poco decaído últimamente. Quería que lo revisen.
+                        </div>
+                        <div class="chat-message received">
+                            Perfecto, haremos un chequeo completo. Por favor trae su cartilla de vacunación.
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Escribe tu mensaje...">
+                        <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payments Screen -->
+        <div id="paymentsScreen" class="screen">
+            <div class="card">
+                <h2>💳 Métodos de Pago</h2>
+                
+                <div class="card">
+                    <h3>Agregar Tarjeta</h3>
+                    <div class="form-group">
+                        <label class="form-label">Número de Tarjeta</label>
+                        <input type="text" id="cardNumber" class="form-input" placeholder="1234 5678 9012 3456" maxlength="19">
+                    </div>
+                    <div style="display: flex; gap: 15px;">
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">Vencimiento</label>
+                            <input type="text" id="cardExpiry" class="form-input" placeholder="MM/AA" maxlength="5">
+                        </div>
+                        <div class="form-group" style="flex: 1;">
+                            <label class="form-label">CVV</label>
+                            <input type="text" id="cardCvv" class="form-input" placeholder="123" maxlength="3">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nombre del Titular</label>
+                        <input type="text" id="cardName" class="form-input" placeholder="Juan Pérez">
+                    </div>
+                    <button class="btn btn-primary" onclick="addPaymentMethod()">Agregar Tarjeta</button>
+                </div>
+
+                <div class="card">
+                    <h3>Métodos Guardados</h3>
+                    <div id="savedCards">
+                        <p>No tienes métodos de pago guardados.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>Historial de Pagos</h3>
+                    <div id="paymentHistory">
+                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <strong>Veterinaria San Martín</strong>
+                                    <div style="color: #666; font-size: 14px;">20 Oct 2024</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <strong style="color: #28a745;">$800</strong>
+                                    <div style="color: #666; font-size: 14px;">Completado</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Screen -->
+        <div id="mapScreen" class="screen">
+            <div class="card">
+                <h2>🗺️ Servicios Cercanos</h2>
+                <div id="mapContainer" class="map-container"></div>
+                <p>Mapa interactivo con servicios cercanos a tu ubicación.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Variables globales
+        let deferredPrompt;
+        let map = null;
+        let selectedService = null;
+        let selectedPrice = 0;
+        
+        // PWA Install
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').style.display = 'block';
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    showMessage('¡App instalada correctamente! 🎉', 'success');
+                    document.getElementById('installBtn').style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(() => console.log('Service Worker registrado'))
+                .catch(err => console.log('Error al registrar Service Worker:', err));
+        }
+
+        // Función para mostrar pantallas
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(screenName + 'Screen').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Inicializar mapa si es necesario
+            if (screenName === 'map' && !map) {
+                setTimeout(initMap, 100);
+            }
+        }
+
+        // Función de búsqueda
+        function searchServices() {
+            const category = document.getElementById('quickCategory').value;
+            const location = document.getElementById('quickLocation').value;
+            
+            let message = 'Buscando servicios';
+            if (category) message += ` de ${getCategory(category)}`;
+            if (location) message += ` en ${location}`;
+            message += '...';
+            
+            showMessage(message);
+            showServicesScreen();
+            
+            // Simular carga de servicios
+            setTimeout(() => {
+                loadServices(category, location);
+            }, 1500);
+        }
+
+        function getCategory(value) {
+            const categories = {
+                'medical': 'Servicios Médicos',
+                'care': 'Cuidado y Hospedaje',
+                'grooming': 'Estética y Belleza',
+                'training': 'Entrenamiento',
+                'walking': 'Paseo de Mascotas'
+            };
+            return categories[value] || 'todas las categorías';
+        }
+
+        function showServicesScreen() {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById('servicesScreen').classList.add('active');
+            document.querySelectorAll('.nav-tab')[1].classList.add('active');
+        }
+
+        function loadServices(category, location) {
+            const servicesList = document.getElementById('servicesList');
+            servicesList.innerHTML = `
+                <div class="service-card" onclick="selectService('Clínica Veterinaria Norte', 750)">
+                    <div class="service-header">
+                        <div class="service-icon">🏥</div>
+                        <div class="service-info">
+                            <h3>Clínica Veterinaria Norte</h3>
+                            <div class="service-price">$750/consulta</div>
+                        </div>
+                    </div>
+                    <div class="service-description">
+                        Especialistas en medicina interna y cirugía. Equipamiento de última generación.
+                    </div>
+                    <div class="service-meta">
+                        <div class="rating">
+                            <span>⭐⭐⭐⭐⭐</span>
+                            <span>4.9 (203 reseñas)</span>
+                        </div>
+                        <span>📍 ${location || 'Pocitos'}</span>
+                    </div>
+                </div>
+                
+                <div class="service-card" onclick="selectService('Guardería Canina Premium', 500)">
+                    <div class="service-header">
+                        <div class="service-icon">🏠</div>
+                        <div class="service-info">
+                            <h3>Guardería Canina Premium</h3>
+                            <div class="service-price">$500/día</div>
+                        </div>
+                    </div>
+                    <div class="service-description">
+                        Cuidado diurno para mascotas con actividades recreativas y socialización.
+                    </div>
+                    <div class="service-meta">
+                        <div class="rating">
+                            <span>⭐⭐⭐⭐⭐</span>
+                            <span>4.6 (87 reseñas)</span>
+                        </div>
+                        <span>📍 ${location || 'Centro'}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Seleccionar servicio
+        function selectService(serviceName, price) {
+            selectedService = serviceName;
+            selectedPrice = price;
+            showMessage(`Has seleccionado: ${serviceName} - $${price}. ¿Deseas reservar?`, 'success');
+            
+            // Agregar botones de acción
+            setTimeout(() => {
+                const messages = document.getElementById('messages');
+                const actionDiv = document.createElement('div');
+                actionDiv.className = 'success-message';
+                actionDiv.innerHTML = `
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <button class="btn btn-primary" onclick="bookService()">Reservar Ahora</button>
+                        <button class="btn btn-secondary" onclick="startChat('${serviceName}')">Contactar</button>
+                    </div>
+                `;
+                messages.appendChild(actionDiv);
+                
+                setTimeout(() => {
+                    if (actionDiv.parentNode) {
+                        actionDiv.parentNode.removeChild(actionDiv);
+                    }
+                }, 10000);
+            }, 1000);
+        }
+
+        // Reservar servicio
+        function bookService() {
+            if (!selectedService) return;
+            
+            showMessage(`Reserva confirmada para ${selectedService}. Total: $${selectedPrice}`, 'success');
+            
+            // Agregar a la lista de reservas
+            const bookingsList = document.getElementById('bookingsList');
+            const newBooking = document.createElement('div');
+            newBooking.className = 'card booking-card';
+            newBooking.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h4>${selectedService}</h4>
+                    <span class="booking-status status-pending">Pendiente</span>
+                </div>
+                <p><strong>Fecha:</strong> ${new Date(Date.now() + 86400000).toLocaleDateString('es-UY')}</p>
+                <p><strong>Precio:</strong> $${selectedPrice}</p>
+                <div style="margin-top: 15px;">
+                    <button class="btn btn-secondary" onclick="cancelBooking(${Date.now()})">Cancelar</button>
+                    <button class="btn btn-primary" onclick="startChat('${selectedService}')">Contactar</button>
+                </div>
+            `;
+            bookingsList.insertBefore(newBooking, bookingsList.firstChild);
+        }
+
+        // Cancelar reserva
+        function cancelBooking(bookingId) {
+            if (confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
+                showMessage('Reserva cancelada correctamente', 'success');
+                event.target.closest('.booking-card').remove();
+            }
+        }
+
+        // Iniciar chat
+        function startChat(providerName) {
+            showMessage(`Iniciando chat con ${providerName}...`, 'success');
+            
+            // Cambiar a pantalla de chat
+            setTimeout(() => {
+                document.querySelectorAll('.screen').forEach(screen => {
+                    screen.classList.remove('active');
+                });
+                
+                document.querySelectorAll('.nav-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                document.getElementById('chatScreen').classList.add('active');
+                document.querySelectorAll('.nav-tab')[3].classList.add('active');
+            }, 1000);
+        }
+
+        // Enviar mensaje
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                const chatMessages = document.getElementById('chatMessages');
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'chat-message sent';
+                messageDiv.textContent = message;
+                chatMessages.appendChild(messageDiv);
+                
+                input.value = '';
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Simular respuesta automática
+                setTimeout(() => {
+                    const responseDiv = document.createElement('div');
+                    responseDiv.className = 'chat-message received';
+                    responseDiv.innerHTML = '<strong>Proveedor</strong><br>Gracias por tu mensaje. Te responderemos pronto.';
+                    chatMessages.appendChild(responseDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 2000);
+            }
+        }
+
+        // Enter para enviar mensaje
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+            }
+        });
+
+        // Agregar método de pago
+        function addPaymentMethod() {
+            const cardNumber = document.getElementById('cardNumber').value;
+            const cardExpiry = document.getElementById('cardExpiry').value;
+            const cardCvv = document.getElementById('cardCvv').value;
+            const cardName = document.getElementById('cardName').value;
+            
+            if (!cardNumber || !cardExpiry || !cardCvv || !cardName) {
+                showMessage('Por favor completa todos los campos', 'error');
+                return;
+            }
+            
+            showMessage('Método de pago agregado correctamente', 'success');
+            
+            const savedCards = document.getElementById('savedCards');
+            const lastFour = cardNumber.slice(-4);
+            savedCards.innerHTML = `
+                <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong>💳 **** **** **** ${lastFour}</strong>
+                            <div style="color: #666; font-size: 14px;">Vence: ${cardExpiry}</div>
+                            <div style="color: #666; font-size: 14px;">${cardName}</div>
+                        </div>
+                        <button class="btn btn-danger" style="padding: 8px 16px; font-size: 14px;" onclick="removeCard(this)">Eliminar</button>
+                    </div>
+                </div>
+            `;
+            
+            // Limpiar formulario
+            document.getElementById('cardNumber').value = '';
+            document.getElementById('cardExpiry').value = '';
+            document.getElementById('cardCvv').value = '';
+            document.getElementById('cardName').value = '';
+        }
+
+        // Eliminar tarjeta
+        function removeCard(button) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta tarjeta?')) {
+                button.closest('div').remove();
+                showMessage('Tarjeta eliminada correctamente', 'success');
+                
+                const savedCards = document.getElementById('savedCards');
+                if (!savedCards.children.length) {
+                    savedCards.innerHTML = '<p>No tienes métodos de pago guardados.</p>';
+                }
+            }
+        }
+
+        // Inicializar mapa
+        function initMap() {
+            if (map) return;
+            
+            const mapContainer = document.getElementById('mapContainer');
+            if (!mapContainer) return;
+            
+            map = L.map('mapContainer').setView([-34.9011, -56.1645], 13);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Agregar marcadores de servicios
+            const services = [
+                { lat: -34.9011, lng: -56.1645, name: "Veterinaria San Martín", icon: "🏥" },
+                { lat: -34.9111, lng: -56.1545, name: "Hotel Canino Pocitos", icon: "🏠" },
+                { lat: -34.8911, lng: -56.1745, name: "Peluquería Canina Bella", icon: "✂️" },
+                { lat: -34.9211, lng: -56.1445, name: "Clínica Veterinaria Norte", icon: "🏥" },
+                { lat: -34.8811, lng: -56.1845, name: "Guardería Canina Premium", icon: "🏠" }
+            ];
+            
+            services.forEach(service => {
+                L.marker([service.lat, service.lng])
+                    .addTo(map)
+                    .bindPopup(`${service.icon} ${service.name}`)
+                    .on('click', () => {
+                        showMessage(`Seleccionaste: ${service.name}`, 'success');
+                    });
+            });
+        }
+
+        // Función para mostrar mensajes
+        function showMessage(message, type = 'success') {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.textContent = message;
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.parentNode.removeChild(messageDiv);
+                }
+            }, 5000);
+        }
+
+        // Formatear número de tarjeta
+        document.addEventListener('DOMContentLoaded', function() {
+            const cardNumberInput = document.getElementById('cardNumber');
+            if (cardNumberInput) {
+                cardNumberInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+                    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+                    e.target.value = formattedValue;
+                });
+            }
+            
+            const cardExpiryInput = document.getElementById('cardExpiry');
+            if (cardExpiryInput) {
+                cardExpiryInput.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    if (value.length >= 2) {
+                        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+                    }
+                    e.target.value = value;
+                });
+            }
+        });
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            showMessage('¡Bienvenido a PetCare Marketplace! 🐾', 'success');
+            
+            // Detectar si es PWA instalada
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                document.getElementById('userGreeting').textContent = 'App PetCare';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+{
+  "name": "PetCare Marketplace",
+  "short_name": "PetCare",
+  "description": "Encuentra el mejor cuidado para tu mascota en Uruguay",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "es",
+  "categories": ["lifestyle", "utilities", "business"],
+  "icons": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23667eea'/%3E%3Ctext x='50' y='65' font-size='40' text-anchor='middle' fill='white'%3E🐾%3C/text%3E%3C/svg%3E",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23667eea'/%3E%3Ctext x='50' y='65' font-size='40' text-anchor='middle' fill='white'%3E🐾%3C/text%3E%3C/svg%3E",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 390 844'%3E%3Crect width='390' height='844' fill='%23f8f9fa'/%3E%3Crect x='20' y='20' width='350' height='100' rx='12' fill='%23667eea'/%3E%3Ctext x='195' y='80' font-size='24' text-anchor='middle' fill='white'%3EPetCare Marketplace%3C/text%3E%3C/svg%3E",
+      "sizes": "390x844",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buscar Servicios",
+      "short_name": "Buscar",
+      "description": "Encuentra servicios para tu mascota",
+      "url": "/?screen=services",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔍%3C/text%3E%3C/svg%3E",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Mis Reservas",
+      "short_name": "Reservas",
+      "description": "Ver mis reservas activas",
+      "url": "/?screen=bookings",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📅%3C/text%3E%3C/svg%3E",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}
