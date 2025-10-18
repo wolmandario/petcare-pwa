@@ -1,9 +1,9 @@
 // Service Worker para PetCare PWA
 const CACHE_NAME = 'petcare-v1.0.0';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
+  '/petcare-pwa/',
+  '/petcare-pwa/index.html',
+  '/petcare-pwa/manifest.json',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
@@ -68,7 +68,7 @@ self.addEventListener('fetch', function(event) {
       .catch(function() {
         // Si falla todo, mostrar página offline
         if (event.request.destination === 'document') {
-          return caches.match('/index.html');
+          return caches.match('/petcare-pwa/index.html');
         }
       })
   );
