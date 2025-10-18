@@ -19,15 +19,11 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐾%3C/text%3E%3C/svg%3E">
     
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #f8f9fa;
@@ -35,13 +31,9 @@
             line-height: 1.6;
             overflow-x: hidden;
         }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        
         /* Header */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -49,9 +41,8 @@
             padding: 20px 0;
             margin-bottom: 30px;
             border-radius: 12px;
-            position: relative;
         }
-
+        
         .header-content {
             display: flex;
             justify-content: space-between;
@@ -60,31 +51,18 @@
             margin: 0 auto;
             padding: 0 20px;
         }
-
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .user-role-badge {
+        
+        .logo { font-size: 28px; font-weight: bold; }
+        
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        
+        .user-role {
             background: rgba(255,255,255,0.2);
             padding: 4px 12px;
             border-radius: 12px;
             font-size: 12px;
-            font-weight: 600;
         }
-
-        .auth-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
+        
         /* Install Button */
         .install-btn {
             background: rgba(255,255,255,0.2);
@@ -97,12 +75,9 @@
             display: none;
             transition: all 0.3s;
         }
-
-        .install-btn:hover {
-            background: white;
-            color: #667eea;
-        }
-
+        
+        .install-btn:hover { background: white; color: #667eea; }
+        
         /* Navigation */
         .nav-tabs {
             display: flex;
@@ -110,8 +85,10 @@
             margin-bottom: 30px;
             overflow-x: auto;
             padding-bottom: 10px;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
         }
-
+        
         .nav-tab {
             padding: 12px 20px;
             border: none;
@@ -123,15 +100,17 @@
             transition: all 0.3s;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             font-size: 16px;
+            min-width: 120px;
+            text-align: center;
         }
-
+        
         .nav-tab.active {
             background: #667eea;
             color: white;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-
+        
         /* Cards */
         .card {
             background: white;
@@ -141,12 +120,12 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             transition: transform 0.2s, box-shadow 0.2s;
         }
-
+        
         .card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-
+        
         /* Service Cards */
         .service-card {
             cursor: pointer;
@@ -157,56 +136,21 @@
             background: #f8f9fa;
             transition: all 0.3s;
         }
-
+        
         .service-card:hover {
             border-color: #667eea;
             background: white;
             transform: translateY(-2px);
         }
-
-        .service-header {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .service-icon {
-            font-size: 32px;
-            margin-right: 15px;
-        }
-
-        .service-info h3 {
-            font-size: 18px;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        .service-price {
-            font-size: 16px;
-            font-weight: 600;
-            color: #27ae60;
-        }
-
-        .service-description {
-            color: #666;
-            margin-bottom: 15px;
-            line-height: 1.5;
-        }
-
-        .service-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            color: #888;
-        }
-
-        .rating {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
+        
+        .service-header { display: flex; align-items: center; margin-bottom: 15px; }
+        .service-icon { font-size: 32px; margin-right: 15px; }
+        .service-info h3 { font-size: 18px; color: #2c3e50; margin-bottom: 5px; }
+        .service-price { font-size: 16px; font-weight: 600; color: #27ae60; }
+        .service-description { color: #666; margin-bottom: 15px; line-height: 1.5; }
+        .service-meta { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #888; }
+        .rating { display: flex; align-items: center; gap: 5px; }
+        
         /* Buttons */
         .btn {
             padding: 12px 24px;
@@ -220,58 +164,19 @@
             display: inline-block;
             text-align: center;
         }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5a6fd8;
-            transform: translateY(-1px);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
-
-        .btn-secondary:hover {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
+        
+        .btn-primary { background: #667eea; color: white; }
+        .btn-primary:hover { background: #5a6fd8; transform: translateY(-1px); }
+        .btn-secondary { background: transparent; color: #667eea; border: 2px solid #667eea; }
+        .btn-secondary:hover { background: #667eea; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        
         /* Forms */
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; }
         .form-input {
             width: 100%;
             padding: 12px;
@@ -280,12 +185,10 @@
             font-size: 16px;
             transition: border-color 0.3s;
         }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
+        .form-input:focus { outline: none; border-color: #667eea; }
+        .form-error { color: #dc3545; font-size: 14px; margin-top: 5px; }
+        .form-success { color: #28a745; font-size: 14px; margin-top: 5px; }
+        
         /* Messages */
         .success-message {
             background: #d4edda;
@@ -295,7 +198,7 @@
             margin: 15px 0;
             border-left: 4px solid #28a745;
         }
-
+        
         .error-message {
             background: #f8d7da;
             color: #721c24;
@@ -304,95 +207,8 @@
             margin: 15px 0;
             border-left: 4px solid #dc3545;
         }
-
-        /* Map Container */
-        .map-container {
-            height: 300px;
-            width: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-            margin: 20px 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        /* Chat Styles */
-        .chat-container {
-            height: 400px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            background: #f8f9fa;
-        }
-
-        .chat-message {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 8px;
-            max-width: 70%;
-        }
-
-        .chat-message.sent {
-            background: #667eea;
-            color: white;
-            margin-left: auto;
-        }
-
-        .chat-message.received {
-            background: white;
-            border: 1px solid #ddd;
-        }
-
-        .chat-input-container {
-            padding: 15px;
-            border-top: 1px solid #ddd;
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-        }
-
-        /* Booking Styles */
-        .booking-card {
-            border-left: 4px solid #667eea;
-            margin-bottom: 15px;
-        }
-
-        .booking-status {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .status-pending {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-confirmed {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-completed {
-            background: #d1ecf1;
-            color: #0c5460;
-        }
-
-        /* Auth Modal */
+        
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -403,140 +219,161 @@
             height: 100%;
             background-color: rgba(0,0,0,0.5);
         }
-
+        
         .modal-content {
             background-color: white;
             margin: 5% auto;
-            padding: 30px;
+            padding: 0;
             border-radius: 12px;
             width: 90%;
-            max-width: 400px;
-            position: relative;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
         }
-
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
         .modal-close {
-            position: absolute;
-            right: 15px;
-            top: 15px;
-            font-size: 24px;
             background: none;
             border: none;
+            font-size: 24px;
             cursor: pointer;
             color: #666;
         }
-
+        
+        .modal-body { padding: 20px; }
+        
+        /* Auth Screens */
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
         .role-selector {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 15px;
             margin: 20px 0;
         }
-
-        .role-card {
+        
+        .role-option {
             padding: 20px;
             border: 2px solid #ddd;
-            border-radius: 12px;
+            border-radius: 8px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
         }
-
-        .role-card:hover, .role-card.selected {
-            border-color: #667eea;
-            background: #f0f4ff;
+        
+        .role-option:hover { border-color: #667eea; }
+        .role-option.selected { border-color: #667eea; background: #f0f4ff; }
+        .role-icon { font-size: 32px; margin-bottom: 10px; }
+        
+        /* Chat Styles */
+        .chat-container {
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
         }
-
-        .role-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        /* Chat List */
-        .chat-list {
-            max-height: 300px;
+        
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
             overflow-y: auto;
+            background: #f8f9fa;
         }
-
-        .chat-item {
+        
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
+        }
+        
+        .chat-message.sent {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+        }
+        
+        .chat-message.received {
+            background: white;
+            border: 1px solid #ddd;
+        }
+        
+        .chat-input-container {
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+        }
+        
+        /* Chat List */
+        .chat-list-item {
             padding: 15px;
             border-bottom: 1px solid #eee;
             cursor: pointer;
             transition: background 0.3s;
         }
-
-        .chat-item:hover {
-            background: #f8f9fa;
-        }
-
-        .chat-item.active {
-            background: #e3f2fd;
-            border-left: 4px solid #667eea;
-        }
-
-        .chat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .chat-name {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .chat-time {
-            font-size: 12px;
-            color: #888;
-        }
-
-        .chat-preview {
-            color: #666;
-            font-size: 14px;
-        }
-
-        .unread-badge {
-            background: #667eea;
-            color: white;
-            border-radius: 10px;
-            padding: 2px 8px;
+        
+        .chat-list-item:hover { background: #f8f9fa; }
+        .chat-list-item.active { background: #e3f2fd; border-left: 4px solid #667eea; }
+        
+        /* Booking Styles */
+        .booking-card { border-left: 4px solid #667eea; margin-bottom: 15px; }
+        .booking-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
             font-size: 12px;
             font-weight: 600;
         }
-
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d4edda; color: #155724; }
+        .status-completed { background: #d1ecf1; color: #0c5460; }
+        
+        /* Map Container */
+        .map-container {
+            height: 300px;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
         /* Hidden by default */
-        .screen {
-            display: none;
-        }
-
-        .screen.active {
-            display: block;
-        }
-
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
         /* Responsive */
         @media (max-width: 768px) {
-            .container {
-                max-width: 100%;
-                padding: 15px;
-            }
-            
-            .header-content {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            
-            .nav-tabs {
-                justify-content: center;
-            }
-
-            .service-meta {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
+            .container { max-width: 100%; padding: 15px; }
+            .header-content { flex-direction: column; gap: 15px; text-align: center; }
+            .nav-tabs { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .service-meta { flex-direction: column; align-items: flex-start; gap: 5px; }
+            .modal-content { margin: 10% auto; width: 95%; }
         }
-
+        
         /* Loading Spinner */
         .loading {
             display: inline-block;
@@ -547,11 +384,15 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
-
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* Touch improvements */
+        .nav-tabs::-webkit-scrollbar { display: none; }
+        .nav-tabs { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
 <body>
@@ -560,12 +401,9 @@
         <div class="header-content">
             <div class="logo">🐾 PetCare Marketplace</div>
             <div class="user-info">
-                <span id="userGreeting">Bienvenido a PetCare</span>
-                <span id="userRole" class="user-role-badge" style="display: none;"></span>
-                <div id="authButtons" class="auth-buttons">
-                    <button class="btn btn-secondary" onclick="showAuthModal('login')">Iniciar Sesión</button>
-                    <button class="btn btn-secondary" onclick="showAuthModal('register')">Registrarse</button>
-                </div>
+                <span id="userGreeting">Bienvenido</span>
+                <span id="userRole" class="user-role" style="display: none;"></span>
+                <button id="authBtn" class="btn btn-secondary" onclick="showAuthModal()">Iniciar Sesión</button>
                 <button id="logoutBtn" class="btn btn-secondary" onclick="logout()" style="display: none;">Cerrar Sesión</button>
                 <button id="installBtn" class="install-btn">📱 Instalar App</button>
             </div>
@@ -578,16 +416,13 @@
             <button class="nav-tab active" onclick="showScreen('home')">🏠 Inicio</button>
             <button class="nav-tab" onclick="showScreen('services')">🔍 Servicios</button>
             <button class="nav-tab" onclick="showScreen('bookings')">📅 Reservas</button>
-            <button class="nav-tab" onclick="showScreen('chat')">💬 Chat</button>
-            <button class="nav-tab" onclick="showScreen('payments')">💳 Pagos</button>
+            <button class="nav-tab" onclick="showScreen('chats')">💬 Chats</button>
             <button class="nav-tab" onclick="showScreen('profile')">👤 Perfil</button>
-            <button class="nav-tab" onclick="showScreen('map')">🗺️ Mapa</button>
         </div>
 
         <!-- Messages -->
-        <div id="messages"></div>
-
-        <!-- Home Screen -->
+        <div id="messages"></div>       
+ <!-- Home Screen -->
         <div id="homeScreen" class="screen active">
             <div class="card">
                 <h2>Encuentra el mejor cuidado para tu mascota</h2>
@@ -597,11 +432,12 @@
                     <div style="flex: 1; min-width: 200px;">
                         <select id="quickCategory" class="form-input">
                             <option value="">Selecciona una categoría</option>
-                            <option value="medical">🏥 Servicios Médicos</option>
-                            <option value="care">🏠 Cuidado y Hospedaje</option>
-                            <option value="grooming">✂️ Estética y Belleza</option>
+                            <option value="veterinary">🏥 Veterinarias</option>
+                            <option value="boarding">🏠 Hospedaje</option>
+                            <option value="daycare">🎾 Guardería</option>
+                            <option value="grooming">✂️ Peluquería</option>
+                            <option value="walking">🚶 Paseo</option>
                             <option value="training">🎓 Entrenamiento</option>
-                            <option value="walking">🚶 Paseo de Mascotas</option>
                         </select>
                     </div>
                     <div style="flex: 1; min-width: 200px;">
@@ -612,6 +448,7 @@
                             <option value="Carrasco">Carrasco</option>
                             <option value="Punta Gorda">Punta Gorda</option>
                             <option value="Malvín">Malvín</option>
+                            <option value="Cordón">Cordón</option>
                         </select>
                     </div>
                     <button class="btn btn-primary" onclick="searchServices()">Buscar</button>
@@ -622,65 +459,7 @@
             <div class="card">
                 <h3>Servicios Destacados</h3>
                 <div id="featuredServices">
-                    <div class="service-card" onclick="selectService('Veterinaria San Martín', 800)">
-                        <div class="service-header">
-                            <div class="service-icon">🏥</div>
-                            <div class="service-info">
-                                <h3>Veterinaria San Martín</h3>
-                                <div class="service-price">$800/consulta</div>
-                            </div>
-                        </div>
-                        <div class="service-description">
-                            Atención veterinaria completa con más de 20 años de experiencia. Consultas, vacunación, cirugías menores.
-                        </div>
-                        <div class="service-meta">
-                            <div class="rating">
-                                <span>⭐⭐⭐⭐⭐</span>
-                                <span>4.8 (127 reseñas)</span>
-                            </div>
-                            <span>📍 Centro</span>
-                        </div>
-                    </div>
-
-                    <div class="service-card" onclick="selectService('Hotel Canino Pocitos', 600)">
-                        <div class="service-header">
-                            <div class="service-icon">🏠</div>
-                            <div class="service-info">
-                                <h3>Hotel Canino Pocitos</h3>
-                                <div class="service-price">$600/día</div>
-                            </div>
-                        </div>
-                        <div class="service-description">
-                            Hospedaje para mascotas con amplios espacios verdes, cuidado personalizado las 24 horas.
-                        </div>
-                        <div class="service-meta">
-                            <div class="rating">
-                                <span>⭐⭐⭐⭐⭐</span>
-                                <span>4.9 (89 reseñas)</span>
-                            </div>
-                            <span>📍 Pocitos</span>
-                        </div>
-                    </div>
-
-                    <div class="service-card" onclick="selectService('Peluquería Canina Bella', 450)">
-                        <div class="service-header">
-                            <div class="service-icon">✂️</div>
-                            <div class="service-info">
-                                <h3>Peluquería Canina Bella</h3>
-                                <div class="service-price">$450/sesión</div>
-                            </div>
-                        </div>
-                        <div class="service-description">
-                            Corte, baño, uñas y limpieza de oídos. Productos premium para el cuidado de tu mascota.
-                        </div>
-                        <div class="service-meta">
-                            <div class="rating">
-                                <span>⭐⭐⭐⭐⭐</span>
-                                <span>4.7 (156 reseñas)</span>
-                            </div>
-                            <span>📍 Carrasco</span>
-                        </div>
-                    </div>
+                    <!-- Los servicios se cargan dinámicamente -->
                 </div>
             </div>
         </div>
@@ -689,9 +468,49 @@
         <div id="servicesScreen" class="screen">
             <div class="card">
                 <h2>🔍 Buscar Servicios</h2>
-                <div id="servicesList">
-                    <p>Aquí aparecerán todos los servicios disponibles...</p>
-                    <div class="loading" style="margin: 20px auto; display: block;"></div>
+                
+                <!-- Filtros avanzados -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <select id="filterCategory" class="form-input">
+                        <option value="">Todas las categorías</option>
+                        <option value="veterinary">🏥 Veterinarias</option>
+                        <option value="boarding">🏠 Hospedaje</option>
+                        <option value="daycare">🎾 Guardería</option>
+                        <option value="grooming">✂️ Peluquería</option>
+                        <option value="walking">🚶 Paseo</option>
+                        <option value="training">🎓 Entrenamiento</option>
+                    </select>
+                    
+                    <select id="filterLocation" class="form-input">
+                        <option value="">Todas las ubicaciones</option>
+                        <option value="Centro">Centro</option>
+                        <option value="Pocitos">Pocitos</option>
+                        <option value="Carrasco">Carrasco</option>
+                        <option value="Punta Gorda">Punta Gorda</option>
+                        <option value="Malvín">Malvín</option>
+                        <option value="Cordón">Cordón</option>
+                    </select>
+                    
+                    <select id="filterPrice" class="form-input">
+                        <option value="">Cualquier precio</option>
+                        <option value="0-500">$0 - $500</option>
+                        <option value="500-1000">$500 - $1000</option>
+                        <option value="1000-2000">$1000 - $2000</option>
+                        <option value="2000+">$2000+</option>
+                    </select>
+                    
+                    <select id="filterRating" class="form-input">
+                        <option value="">Cualquier calificación</option>
+                        <option value="4.5">4.5+ estrellas</option>
+                        <option value="4.0">4.0+ estrellas</option>
+                        <option value="3.5">3.5+ estrellas</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="applyFilters()">Aplicar Filtros</button>
+                
+                <div id="servicesList" style="margin-top: 20px;">
+                    <!-- Los servicios filtrados aparecen aquí -->
                 </div>
             </div>
         </div>
@@ -701,128 +520,17 @@
             <div class="card">
                 <h2>📅 Mis Reservas</h2>
                 <div id="bookingsList">
-                    <div class="card booking-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <h4>Veterinaria San Martín</h4>
-                            <span class="booking-status status-confirmed">Confirmada</span>
-                        </div>
-                        <p><strong>Fecha:</strong> 25 Oct 2024, 14:00</p>
-                        <p><strong>Servicio:</strong> Consulta general</p>
-                        <p><strong>Precio:</strong> $800</p>
-                        <div style="margin-top: 15px;">
-                            <button class="btn btn-secondary" onclick="cancelBooking(1)">Cancelar</button>
-                            <button class="btn btn-primary" onclick="startChat('Veterinaria San Martín')">Contactar</button>
-                        </div>
-                    </div>
-
-                    <div class="card booking-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <h4>Hotel Canino Pocitos</h4>
-                            <span class="booking-status status-pending">Pendiente</span>
-                        </div>
-                        <p><strong>Fecha:</strong> 28 Oct 2024 - 30 Oct 2024</p>
-                        <p><strong>Servicio:</strong> Hospedaje (3 días)</p>
-                        <p><strong>Precio:</strong> $1,800</p>
-                        <div style="margin-top: 15px;">
-                            <button class="btn btn-secondary" onclick="cancelBooking(2)">Cancelar</button>
-                            <button class="btn btn-primary" onclick="startChat('Hotel Canino Pocitos')">Contactar</button>
-                        </div>
-                    </div>
+                    <p>Inicia sesión para ver tus reservas.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Chat Screen -->
-        <div id="chatScreen" class="screen">
+        <!-- Chats Screen -->
+        <div id="chatsScreen" class="screen">
             <div class="card">
-                <h2>💬 Conversaciones</h2>
-                <div style="display: flex; gap: 20px; height: 500px;">
-                    <!-- Lista de Chats -->
-                    <div style="flex: 1; border-right: 1px solid #ddd; padding-right: 20px;">
-                        <h3>Chats Activos</h3>
-                        <div class="chat-list" id="chatList">
-                            <!-- Se llena dinámicamente -->
-                        </div>
-                    </div>
-                    
-                    <!-- Chat Activo -->
-                    <div style="flex: 2;">
-                        <div id="noChatSelected" style="text-align: center; padding: 50px; color: #666;">
-                            <div style="font-size: 48px; margin-bottom: 20px;">💬</div>
-                            <p>Selecciona una conversación para comenzar</p>
-                        </div>
-                        
-                        <div id="activeChatContainer" style="display: none;">
-                            <div class="chat-header" style="padding: 15px; border-bottom: 1px solid #ddd; margin-bottom: 15px;">
-                                <h4 id="activeChatName">Chat</h4>
-                                <span id="activeChatStatus" style="color: #666; font-size: 14px;">En línea</span>
-                            </div>
-                            
-                            <div class="chat-messages" id="chatMessages" style="height: 300px; overflow-y: auto; padding: 15px; background: #f8f9fa; margin-bottom: 15px;">
-                                <!-- Mensajes dinámicos -->
-                            </div>
-                            
-                            <div class="chat-input-container">
-                                <input type="text" class="chat-input" id="chatInput" placeholder="Escribe tu mensaje...">
-                                <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Payments Screen -->
-        <div id="paymentsScreen" class="screen">
-            <div class="card">
-                <h2>💳 Métodos de Pago</h2>
-                
-                <div class="card">
-                    <h3>Agregar Tarjeta</h3>
-                    <div class="form-group">
-                        <label class="form-label">Número de Tarjeta</label>
-                        <input type="text" id="cardNumber" class="form-input" placeholder="1234 5678 9012 3456" maxlength="19">
-                    </div>
-                    <div style="display: flex; gap: 15px;">
-                        <div class="form-group" style="flex: 1;">
-                            <label class="form-label">Vencimiento</label>
-                            <input type="text" id="cardExpiry" class="form-input" placeholder="MM/AA" maxlength="5">
-                        </div>
-                        <div class="form-group" style="flex: 1;">
-                            <label class="form-label">CVV</label>
-                            <input type="text" id="cardCvv" class="form-input" placeholder="123" maxlength="3">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Nombre del Titular</label>
-                        <input type="text" id="cardName" class="form-input" placeholder="Juan Pérez">
-                    </div>
-                    <button class="btn btn-primary" onclick="addPaymentMethod()">Agregar Tarjeta</button>
-                </div>
-
-                <div class="card">
-                    <h3>Métodos Guardados</h3>
-                    <div id="savedCards">
-                        <p>No tienes métodos de pago guardados.</p>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h3>Historial de Pagos</h3>
-                    <div id="paymentHistory">
-                        <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <strong>Veterinaria San Martín</strong>
-                                    <div style="color: #666; font-size: 14px;">20 Oct 2024</div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <strong style="color: #28a745;">$800</strong>
-                                    <div style="color: #666; font-size: 14px;">Completado</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <h2>💬 Mis Conversaciones</h2>
+                <div id="chatsList">
+                    <p>Inicia sesión para ver tus conversaciones.</p>
                 </div>
             </div>
         </div>
@@ -832,21 +540,8 @@
             <div class="card">
                 <h2>👤 Mi Perfil</h2>
                 <div id="profileContent">
-                    <div style="text-align: center; padding: 50px; color: #666;">
-                        <div style="font-size: 48px; margin-bottom: 20px;">👤</div>
-                        <p>Inicia sesión para ver tu perfil</p>
-                        <button class="btn btn-primary" onclick="showAuthModal('login')" style="margin-top: 20px;">Iniciar Sesión</button>
-                    </div>
+                    <p>Inicia sesión para ver tu perfil.</p>
                 </div>
-            </div>
-        </div>
-
-        <!-- Map Screen -->
-        <div id="mapScreen" class="screen">
-            <div class="card">
-                <h2>🗺️ Servicios Cercanos</h2>
-                <div id="mapContainer" class="map-container"></div>
-                <p>Mapa interactivo con servicios cercanos a tu ubicación.</p>
             </div>
         </div>
     </div>
@@ -854,61 +549,90 @@
     <!-- Auth Modal -->
     <div id="authModal" class="modal">
         <div class="modal-content">
-            <button class="modal-close" onclick="closeAuthModal()">&times;</button>
-            
-            <!-- Login Form -->
-            <div id="loginForm">
-                <h3>Iniciar Sesión</h3>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" id="loginEmail" class="form-input" placeholder="tu@email.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Contraseña</label>
-                    <input type="password" id="loginPassword" class="form-input" placeholder="Tu contraseña">
-                </div>
-                <button class="btn btn-primary" onclick="login()" style="width: 100%; margin-bottom: 15px;">Iniciar Sesión</button>
-                <button class="btn btn-secondary" onclick="switchToRegister()" style="width: 100%;">¿No tienes cuenta? Regístrate</button>
+            <div class="modal-header">
+                <h2 id="authTitle">Iniciar Sesión</h2>
+                <button class="modal-close" onclick="closeAuthModal()">&times;</button>
             </div>
+            <div class="modal-body">
+                <!-- Login Form -->
+                <div id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="loginEmail" class="form-input" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" id="loginPassword" class="form-input" placeholder="Tu contraseña">
+                    </div>
+                    <button class="btn btn-primary" onclick="login()" style="width: 100%; margin-bottom: 15px;">Iniciar Sesión</button>
+                    <p style="text-align: center;">
+                        ¿No tienes cuenta? 
+                        <a href="#" onclick="showRegisterForm()" style="color: #667eea;">Regístrate aquí</a>
+                    </p>
+                </div>
 
-            <!-- Register Form -->
-            <div id="registerForm" style="display: none;">
-                <h3>Crear Cuenta</h3>
-                <div class="form-group">
-                    <label class="form-label">Nombre Completo</label>
-                    <input type="text" id="registerName" class="form-input" placeholder="Tu nombre completo">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" id="registerEmail" class="form-input" placeholder="tu@email.com">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Teléfono</label>
-                    <input type="tel" id="registerPhone" class="form-input" placeholder="+598 99 123 456">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Contraseña</label>
-                    <input type="password" id="registerPassword" class="form-input" placeholder="Mínimo 6 caracteres">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Selecciona tu rol</label>
-                    <div class="role-selector">
-                        <div class="role-card" onclick="selectRole('owner')" id="ownerRole">
-                            <div class="role-icon">🐕</div>
-                            <h4>Dueño de Mascota</h4>
-                            <p>Busco servicios para mi mascota</p>
-                        </div>
-                        <div class="role-card" onclick="selectRole('caregiver')" id="caregiverRole">
-                            <div class="role-icon">👨‍⚕️</div>
-                            <h4>Cuidador</h4>
-                            <p>Ofrezco servicios para mascotas</p>
+                <!-- Register Form -->
+                <div id="registerForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Nombre completo</label>
+                        <input type="text" id="registerName" class="form-input" placeholder="Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="registerEmail" class="form-input" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" id="registerPassword" class="form-input" placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono</label>
+                        <input type="tel" id="registerPhone" class="form-input" placeholder="099 123 456">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">¿Cómo quieres usar PetCare?</label>
+                        <div class="role-selector">
+                            <div class="role-option" onclick="selectRole('owner')">
+                                <div class="role-icon">🐕</div>
+                                <h4>Dueño de Mascota</h4>
+                                <p>Busco servicios para mi mascota</p>
+                            </div>
+                            <div class="role-option" onclick="selectRole('caregiver')">
+                                <div class="role-icon">👨‍⚕️</div>
+                                <h4>Cuidador</h4>
+                                <p>Ofrezco servicios de cuidado</p>
+                            </div>
                         </div>
                     </div>
+                    
+                    <button class="btn btn-primary" onclick="register()" style="width: 100%; margin-bottom: 15px;">Crear Cuenta</button>
+                    <p style="text-align: center;">
+                        ¿Ya tienes cuenta? 
+                        <a href="#" onclick="showLoginForm()" style="color: #667eea;">Inicia sesión aquí</a>
+                    </p>
                 </div>
-                
-                <button class="btn btn-primary" onclick="register()" style="width: 100%; margin-bottom: 15px;">Crear Cuenta</button>
-                <button class="btn btn-secondary" onclick="switchToLogin()" style="width: 100%;">¿Ya tienes cuenta? Inicia sesión</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chatModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="chatTitle">Chat</h2>
+                <button class="modal-close" onclick="closeChatModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Los mensajes aparecen aquí -->
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="messageInput" placeholder="Escribe un mensaje..." onkeypress="handleMessageKeyPress(event)">
+                        <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -919,98 +643,196 @@
     <script>
         // Variables globales
         let deferredPrompt;
-        let map = null;
-        let selectedService = null;
-        let selectedPrice = 0;
         let currentUser = null;
         let selectedRole = null;
-        let activeChat = null;
-        let chats = [];
+        let currentChat = null;
         
-        // Datos de prueba
-        const sampleUsers = {
-            'juan@email.com': {
+        // Datos de prueba expandidos
+        const testUsers = {
+            'maria@petcare.com': {
                 id: 1,
-                name: 'Juan Pérez',
-                email: 'juan@email.com',
-                phone: '+598 99 123 456',
-                role: 'owner',
-                password: '123456'
-            },
-            'maria@email.com': {
-                id: 2,
                 name: 'María González',
-                email: 'maria@email.com',
-                phone: '+598 99 654 321',
+                email: 'maria@petcare.com',
+                phone: '099 123 456',
+                role: 'owner',
+                avatar: '👩',
+                pets: [
+                    { name: 'Max', type: 'Perro', breed: 'Golden Retriever', age: 3 },
+                    { name: 'Luna', type: 'Gato', breed: 'Siamés', age: 2 }
+                ]
+            },
+            'carlos@petcare.com': {
+                id: 2,
+                name: 'Carlos Rodríguez',
+                email: 'carlos@petcare.com',
+                phone: '098 765 432',
                 role: 'caregiver',
-                password: '123456'
+                avatar: '👨‍⚕️',
+                services: ['veterinary', 'grooming'],
+                rating: 4.8,
+                experience: '5 años de experiencia'
+            },
+            'ana@petcare.com': {
+                id: 3,
+                name: 'Ana Martínez',
+                email: 'ana@petcare.com',
+                phone: '097 555 123',
+                role: 'caregiver',
+                avatar: '👩‍⚕️',
+                services: ['boarding', 'daycare'],
+                rating: 4.9,
+                experience: '8 años de experiencia'
             }
         };
-        
-        const sampleChats = [
+
+        const testServices = [
             {
                 id: 1,
-                name: 'Veterinaria San Martín',
-                lastMessage: 'Perfecto, haremos un chequeo completo.',
-                time: '14:30',
-                unread: 2,
-                messages: [
-                    { id: 1, text: 'Hola! Confirmamos tu cita para el 25 de octubre a las 14:00. ¿Hay algo específico que debamos saber sobre tu mascota?', sent: false, time: '14:25' },
-                    { id: 2, text: 'Hola! Mi perro ha estado un poco decaído últimamente. Quería que lo revisen.', sent: true, time: '14:28' },
-                    { id: 3, text: 'Perfecto, haremos un chequeo completo. Por favor trae su cartilla de vacunación.', sent: false, time: '14:30' }
-                ]
+                title: 'Veterinaria San Martín',
+                category: 'veterinary',
+                icon: '🏥',
+                price: 800,
+                priceUnit: 'consulta',
+                description: 'Atención veterinaria completa con más de 20 años de experiencia. Consultas, vacunación, cirugías menores y emergencias.',
+                location: 'Centro',
+                rating: 4.8,
+                reviews: 127,
+                caregiver: 'Dr. Carlos Rodríguez',
+                caregiverId: 2,
+                features: ['Emergencias 24h', 'Cirugías', 'Vacunación', 'Análisis clínicos']
             },
             {
                 id: 2,
-                name: 'Hotel Canino Pocitos',
-                lastMessage: 'Tenemos disponibilidad para esas fechas.',
-                time: '12:15',
-                unread: 0,
-                messages: [
-                    { id: 1, text: '¡Hola! Quisiera reservar hospedaje para mi perro del 28 al 30 de octubre.', sent: true, time: '12:10' },
-                    { id: 2, text: 'Hola! Tenemos disponibilidad para esas fechas. ¿Qué raza es tu perro y cuánto pesa?', sent: false, time: '12:12' },
-                    { id: 3, text: 'Es un Golden Retriever de 3 años, pesa unos 30kg.', sent: true, time: '12:14' },
-                    { id: 4, text: 'Perfecto! Tenemos espacio en nuestro área para perros grandes. El costo sería $600 por día.', sent: false, time: '12:15' }
-                ]
+                title: 'Hotel Canino Pocitos',
+                category: 'boarding',
+                icon: '🏠',
+                price: 600,
+                priceUnit: 'día',
+                description: 'Hospedaje para mascotas con amplios espacios verdes, cuidado personalizado las 24 horas y actividades recreativas.',
+                location: 'Pocitos',
+                rating: 4.9,
+                reviews: 89,
+                caregiver: 'Ana Martínez',
+                caregiverId: 3,
+                features: ['Espacios verdes', 'Cuidado 24h', 'Actividades', 'Cámaras de seguridad']
             },
             {
                 id: 3,
-                name: 'Peluquería Canina Bella',
-                lastMessage: '¿A qué hora te viene bien?',
-                time: '10:45',
-                unread: 1,
-                messages: [
-                    { id: 1, text: 'Buenos días! Necesito agendar un corte y baño para mi poodle.', sent: true, time: '10:40' },
-                    { id: 2, text: 'Buenos días! Claro, tenemos disponibilidad esta semana. ¿A qué hora te viene bien?', sent: false, time: '10:45' }
-                ]
+                title: 'Peluquería Canina Bella',
+                category: 'grooming',
+                icon: '✂️',
+                price: 450,
+                priceUnit: 'sesión',
+                description: 'Corte, baño, uñas y limpieza de oídos. Productos premium para el cuidado de tu mascota.',
+                location: 'Carrasco',
+                rating: 4.7,
+                reviews: 156,
+                caregiver: 'Laura Fernández',
+                caregiverId: 4,
+                features: ['Productos premium', 'Corte especializado', 'Spa para mascotas']
             },
             {
                 id: 4,
-                name: 'Dr. Carlos - Veterinario',
-                lastMessage: 'Los resultados están listos.',
-                time: 'Ayer',
-                unread: 0,
-                messages: [
-                    { id: 1, text: 'Hola Doctor, ¿ya están los resultados de los análisis de Max?', sent: true, time: 'Ayer 16:30' },
-                    { id: 2, text: 'Hola! Sí, los resultados están listos. Todo salió normal. Puedes pasar a retirarlos cuando gustes.', sent: false, time: 'Ayer 17:15' },
-                    { id: 3, text: '¡Excelente noticia! Paso mañana por la tarde.', sent: true, time: 'Ayer 17:20' }
-                ]
+                title: 'Guardería Divertida',
+                category: 'daycare',
+                icon: '🎾',
+                price: 400,
+                priceUnit: 'día',
+                description: 'Guardería diurna con actividades, socialización y cuidado profesional mientras trabajas.',
+                location: 'Punta Gorda',
+                rating: 4.6,
+                reviews: 203,
+                caregiver: 'Roberto Silva',
+                caregiverId: 5,
+                features: ['Socialización', 'Actividades', 'Monitoreo', 'Alimentación incluida']
             },
             {
                 id: 5,
-                name: 'Guardería Happy Pets',
-                lastMessage: 'Confirmado para el lunes.',
-                time: 'Ayer',
-                unread: 0,
+                title: 'Paseos Profesionales',
+                category: 'walking',
+                icon: '🚶',
+                price: 250,
+                priceUnit: 'paseo',
+                description: 'Paseos individuales o grupales con cuidadores certificados. Reportes con fotos incluidos.',
+                location: 'Malvín',
+                rating: 4.5,
+                reviews: 78,
+                caregiver: 'Diego López',
+                caregiverId: 6,
+                features: ['Reportes con fotos', 'GPS tracking', 'Paseos personalizados']
+            },
+            {
+                id: 6,
+                title: 'Entrenamiento Canino Pro',
+                category: 'training',
+                icon: '🎓',
+                price: 1200,
+                priceUnit: 'sesión',
+                description: 'Entrenamiento profesional para obediencia básica, problemas de comportamiento y trucos.',
+                location: 'Cordón',
+                rating: 4.9,
+                reviews: 45,
+                caregiver: 'Patricia Vega',
+                caregiverId: 7,
+                features: ['Entrenador certificado', 'Métodos positivos', 'Seguimiento personalizado']
+            }
+        ];
+
+        const testBookings = [
+            {
+                id: 1,
+                serviceId: 1,
+                serviceName: 'Veterinaria San Martín',
+                date: '2024-01-15',
+                time: '14:00',
+                status: 'confirmed',
+                price: 800,
+                petName: 'Max'
+            },
+            {
+                id: 2,
+                serviceId: 2,
+                serviceName: 'Hotel Canino Pocitos',
+                date: '2024-01-20',
+                time: '09:00',
+                status: 'pending',
+                price: 1800,
+                petName: 'Luna'
+            }
+        ];
+
+        const testChats = [
+            {
+                id: 1,
+                participantName: 'Dr. Carlos Rodríguez',
+                participantAvatar: '👨‍⚕️',
+                lastMessage: 'Perfecto, nos vemos mañana a las 2 PM',
+                lastMessageTime: '10:30',
+                unreadCount: 0,
                 messages: [
-                    { id: 1, text: 'Hola! ¿Tienen lugar para el lunes? Necesito dejar a Luna por el día.', sent: true, time: 'Ayer 14:00' },
-                    { id: 2, text: 'Hola! Sí tenemos lugar. ¿Luna ya vino antes o sería la primera vez?', sent: false, time: 'Ayer 14:30' },
-                    { id: 3, text: 'Sería la primera vez. Es muy sociable con otros perros.', sent: true, time: 'Ayer 14:35' },
-                    { id: 4, text: 'Perfecto! Confirmado para el lunes de 8:00 a 18:00. Trae su comida y algún juguete.', sent: false, time: 'Ayer 14:40' }
+                    { sender: 'other', text: 'Hola María, ¿cómo está Max?', time: '09:15' },
+                    { sender: 'me', text: 'Hola Doctor, está bien pero quería consultar sobre su vacuna', time: '09:20' },
+                    { sender: 'other', text: 'Claro, ¿podemos agendar para mañana?', time: '09:25' },
+                    { sender: 'me', text: 'Perfecto, ¿a las 2 PM está bien?', time: '09:30' },
+                    { sender: 'other', text: 'Perfecto, nos vemos mañana a las 2 PM', time: '10:30' }
+                ]
+            },
+            {
+                id: 2,
+                participantName: 'Ana Martínez',
+                participantAvatar: '👩‍⚕️',
+                lastMessage: 'Luna se está adaptando muy bien al hotel',
+                lastMessageTime: '15:45',
+                unreadCount: 2,
+                messages: [
+                    { sender: 'other', text: 'Hola María, Luna llegó bien al hotel', time: '09:00' },
+                    { sender: 'me', text: '¡Qué bueno! ¿Cómo se está portando?', time: '09:05' },
+                    { sender: 'other', text: 'Muy bien, ya hizo amigos con otros gatitos', time: '15:40' },
+                    { sender: 'other', text: 'Luna se está adaptando muy bien al hotel', time: '15:45' }
                 ]
             }
         ];
-        
+
         // PWA Install
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -1023,189 +845,16 @@
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
                 if (outcome === 'accepted') {
-                    showMessage('¡App instalada correctamente! 🎉', 'success');
-                    document.getElementById('installBtn').style.display = 'none';
+                    showMessage('¡App instalada correctamente!', 'success');
                 }
                 deferredPrompt = null;
+                document.getElementById('installBtn').style.display = 'none';
             }
         });
 
         // Registrar Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-                .then(() => console.log('Service Worker registrado'))
-                .catch(err => console.log('Error al registrar Service Worker:', err));
-        }
-
-        // Funciones de Autenticación
-        function showAuthModal(type) {
-            document.getElementById('authModal').style.display = 'block';
-            if (type === 'login') {
-                switchToLogin();
-            } else {
-                switchToRegister();
-            }
-        }
-
-        function closeAuthModal() {
-            document.getElementById('authModal').style.display = 'none';
-            clearAuthForms();
-        }
-
-        function switchToLogin() {
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('registerForm').style.display = 'none';
-        }
-
-        function switchToRegister() {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('registerForm').style.display = 'block';
-        }
-
-        function selectRole(role) {
-            selectedRole = role;
-            document.querySelectorAll('.role-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            document.getElementById(role + 'Role').classList.add('selected');
-        }
-
-        function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
-            if (!email || !password) {
-                showMessage('Por favor completa todos los campos', 'error');
-                return;
-            }
-
-            // Verificar credenciales
-            const user = sampleUsers[email];
-            if (user && user.password === password) {
-                currentUser = user;
-                updateAuthUI();
-                closeAuthModal();
-                showMessage(`¡Bienvenido ${user.name}!`, 'success');
-                loadUserData();
-            } else {
-                showMessage('Email o contraseña incorrectos', 'error');
-            }
-        }
-
-        function register() {
-            const name = document.getElementById('registerName').value;
-            const email = document.getElementById('registerEmail').value;
-            const phone = document.getElementById('registerPhone').value;
-            const password = document.getElementById('registerPassword').value;
-
-            if (!name || !email || !phone || !password || !selectedRole) {
-                showMessage('Por favor completa todos los campos y selecciona un rol', 'error');
-                return;
-            }
-
-            if (password.length < 6) {
-                showMessage('La contraseña debe tener al menos 6 caracteres', 'error');
-                return;
-            }
-
-            // Crear nuevo usuario
-            const newUser = {
-                id: Date.now(),
-                name,
-                email,
-                phone,
-                role: selectedRole,
-                password
-            };
-
-            sampleUsers[email] = newUser;
-            currentUser = newUser;
-            updateAuthUI();
-            closeAuthModal();
-            showMessage(`¡Cuenta creada exitosamente! Bienvenido ${name}`, 'success');
-            loadUserData();
-        }
-
-        function logout() {
-            currentUser = null;
-            selectedRole = null;
-            updateAuthUI();
-            showMessage('Sesión cerrada correctamente', 'success');
-            
-            // Limpiar datos del usuario
-            document.getElementById('profileContent').innerHTML = `
-                <div style="text-align: center; padding: 50px; color: #666;">
-                    <div style="font-size: 48px; margin-bottom: 20px;">👤</div>
-                    <p>Inicia sesión para ver tu perfil</p>
-                    <button class="btn btn-primary" onclick="showAuthModal('login')" style="margin-top: 20px;">Iniciar Sesión</button>
-                </div>
-            `;
-        }
-
-        function updateAuthUI() {
-            const authButtons = document.getElementById('authButtons');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const userGreeting = document.getElementById('userGreeting');
-            const userRole = document.getElementById('userRole');
-
-            if (currentUser) {
-                authButtons.style.display = 'none';
-                logoutBtn.style.display = 'block';
-                userGreeting.textContent = `Hola, ${currentUser.name}`;
-                userRole.textContent = currentUser.role === 'owner' ? '🐕 Dueño' : '👨‍⚕️ Cuidador';
-                userRole.style.display = 'block';
-            } else {
-                authButtons.style.display = 'flex';
-                logoutBtn.style.display = 'none';
-                userGreeting.textContent = 'Bienvenido a PetCare';
-                userRole.style.display = 'none';
-            }
-        }
-
-        function clearAuthForms() {
-            document.getElementById('loginEmail').value = '';
-            document.getElementById('loginPassword').value = '';
-            document.getElementById('registerName').value = '';
-            document.getElementById('registerEmail').value = '';
-            document.getElementById('registerPhone').value = '';
-            document.getElementById('registerPassword').value = '';
-            selectedRole = null;
-            document.querySelectorAll('.role-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-        }
-
-        function loadUserData() {
-            if (!currentUser) return;
-
-            // Cargar perfil
-            document.getElementById('profileContent').innerHTML = `
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <div style="font-size: 64px; margin-bottom: 15px;">${currentUser.role === 'owner' ? '🐕' : '👨‍⚕️'}</div>
-                    <h3>${currentUser.name}</h3>
-                    <p style="color: #666;">${currentUser.role === 'owner' ? 'Dueño de Mascota' : 'Cuidador Profesional'}</p>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-input" value="${currentUser.email}" readonly>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Teléfono</label>
-                    <input type="tel" class="form-input" value="${currentUser.phone}" readonly>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Rol</label>
-                    <input type="text" class="form-input" value="${currentUser.role === 'owner' ? 'Dueño de Mascota' : 'Cuidador Profesional'}" readonly>
-                </div>
-                
-                <button class="btn btn-primary" style="width: 100%; margin-top: 20px;">Editar Perfil</button>
-            `;
-
-            // Cargar chats
-            loadChats();
+            navigator.serviceWorker.register('sw.js');
         }
 
         // Función para mostrar pantallas
@@ -1221,454 +870,467 @@
             document.getElementById(screenName + 'Screen').classList.add('active');
             event.target.classList.add('active');
             
-            // Inicializar mapa si es necesario
-            if (screenName === 'map' && !map) {
-                setTimeout(initMap, 100);
+            // Cargar contenido específico de la pantalla
+            if (screenName === 'services') {
+                loadAllServices();
+            } else if (screenName === 'bookings') {
+                loadBookings();
+            } else if (screenName === 'chats') {
+                loadChats();
+            } else if (screenName === 'profile') {
+                loadProfile();
             }
         }
 
-        // Función de búsqueda
+        // Funciones de autenticación
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'block';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        function showLoginForm() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('authTitle').textContent = 'Iniciar Sesión';
+        }
+
+        function showRegisterForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('authTitle').textContent = 'Crear Cuenta';
+        }
+
+        function selectRole(role) {
+            selectedRole = role;
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.closest('.role-option').classList.add('selected');
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showMessage('Por favor completa todos los campos', 'error');
+                return;
+            }
+            
+            // Simulación de login
+            if (testUsers[email]) {
+                currentUser = testUsers[email];
+                updateUserInterface();
+                closeAuthModal();
+                showMessage(`¡Bienvenido ${currentUser.name}!`, 'success');
+            } else {
+                showMessage('Email o contraseña incorrectos', 'error');
+            }
+        }
+
+        function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const phone = document.getElementById('registerPhone').value;
+            
+            if (!name || !email || !password || !phone || !selectedRole) {
+                showMessage('Por favor completa todos los campos y selecciona tu rol', 'error');
+                return;
+            }
+            
+            // Simulación de registro
+            const newUser = {
+                id: Date.now(),
+                name,
+                email,
+                phone,
+                role: selectedRole,
+                avatar: selectedRole === 'owner' ? '👤' : '👨‍⚕️'
+            };
+            
+            testUsers[email] = newUser;
+            currentUser = newUser;
+            updateUserInterface();
+            closeAuthModal();
+            showMessage(`¡Cuenta creada exitosamente! Bienvenido ${name}`, 'success');
+        }
+
+        function logout() {
+            currentUser = null;
+            updateUserInterface();
+            showMessage('Sesión cerrada correctamente', 'success');
+        }
+
+        function updateUserInterface() {
+            const userGreeting = document.getElementById('userGreeting');
+            const userRole = document.getElementById('userRole');
+            const authBtn = document.getElementById('authBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            if (currentUser) {
+                userGreeting.textContent = `Hola, ${currentUser.name}`;
+                userRole.textContent = currentUser.role === 'owner' ? 'Dueño' : 'Cuidador';
+                userRole.style.display = 'inline-block';
+                authBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+            } else {
+                userGreeting.textContent = 'Bienvenido';
+                userRole.style.display = 'none';
+                authBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+            }
+        }
+
+        // Funciones de servicios
+        function loadFeaturedServices() {
+            const container = document.getElementById('featuredServices');
+            const featured = testServices.slice(0, 3);
+            
+            container.innerHTML = featured.map(service => `
+                <div class="service-card" onclick="selectService(${service.id})">
+                    <div class="service-header">
+                        <div class="service-icon">${service.icon}</div>
+                        <div class="service-info">
+                            <h3>${service.title}</h3>
+                            <div class="service-price">$${service.price}/${service.priceUnit}</div>
+                        </div>
+                    </div>
+                    <div class="service-description">${service.description}</div>
+                    <div class="service-meta">
+                        <div class="rating">
+                            <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                            <span>${service.rating} (${service.reviews} reseñas)</span>
+                        </div>
+                        <span>📍 ${service.location}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadAllServices() {
+            const container = document.getElementById('servicesList');
+            
+            container.innerHTML = testServices.map(service => `
+                <div class="service-card" onclick="selectService(${service.id})">
+                    <div class="service-header">
+                        <div class="service-icon">${service.icon}</div>
+                        <div class="service-info">
+                            <h3>${service.title}</h3>
+                            <div class="service-price">$${service.price}/${service.priceUnit}</div>
+                        </div>
+                    </div>
+                    <div class="service-description">${service.description}</div>
+                    <div style="margin: 10px 0;">
+                        <strong>Características:</strong>
+                        <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;">
+                            ${service.features.map(feature => `<span style="background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${feature}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="service-meta">
+                        <div class="rating">
+                            <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                            <span>${service.rating} (${service.reviews} reseñas)</span>
+                        </div>
+                        <span>📍 ${service.location}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         function searchServices() {
             const category = document.getElementById('quickCategory').value;
             const location = document.getElementById('quickLocation').value;
             
             let message = 'Buscando servicios';
-            if (category) message += ` de ${getCategory(category)}`;
+            if (category) message += ` de ${getCategoryName(category)}`;
             if (location) message += ` en ${location}`;
             message += '...';
             
             showMessage(message);
-            showServicesScreen();
-            
-            // Simular carga de servicios
-            setTimeout(() => {
-                loadServices(category, location);
-            }, 1500);
+            showScreen('services');
         }
 
-        function getCategory(value) {
-            const categories = {
-                'medical': 'Servicios Médicos',
-                'care': 'Cuidado y Hospedaje',
-                'grooming': 'Estética y Belleza',
-                'training': 'Entrenamiento',
-                'walking': 'Paseo de Mascotas'
-            };
-            return categories[value] || 'todas las categorías';
-        }
-
-        function showServicesScreen() {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
+        function applyFilters() {
+            const category = document.getElementById('filterCategory').value;
+            const location = document.getElementById('filterLocation').value;
+            const price = document.getElementById('filterPrice').value;
+            const rating = document.getElementById('filterRating').value;
             
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.getElementById('servicesScreen').classList.add('active');
-            document.querySelectorAll('.nav-tab')[1].classList.add('active');
-        }
-
-        function loadServices(category, location) {
-            const allServices = [
-                { name: 'Clínica Veterinaria Norte', price: 750, icon: '🏥', category: 'medical', location: 'Pocitos', rating: 4.9, reviews: 203, description: 'Especialistas en medicina interna y cirugía. Equipamiento de última generación.' },
-                { name: 'Guardería Canina Premium', price: 500, icon: '🏠', category: 'care', location: 'Centro', rating: 4.6, reviews: 87, description: 'Cuidado diurno para mascotas con actividades recreativas y socialización.' },
-                { name: 'Veterinaria 24 Horas', price: 900, icon: '🏥', category: 'medical', location: 'Carrasco', rating: 4.8, reviews: 156, description: 'Atención de emergencias las 24 horas. Especialistas en trauma y cuidados intensivos.' },
-                { name: 'Spa Canino Relax', price: 380, icon: '✂️', category: 'grooming', location: 'Pocitos', rating: 4.7, reviews: 92, description: 'Tratamientos de spa, aromaterapia y relajación para mascotas estresadas.' },
-                { name: 'Entrenamiento Profesional', price: 650, icon: '🎓', category: 'training', location: 'Centro', rating: 4.9, reviews: 134, description: 'Entrenamiento conductual y obediencia básica. Métodos positivos certificados.' },
-                { name: 'Paseadores Expertos', price: 250, icon: '🚶', category: 'walking', location: 'Malvín', rating: 4.5, reviews: 78, description: 'Paseos personalizados con GPS tracking. Cuidadores certificados y asegurados.' },
-                { name: 'Hotel de Lujo PetSuite', price: 800, icon: '🏠', category: 'care', location: 'Carrasco', rating: 4.9, reviews: 167, description: 'Hospedaje de lujo con suites individuales, cámaras web y servicio de spa incluido.' },
-                { name: 'Clínica Dental Veterinaria', price: 1200, icon: '🏥', category: 'medical', location: 'Centro', rating: 4.8, reviews: 89, description: 'Especialistas en odontología veterinaria. Limpiezas, extracciones y ortodoncia.' },
-                { name: 'Peluquería Mobile Pet', price: 420, icon: '✂️', category: 'grooming', location: 'Punta Gorda', rating: 4.6, reviews: 112, description: 'Servicio a domicilio. Van equipada con todo lo necesario para el cuidado estético.' },
-                { name: 'Guardería Nocturna Safe', price: 600, icon: '🏠', category: 'care', location: 'Pocitos', rating: 4.7, reviews: 95, description: 'Cuidado nocturno especializado. Ideal para dueños que trabajan de noche.' }
-            ];
-
-            let filteredServices = allServices;
+            let filtered = testServices;
             
             if (category) {
-                filteredServices = filteredServices.filter(service => service.category === category);
+                filtered = filtered.filter(service => service.category === category);
             }
             
             if (location) {
-                filteredServices = filteredServices.filter(service => service.location === location);
+                filtered = filtered.filter(service => service.location === location);
             }
+            
+            if (price) {
+                const [min, max] = price.includes('+') ? [parseInt(price), Infinity] : price.split('-').map(p => parseInt(p));
+                filtered = filtered.filter(service => service.price >= min && service.price <= max);
+            }
+            
+            if (rating) {
+                filtered = filtered.filter(service => service.rating >= parseFloat(rating));
+            }
+            
+            const container = document.getElementById('servicesList');
+            if (filtered.length === 0) {
+                container.innerHTML = '<p>No se encontraron servicios con los filtros seleccionados.</p>';
+            } else {
+                container.innerHTML = filtered.map(service => `
+                    <div class="service-card" onclick="selectService(${service.id})">
+                        <div class="service-header">
+                            <div class="service-icon">${service.icon}</div>
+                            <div class="service-info">
+                                <h3>${service.title}</h3>
+                                <div class="service-price">$${service.price}/${service.priceUnit}</div>
+                            </div>
+                        </div>
+                        <div class="service-description">${service.description}</div>
+                        <div class="service-meta">
+                            <div class="rating">
+                                <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                                <span>${service.rating} (${service.reviews} reseñas)</span>
+                            </div>
+                            <span>📍 ${service.location}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            showMessage(`Se encontraron ${filtered.length} servicios`, 'success');
+        }
 
-            const servicesList = document.getElementById('servicesList');
-            servicesList.innerHTML = '';
+        function getCategoryName(category) {
+            const categories = {
+                'veterinary': 'Veterinarias',
+                'boarding': 'Hospedaje',
+                'daycare': 'Guardería',
+                'grooming': 'Peluquería',
+                'walking': 'Paseo',
+                'training': 'Entrenamiento'
+            };
+            return categories[category] || category;
+        }
 
-            if (filteredServices.length === 0) {
-                servicesList.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">No se encontraron servicios con esos criterios.</p>';
+        function selectService(serviceId) {
+            const service = testServices.find(s => s.id === serviceId);
+            if (!currentUser) {
+                showMessage('Inicia sesión para reservar servicios', 'error');
+                showAuthModal();
                 return;
             }
-
-            filteredServices.forEach(service => {
-                const serviceCard = document.createElement('div');
-                serviceCard.className = 'service-card';
-                serviceCard.onclick = () => selectService(service.name, service.price);
-                
-                serviceCard.innerHTML = `
-                    <div class="service-header">
-                        <div class="service-icon">${service.icon}</div>
-                        <div class="service-info">
-                            <h3>${service.name}</h3>
-                            <div class="service-price">$${service.price}/${service.category === 'medical' ? 'consulta' : service.category === 'care' ? 'día' : 'sesión'}</div>
-                        </div>
-                    </div>
-                    <div class="service-description">
-                        ${service.description}
-                    </div>
-                    <div class="service-meta">
-                        <div class="rating">
-                            <span>${'⭐'.repeat(Math.floor(service.rating))}${service.rating % 1 ? '⭐' : ''}</span>
-                            <span>${service.rating} (${service.reviews} reseñas)</span>
-                        </div>
-                        <span>📍 ${service.location}</span>
-                    </div>
-                `;
-                
-                servicesList.appendChild(serviceCard);
-            });
-        }
-
-        // Seleccionar servicio
-        function selectService(serviceName, price) {
-            selectedService = serviceName;
-            selectedPrice = price;
-            showMessage(`Has seleccionado: ${serviceName} - $${price}. ¿Deseas reservar?`, 'success');
             
-            // Agregar botones de acción
-            setTimeout(() => {
-                const messages = document.getElementById('messages');
-                const actionDiv = document.createElement('div');
-                actionDiv.className = 'success-message';
-                actionDiv.innerHTML = `
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <button class="btn btn-primary" onclick="bookService()">Reservar Ahora</button>
-                        <button class="btn btn-secondary" onclick="startChat('${serviceName}')">Contactar</button>
-                    </div>
-                `;
-                messages.appendChild(actionDiv);
-                
-                setTimeout(() => {
-                    if (actionDiv.parentNode) {
-                        actionDiv.parentNode.removeChild(actionDiv);
-                    }
-                }, 10000);
-            }, 1000);
+            showMessage(`¿Deseas reservar "${service.title}" por $${service.price}?`, 'success');
+            // Aquí se abriría un modal de reserva
         }
 
-        // Reservar servicio
-        function bookService() {
-            if (!selectedService) return;
+        // Funciones de reservas
+        function loadBookings() {
+            const container = document.getElementById('bookingsList');
             
             if (!currentUser) {
-                showMessage('Debes iniciar sesión para hacer una reserva', 'error');
-                showAuthModal('login');
+                container.innerHTML = '<p>Inicia sesión para ver tus reservas.</p>';
                 return;
             }
             
-            showMessage(`Reserva confirmada para ${selectedService}. Total: $${selectedPrice}`, 'success');
-            
-            // Agregar a la lista de reservas
-            const bookingsList = document.getElementById('bookingsList');
-            const newBooking = document.createElement('div');
-            newBooking.className = 'card booking-card';
-            newBooking.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h4>${selectedService}</h4>
-                    <span class="booking-status status-pending">Pendiente</span>
-                </div>
-                <p><strong>Fecha:</strong> ${new Date(Date.now() + 86400000).toLocaleDateString('es-UY')}</p>
-                <p><strong>Precio:</strong> $${selectedPrice}</p>
-                <div style="margin-top: 15px;">
-                    <button class="btn btn-secondary" onclick="cancelBooking(${Date.now()})">Cancelar</button>
-                    <button class="btn btn-primary" onclick="startChat('${selectedService}')">Contactar</button>
-                </div>
-            `;
-            bookingsList.insertBefore(newBooking, bookingsList.firstChild);
-        }
-
-        // Cancelar reserva
-        function cancelBooking(bookingId) {
-            if (confirm('¿Estás seguro de que deseas cancelar esta reserva?')) {
-                showMessage('Reserva cancelada correctamente', 'success');
-                event.target.closest('.booking-card').remove();
+            if (testBookings.length === 0) {
+                container.innerHTML = '<p>No tienes reservas aún.</p>';
+                return;
             }
+            
+            container.innerHTML = testBookings.map(booking => `
+                <div class="card booking-card">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                        <div>
+                            <h3>${booking.serviceName}</h3>
+                            <p><strong>Mascota:</strong> ${booking.petName}</p>
+                            <p><strong>Fecha:</strong> ${booking.date} a las ${booking.time}</p>
+                            <p><strong>Precio:</strong> $${booking.price}</p>
+                        </div>
+                        <span class="booking-status status-${booking.status}">
+                            ${booking.status === 'confirmed' ? 'Confirmada' : 
+                              booking.status === 'pending' ? 'Pendiente' : 'Completada'}
+                        </span>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="openChat(${booking.serviceId})">💬 Chat</button>
+                        ${booking.status === 'pending' ? '<button class="btn btn-danger">Cancelar</button>' : ''}
+                    </div>
+                </div>
+            `).join('');
         }
 
-        // Funciones de Chat
+        // Funciones de chat
         function loadChats() {
-            const chatList = document.getElementById('chatList');
-            chatList.innerHTML = '';
-
-            sampleChats.forEach(chat => {
-                const chatItem = document.createElement('div');
-                chatItem.className = 'chat-item';
-                chatItem.onclick = () => openChat(chat.id);
-                
-                chatItem.innerHTML = `
-                    <div class="chat-header">
-                        <span class="chat-name">${chat.name}</span>
-                        <span class="chat-time">${chat.time}</span>
-                    </div>
+            const container = document.getElementById('chatsList');
+            
+            if (!currentUser) {
+                container.innerHTML = '<p>Inicia sesión para ver tus conversaciones.</p>';
+                return;
+            }
+            
+            if (testChats.length === 0) {
+                container.innerHTML = '<p>No tienes conversaciones aún.</p>';
+                return;
+            }
+            
+            container.innerHTML = testChats.map(chat => `
+                <div class="chat-list-item" onclick="openChatModal(${chat.id})">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div class="chat-preview">${chat.lastMessage}</div>
-                        ${chat.unread > 0 ? `<span class="unread-badge">${chat.unread}</span>` : ''}
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="font-size: 32px;">${chat.participantAvatar}</div>
+                            <div>
+                                <h4>${chat.participantName}</h4>
+                                <p style="color: #666; margin: 0;">${chat.lastMessage}</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 12px; color: #888;">${chat.lastMessageTime}</div>
+                            ${chat.unreadCount > 0 ? `<div style="background: #667eea; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-top: 5px;">${chat.unreadCount}</div>` : ''}
+                        </div>
                     </div>
-                `;
-                
-                chatList.appendChild(chatItem);
-            });
+                </div>
+            `).join('');
         }
 
-        function openChat(chatId) {
-            activeChat = sampleChats.find(chat => chat.id === chatId);
-            if (!activeChat) return;
-
-            // Marcar como leído
-            activeChat.unread = 0;
-            
-            // Actualizar UI
-            document.querySelectorAll('.chat-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            event.target.closest('.chat-item').classList.add('active');
-
-            // Mostrar chat
-            document.getElementById('noChatSelected').style.display = 'none';
-            document.getElementById('activeChatContainer').style.display = 'block';
-            document.getElementById('activeChatName').textContent = activeChat.name;
-            
-            // Cargar mensajes
-            loadMessages();
-            loadChats(); // Recargar para quitar badge de no leído
+        function openChat(serviceId) {
+            // Buscar el chat correspondiente al servicio
+            const chat = testChats.find(c => c.id === serviceId) || testChats[0];
+            openChatModal(chat.id);
         }
 
-        function loadMessages() {
-            if (!activeChat) return;
+        function openChatModal(chatId) {
+            currentChat = testChats.find(c => c.id === chatId);
+            if (!currentChat) return;
+            
+            document.getElementById('chatTitle').textContent = currentChat.participantName;
+            loadChatMessages();
+            document.getElementById('chatModal').style.display = 'block';
+        }
 
-            const chatMessages = document.getElementById('chatMessages');
-            chatMessages.innerHTML = '';
+        function closeChatModal() {
+            document.getElementById('chatModal').style.display = 'none';
+            currentChat = null;
+        }
 
-            activeChat.messages.forEach(message => {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `chat-message ${message.sent ? 'sent' : 'received'}`;
-                messageDiv.innerHTML = `
+        function loadChatMessages() {
+            if (!currentChat) return;
+            
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = currentChat.messages.map(message => `
+                <div class="chat-message ${message.sender === 'me' ? 'sent' : 'received'}">
                     <div>${message.text}</div>
                     <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">${message.time}</div>
-                `;
-                chatMessages.appendChild(messageDiv);
-            });
-
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+                </div>
+            `).join('');
+            
+            container.scrollTop = container.scrollHeight;
         }
 
         function sendMessage() {
-            if (!activeChat) return;
-
-            const input = document.getElementById('chatInput');
+            const input = document.getElementById('messageInput');
             const message = input.value.trim();
             
-            if (message) {
-                // Agregar mensaje del usuario
-                const newMessage = {
-                    id: Date.now(),
-                    text: message,
-                    sent: true,
+            if (!message || !currentChat) return;
+            
+            const newMessage = {
+                sender: 'me',
+                text: message,
+                time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            currentChat.messages.push(newMessage);
+            currentChat.lastMessage = message;
+            currentChat.lastMessageTime = newMessage.time;
+            
+            loadChatMessages();
+            input.value = '';
+            
+            // Simular respuesta automática
+            setTimeout(() => {
+                const responses = [
+                    'Perfecto, gracias por la información',
+                    'Entendido, estaremos atentos',
+                    'Excelente, nos mantenemos en contacto',
+                    'Muchas gracias por avisar'
+                ];
+                
+                const autoResponse = {
+                    sender: 'other',
+                    text: responses[Math.floor(Math.random() * responses.length)],
                     time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })
                 };
                 
-                activeChat.messages.push(newMessage);
-                activeChat.lastMessage = message;
-                activeChat.time = newMessage.time;
+                currentChat.messages.push(autoResponse);
+                currentChat.lastMessage = autoResponse.text;
+                currentChat.lastMessageTime = autoResponse.time;
                 
-                input.value = '';
-                loadMessages();
-                loadChats();
-                
-                // Simular respuesta automática
-                setTimeout(() => {
-                    const responses = [
-                        'Gracias por tu mensaje. Te responderemos pronto.',
-                        'Perfecto, anotado. ¿Algo más que necesites?',
-                        'Entendido. Te confirmaremos los detalles.',
-                        'Excelente. Quedamos en contacto.',
-                        'De acuerdo. Te enviaremos más información.'
-                    ];
-                    
-                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                    const responseMessage = {
-                        id: Date.now() + 1,
-                        text: randomResponse,
-                        sent: false,
-                        time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })
-                    };
-                    
-                    activeChat.messages.push(responseMessage);
-                    activeChat.lastMessage = randomResponse;
-                    activeChat.time = responseMessage.time;
-                    
-                    loadMessages();
-                    loadChats();
-                }, 2000);
+                loadChatMessages();
+            }, 2000);
+        }
+
+        function handleMessageKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
             }
         }
 
-        // Iniciar chat
-        function startChat(providerName) {
+        // Función de perfil
+        function loadProfile() {
+            const container = document.getElementById('profileContent');
+            
             if (!currentUser) {
-                showMessage('Debes iniciar sesión para chatear', 'error');
-                showAuthModal('login');
-                return;
-            }
-
-            // Buscar o crear chat
-            let chat = sampleChats.find(c => c.name === providerName);
-            if (!chat) {
-                chat = {
-                    id: Date.now(),
-                    name: providerName,
-                    lastMessage: 'Conversación iniciada',
-                    time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' }),
-                    unread: 0,
-                    messages: [{
-                        id: 1,
-                        text: `¡Hola! Me interesa conocer más sobre sus servicios.`,
-                        sent: true,
-                        time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })
-                    }]
-                };
-                sampleChats.unshift(chat);
-            }
-            
-            showMessage(`Iniciando chat con ${providerName}...`, 'success');
-            
-            // Cambiar a pantalla de chat
-            setTimeout(() => {
-                showScreen('chat');
-                loadChats();
-                openChat(chat.id);
-            }, 1000);
-        }
-
-        // Enviar mensaje
-        function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const message = input.value.trim();
-            
-            if (message) {
-                const chatMessages = document.getElementById('chatMessages');
-                const messageDiv = document.createElement('div');
-                messageDiv.className = 'chat-message sent';
-                messageDiv.textContent = message;
-                chatMessages.appendChild(messageDiv);
-                
-                input.value = '';
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-                
-                // Simular respuesta automática
-                setTimeout(() => {
-                    const responseDiv = document.createElement('div');
-                    responseDiv.className = 'chat-message received';
-                    responseDiv.innerHTML = '<strong>Proveedor</strong><br>Gracias por tu mensaje. Te responderemos pronto.';
-                    chatMessages.appendChild(responseDiv);
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }, 2000);
-            }
-        }
-
-        // Enter para enviar mensaje
-        document.addEventListener('DOMContentLoaded', function() {
-            const chatInput = document.getElementById('chatInput');
-            if (chatInput) {
-                chatInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        sendMessage();
-                    }
-                });
-            }
-        });
-
-        // Agregar método de pago
-        function addPaymentMethod() {
-            const cardNumber = document.getElementById('cardNumber').value;
-            const cardExpiry = document.getElementById('cardExpiry').value;
-            const cardCvv = document.getElementById('cardCvv').value;
-            const cardName = document.getElementById('cardName').value;
-            
-            if (!cardNumber || !cardExpiry || !cardCvv || !cardName) {
-                showMessage('Por favor completa todos los campos', 'error');
+                container.innerHTML = '<p>Inicia sesión para ver tu perfil.</p>';
                 return;
             }
             
-            showMessage('Método de pago agregado correctamente', 'success');
-            
-            const savedCards = document.getElementById('savedCards');
-            const lastFour = cardNumber.slice(-4);
-            savedCards.innerHTML = `
-                <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>💳 **** **** **** ${lastFour}</strong>
-                            <div style="color: #666; font-size: 14px;">Vence: ${cardExpiry}</div>
-                            <div style="color: #666; font-size: 14px;">${cardName}</div>
-                        </div>
-                        <button class="btn btn-danger" style="padding: 8px 16px; font-size: 14px;" onclick="removeCard(this)">Eliminar</button>
-                    </div>
+            container.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="font-size: 64px; margin-bottom: 15px;">${currentUser.avatar}</div>
+                    <h2>${currentUser.name}</h2>
+                    <p style="color: #666;">${currentUser.role === 'owner' ? 'Dueño de Mascota' : 'Cuidador Profesional'}</p>
                 </div>
-            `;
-            
-            // Limpiar formulario
-            document.getElementById('cardNumber').value = '';
-            document.getElementById('cardExpiry').value = '';
-            document.getElementById('cardCvv').value = '';
-            document.getElementById('cardName').value = '';
-        }
-
-        // Eliminar tarjeta
-        function removeCard(button) {
-            if (confirm('¿Estás seguro de que deseas eliminar esta tarjeta?')) {
-                button.closest('div').remove();
-                showMessage('Tarjeta eliminada correctamente', 'success');
                 
-                const savedCards = document.getElementById('savedCards');
-                if (!savedCards.children.length) {
-                    savedCards.innerHTML = '<p>No tienes métodos de pago guardados.</p>';
-                }
-            }
-        }
-
-        // Inicializar mapa
-        function initMap() {
-            if (map) return;
-            
-            const mapContainer = document.getElementById('mapContainer');
-            if (!mapContainer) return;
-            
-            map = L.map('mapContainer').setView([-34.9011, -56.1645], 13);
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
-            
-            // Agregar marcadores de servicios
-            const services = [
-                { lat: -34.9011, lng: -56.1645, name: "Veterinaria San Martín", icon: "🏥" },
-                { lat: -34.9111, lng: -56.1545, name: "Hotel Canino Pocitos", icon: "🏠" },
-                { lat: -34.8911, lng: -56.1745, name: "Peluquería Canina Bella", icon: "✂️" },
-                { lat: -34.9211, lng: -56.1445, name: "Clínica Veterinaria Norte", icon: "🏥" },
-                { lat: -34.8811, lng: -56.1845, name: "Guardería Canina Premium", icon: "🏠" }
-            ];
-            
-            services.forEach(service => {
-                L.marker([service.lat, service.lng])
-                    .addTo(map)
-                    .bindPopup(`${service.icon} ${service.name}`)
-                    .on('click', () => {
-                        showMessage(`Seleccionaste: ${service.name}`, 'success');
-                    });
-            });
+                <div class="card">
+                    <h3>Información Personal</h3>
+                    <p><strong>Email:</strong> ${currentUser.email}</p>
+                    <p><strong>Teléfono:</strong> ${currentUser.phone}</p>
+                    ${currentUser.role === 'caregiver' && currentUser.experience ? `<p><strong>Experiencia:</strong> ${currentUser.experience}</p>` : ''}
+                    ${currentUser.role === 'caregiver' && currentUser.rating ? `<p><strong>Calificación:</strong> ${currentUser.rating} ⭐</p>` : ''}
+                </div>
+                
+                ${currentUser.pets ? `
+                    <div class="card">
+                        <h3>Mis Mascotas</h3>
+                        ${currentUser.pets.map(pet => `
+                            <div style="padding: 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px;">
+                                <h4>${pet.name}</h4>
+                                <p>${pet.type} - ${pet.breed} - ${pet.age} años</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+                
+                ${currentUser.services ? `
+                    <div class="card">
+                        <h3>Mis Servicios</h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            ${currentUser.services.map(service => `
+                                <span style="background: #e3f2fd; padding: 8px 16px; border-radius: 20px;">
+                                    ${getCategoryName(service)}
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
         }
 
         // Función para mostrar mensajes
@@ -1687,58 +1349,10 @@
             }, 5000);
         }
 
-        // Formatear número de tarjeta
-        document.addEventListener('DOMContentLoaded', function() {
-            const cardNumberInput = document.getElementById('cardNumber');
-            if (cardNumberInput) {
-                cardNumberInput.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
-                    let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
-                    e.target.value = formattedValue;
-                });
-            }
-            
-            const cardExpiryInput = document.getElementById('cardExpiry');
-            if (cardExpiryInput) {
-                cardExpiryInput.addEventListener('input', function(e) {
-                    let value = e.target.value.replace(/\D/g, '');
-                    if (value.length >= 2) {
-                        value = value.substring(0, 2) + '/' + value.substring(2, 4);
-                    }
-                    e.target.value = value;
-                });
-            }
-        });
-
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            showMessage('¡Bienvenido a PetCare Marketplace! 🐾', 'success');
-            
-            // Detectar si es PWA instalada
-            if (window.matchMedia('(display-mode: standalone)').matches) {
-                document.getElementById('userGreeting').textContent = 'App PetCare';
-            }
-
-            // Cargar chats iniciales (sin usuario logueado)
-            loadChats();
-
-            // Cerrar modal al hacer clic fuera
-            window.onclick = function(event) {
-                const modal = document.getElementById('authModal');
-                if (event.target === modal) {
-                    closeAuthModal();
-                }
-            };
-
-            // Enter para enviar mensaje
-            const chatInput = document.getElementById('chatInput');
-            if (chatInput) {
-                chatInput.addEventListener('keypress', function(e) {
-                    if (e.key === 'Enter') {
-                        sendMessage();
-                    }
-                });
-            }
+            loadFeaturedServices();
+            showMessage('¡Bienvenido a PetCare Marketplace!', 'success');
         });
     </script>
 </body>

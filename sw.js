@@ -1,5 +1,5 @@
 // Service Worker para PetCare PWA
-const CACHE_NAME = 'petcare-v1.0.0';
+const CACHE_NAME = 'petcare-pwa-v2.0.0';
 const urlsToCache = [
   '/petcare-pwa/',
   '/petcare-pwa/index.html',
