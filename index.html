@@ -13,13 +13,13 @@
     <meta name="description" content="Encuentra el mejor cuidado para tu mascota en Uruguay">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="pwa-manifest.json">
     
     <!-- Apple Touch Icons -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐾%3C/text%3E%3C/svg%3E">
     
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -54,7 +54,7 @@
         
         .logo { font-size: 28px; font-weight: bold; }
         
-        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         
         .user-role {
             background: rgba(255,255,255,0.2);
@@ -84,7 +84,7 @@
             gap: 10px;
             margin-bottom: 30px;
             overflow-x: auto;
-            padding-bottom: 10px;
+            padding: 10px 0;
             -webkit-overflow-scrolling: touch;
             scroll-behavior: smooth;
         }
@@ -351,15 +351,9 @@
         .status-confirmed { background: #d4edda; color: #155724; }
         .status-completed { background: #d1ecf1; color: #0c5460; }
         
-        /* Map Container */
-        .map-container {
-            height: 300px;
-            width: 100%;
-            border-radius: 12px;
-            overflow: hidden;
-            margin: 20px 0;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
+        /* Role-specific visibility */
+        .caregiver-only { display: none; }
+        .owner-only { display: none; }
         
         /* Hidden by default */
         .screen { display: none; }
@@ -372,6 +366,7 @@
             .nav-tabs { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
             .service-meta { flex-direction: column; align-items: flex-start; gap: 5px; }
             .modal-content { margin: 10% auto; width: 95%; }
+            .user-info { justify-content: center; }
         }
         
         /* Loading Spinner */
@@ -415,14 +410,16 @@
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="showScreen('home')">🏠 Inicio</button>
             <button class="nav-tab" onclick="showScreen('services')">🔍 Servicios</button>
+            <button class="nav-tab caregiver-only" onclick="showScreen('myservices')">📋 Mis Servicios</button>
             <button class="nav-tab" onclick="showScreen('bookings')">📅 Reservas</button>
             <button class="nav-tab" onclick="showScreen('chats')">💬 Chats</button>
             <button class="nav-tab" onclick="showScreen('profile')">👤 Perfil</button>
         </div>
 
         <!-- Messages -->
-        <div id="messages"></div>       
- <!-- Home Screen -->
+        <div id="messages"></div>
+
+        <!-- Home Screen -->
         <div id="homeScreen" class="screen active">
             <div class="card">
                 <h2>Encuentra el mejor cuidado para tu mascota</h2>
@@ -515,6 +512,19 @@
             </div>
         </div>
 
+        <!-- My Services Screen (Caregiver Only) -->
+        <div id="myservicesScreen" class="screen">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📋 Mis Servicios</h2>
+                    <button class="btn btn-primary" onclick="showAddServiceModal()">+ Agregar Servicio</button>
+                </div>
+                <div id="myServicesList">
+                    <p>No tienes servicios publicados aún.</p>
+                </div>
+            </div>
+        </div>
+
         <!-- Bookings Screen -->
         <div id="bookingsScreen" class="screen">
             <div class="card">
@@ -544,9 +554,8 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Auth Modal -->
+    </div> 
+   <!-- Auth Modal -->
     <div id="authModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -612,6 +621,72 @@
                         <a href="#" onclick="showLoginForm()" style="color: #667eea;">Inicia sesión aquí</a>
                     </p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Service Modal (Caregiver Only) -->
+    <div id="addServiceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Agregar Nuevo Servicio</h2>
+                <button class="modal-close" onclick="closeAddServiceModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Tipo de Servicio</label>
+                    <select id="serviceType" class="form-input">
+                        <option value="">Selecciona el tipo</option>
+                        <option value="veterinary">🏥 Veterinaria</option>
+                        <option value="boarding">🏠 Hospedaje</option>
+                        <option value="daycare">🎾 Guardería</option>
+                        <option value="grooming">✂️ Peluquería</option>
+                        <option value="walking">🚶 Paseo</option>
+                        <option value="training">🎓 Entrenamiento</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nombre del Servicio</label>
+                    <input type="text" id="serviceName" class="form-input" placeholder="Ej: Veterinaria San Martín">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Descripción</label>
+                    <textarea id="serviceDescription" class="form-input" rows="3" placeholder="Describe tu servicio..."></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Precio</label>
+                        <input type="number" id="servicePrice" class="form-input" placeholder="800">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Unidad</label>
+                        <select id="servicePriceUnit" class="form-input">
+                            <option value="consulta">por consulta</option>
+                            <option value="día">por día</option>
+                            <option value="hora">por hora</option>
+                            <option value="sesión">por sesión</option>
+                            <option value="paseo">por paseo</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Ubicación</label>
+                    <select id="serviceLocation" class="form-input">
+                        <option value="">Selecciona ubicación</option>
+                        <option value="Centro">Centro</option>
+                        <option value="Pocitos">Pocitos</option>
+                        <option value="Carrasco">Carrasco</option>
+                        <option value="Punta Gorda">Punta Gorda</option>
+                        <option value="Malvín">Malvín</option>
+                        <option value="Cordón">Cordón</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="addService()" style="width: 100%;">Publicar Servicio</button>
             </div>
         </div>
     </div>
@@ -685,7 +760,7 @@
             }
         };
 
-        const testServices = [
+        let testServices = [
             {
                 id: 1,
                 title: 'Veterinaria San Martín',
@@ -778,7 +853,7 @@
             }
         ];
 
-        const testBookings = [
+        let testBookings = [
             {
                 id: 1,
                 serviceId: 1,
@@ -801,7 +876,7 @@
             }
         ];
 
-        const testChats = [
+        let testChats = [
             {
                 id: 1,
                 participantName: 'Dr. Carlos Rodríguez',
@@ -854,7 +929,7 @@
 
         // Registrar Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+            navigator.serviceWorker.register('pwa-serviceworker.js');
         }
 
         // Función para mostrar pantallas
@@ -873,6 +948,8 @@
             // Cargar contenido específico de la pantalla
             if (screenName === 'services') {
                 loadAllServices();
+            } else if (screenName === 'myservices') {
+                loadMyServices();
             } else if (screenName === 'bookings') {
                 loadBookings();
             } else if (screenName === 'chats') {
@@ -926,6 +1003,7 @@
                 updateUserInterface();
                 closeAuthModal();
                 showMessage(`¡Bienvenido ${currentUser.name}!`, 'success');
+                clearFormData();
             } else {
                 showMessage('Email o contraseña incorrectos', 'error');
             }
@@ -957,12 +1035,43 @@
             updateUserInterface();
             closeAuthModal();
             showMessage(`¡Cuenta creada exitosamente! Bienvenido ${name}`, 'success');
+            clearFormData();
         }
 
         function logout() {
             currentUser = null;
+            selectedRole = null;
             updateUserInterface();
+            clearAllData();
             showMessage('Sesión cerrada correctamente', 'success');
+            showScreen('home');
+        }
+
+        function clearFormData() {
+            // Limpiar formularios de login
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            
+            // Limpiar formularios de registro
+            document.getElementById('registerName').value = '';
+            document.getElementById('registerEmail').value = '';
+            document.getElementById('registerPassword').value = '';
+            document.getElementById('registerPhone').value = '';
+            
+            // Limpiar selección de rol
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+        }
+
+        function clearAllData() {
+            // Limpiar todas las pantallas
+            document.getElementById('bookingsList').innerHTML = '<p>Inicia sesión para ver tus reservas.</p>';
+            document.getElementById('chatsList').innerHTML = '<p>Inicia sesión para ver tus conversaciones.</p>';
+            document.getElementById('profileContent').innerHTML = '<p>Inicia sesión para ver tu perfil.</p>';
+            document.getElementById('myServicesList').innerHTML = '<p>No tienes servicios publicados aún.</p>';
+            
+            clearFormData();
         }
 
         function updateUserInterface() {
@@ -971,17 +1080,34 @@
             const authBtn = document.getElementById('authBtn');
             const logoutBtn = document.getElementById('logoutBtn');
             
+            // Elementos específicos por rol
+            const caregiverElements = document.querySelectorAll('.caregiver-only');
+            const ownerElements = document.querySelectorAll('.owner-only');
+            
             if (currentUser) {
                 userGreeting.textContent = `Hola, ${currentUser.name}`;
                 userRole.textContent = currentUser.role === 'owner' ? 'Dueño' : 'Cuidador';
                 userRole.style.display = 'inline-block';
                 authBtn.style.display = 'none';
                 logoutBtn.style.display = 'inline-block';
+                
+                // Mostrar/ocultar elementos según el rol
+                if (currentUser.role === 'caregiver') {
+                    caregiverElements.forEach(el => el.style.display = 'block');
+                    ownerElements.forEach(el => el.style.display = 'none');
+                } else {
+                    caregiverElements.forEach(el => el.style.display = 'none');
+                    ownerElements.forEach(el => el.style.display = 'block');
+                }
             } else {
                 userGreeting.textContent = 'Bienvenido';
                 userRole.style.display = 'none';
                 authBtn.style.display = 'inline-block';
                 logoutBtn.style.display = 'none';
+                
+                // Ocultar todos los elementos específicos por rol
+                caregiverElements.forEach(el => el.style.display = 'none');
+                ownerElements.forEach(el => el.style.display = 'none');
             }
         }
 
@@ -1039,6 +1165,126 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        // Funciones específicas para cuidadores
+        function loadMyServices() {
+            const container = document.getElementById('myServicesList');
+            
+            if (!currentUser || currentUser.role !== 'caregiver') {
+                container.innerHTML = '<p>Solo los cuidadores pueden gestionar servicios.</p>';
+                return;
+            }
+            
+            // Filtrar servicios del usuario actual
+            const myServices = testServices.filter(service => service.caregiverId === currentUser.id);
+            
+            if (myServices.length === 0) {
+                container.innerHTML = '<p>No tienes servicios publicados aún. ¡Agrega tu primer servicio!</p>';
+                return;
+            }
+            
+            container.innerHTML = myServices.map(service => `
+                <div class="service-card">
+                    <div class="service-header">
+                        <div class="service-icon">${service.icon}</div>
+                        <div class="service-info">
+                            <h3>${service.title}</h3>
+                            <div class="service-price">$${service.price}/${service.priceUnit}</div>
+                        </div>
+                    </div>
+                    <div class="service-description">${service.description}</div>
+                    <div class="service-meta">
+                        <div class="rating">
+                            <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                            <span>${service.rating} (${service.reviews} reseñas)</span>
+                        </div>
+                        <span>📍 ${service.location}</span>
+                    </div>
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="editService(${service.id})">Editar</button>
+                        <button class="btn btn-danger" onclick="deleteService(${service.id})">Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAddServiceModal() {
+            if (!currentUser || currentUser.role !== 'caregiver') {
+                showMessage('Solo los cuidadores pueden agregar servicios', 'error');
+                return;
+            }
+            document.getElementById('addServiceModal').style.display = 'block';
+        }
+
+        function closeAddServiceModal() {
+            document.getElementById('addServiceModal').style.display = 'none';
+            clearServiceForm();
+        }
+
+        function clearServiceForm() {
+            document.getElementById('serviceType').value = '';
+            document.getElementById('serviceName').value = '';
+            document.getElementById('serviceDescription').value = '';
+            document.getElementById('servicePrice').value = '';
+            document.getElementById('servicePriceUnit').value = 'consulta';
+            document.getElementById('serviceLocation').value = '';
+        }
+
+        function addService() {
+            const type = document.getElementById('serviceType').value;
+            const name = document.getElementById('serviceName').value;
+            const description = document.getElementById('serviceDescription').value;
+            const price = document.getElementById('servicePrice').value;
+            const priceUnit = document.getElementById('servicePriceUnit').value;
+            const location = document.getElementById('serviceLocation').value;
+            
+            if (!type || !name || !description || !price || !location) {
+                showMessage('Por favor completa todos los campos', 'error');
+                return;
+            }
+            
+            const icons = {
+                'veterinary': '🏥',
+                'boarding': '🏠',
+                'daycare': '🎾',
+                'grooming': '✂️',
+                'walking': '🚶',
+                'training': '🎓'
+            };
+            
+            const newService = {
+                id: Date.now(),
+                title: name,
+                category: type,
+                icon: icons[type],
+                price: parseInt(price),
+                priceUnit: priceUnit,
+                description: description,
+                location: location,
+                rating: 5.0,
+                reviews: 0,
+                caregiver: currentUser.name,
+                caregiverId: currentUser.id,
+                features: ['Servicio nuevo', 'Calidad garantizada']
+            };
+            
+            testServices.push(newService);
+            closeAddServiceModal();
+            showMessage('¡Servicio agregado exitosamente!', 'success');
+            loadMyServices();
+        }
+
+        function editService(serviceId) {
+            showMessage('Función de edición en desarrollo', 'error');
+        }
+
+        function deleteService(serviceId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este servicio?')) {
+                testServices = testServices.filter(service => service.id !== serviceId);
+                showMessage('Servicio eliminado correctamente', 'success');
+                loadMyServices();
+            }
         }
 
         function searchServices() {
@@ -1127,8 +1373,12 @@
                 return;
             }
             
+            if (currentUser.role === 'caregiver') {
+                showMessage('Los cuidadores no pueden reservar servicios. Solo pueden ofrecerlos.', 'error');
+                return;
+            }
+            
             showMessage(`¿Deseas reservar "${service.title}" por $${service.price}?`, 'success');
-            // Aquí se abriría un modal de reserva
         }
 
         // Funciones de reservas
@@ -1201,7 +1451,6 @@
         }
 
         function openChat(serviceId) {
-            // Buscar el chat correspondiente al servicio
             const chat = testChats.find(c => c.id === serviceId) || testChats[0];
             openChatModal(chat.id);
         }
@@ -1352,6 +1601,7 @@
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
             loadFeaturedServices();
+            updateUserInterface();
             showMessage('¡Bienvenido a PetCare Marketplace!', 'success');
         });
     </script>
