@@ -355,6 +355,45 @@
         .caregiver-only { display: none; }
         .owner-only { display: none; }
         
+        /* Rating Stars */
+        .rating-stars .star {
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s;
+            margin: 0 2px;
+        }
+        
+        .rating-stars .star:hover,
+        .rating-stars .star.active {
+            color: #ffd700;
+        }
+        
+        /* Booking Summary */
+        .booking-summary {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        /* Service Actions */
+        .service-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        /* Completed Booking Badge */
+        .completed-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
         /* Hidden by default */
         .screen { display: none; }
         .screen.active { display: block; }
@@ -691,6 +730,119 @@
         </div>
     </div>
 
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="bookingTitle">Reservar Servicio</h2>
+                <button class="modal-close" onclick="closeBookingModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="bookingServiceInfo" style="margin-bottom: 20px;">
+                    <!-- Info del servicio seleccionado -->
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Fecha del Servicio</label>
+                    <input type="date" id="bookingDate" class="form-input" min="">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Hora de Inicio</label>
+                    <input type="time" id="bookingTime" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Duración (horas)</label>
+                    <select id="bookingDuration" class="form-input" onchange="calculatePrice()">
+                        <option value="1">1 hora</option>
+                        <option value="2">2 horas</option>
+                        <option value="3">3 horas</option>
+                        <option value="4">4 horas</option>
+                        <option value="6">6 horas</option>
+                        <option value="8">8 horas (día completo)</option>
+                        <option value="24">24 horas (hospedaje)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Mascota</label>
+                    <select id="bookingPet" class="form-input">
+                        <option value="">Selecciona tu mascota</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Notas Especiales (opcional)</label>
+                    <textarea id="bookingNotes" class="form-input" rows="3" placeholder="Información adicional sobre tu mascota o el servicio..."></textarea>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <h4>Resumen de Precio</h4>
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                        <span>Precio base:</span>
+                        <span id="basePrice">$0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                        <span>Duración:</span>
+                        <span id="durationText">1 hora</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0; font-weight: bold; border-top: 1px solid #ddd; padding-top: 10px;">
+                        <span>Total:</span>
+                        <span id="totalPrice">$0</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="confirmBooking()" style="width: 100%;">Confirmar Reserva</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div id="ratingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="ratingTitle">Calificar Servicio</h2>
+                <button class="modal-close" onclick="closeRatingModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="ratingServiceInfo" style="margin-bottom: 20px;">
+                    <!-- Info del servicio a calificar -->
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Calificación General</label>
+                    <div class="rating-stars" style="font-size: 32px; margin: 10px 0;">
+                        <span class="star" data-rating="1" onclick="setRating(1)">☆</span>
+                        <span class="star" data-rating="2" onclick="setRating(2)">☆</span>
+                        <span class="star" data-rating="3" onclick="setRating(3)">☆</span>
+                        <span class="star" data-rating="4" onclick="setRating(4)">☆</span>
+                        <span class="star" data-rating="5" onclick="setRating(5)">☆</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Comentario (opcional)</label>
+                    <textarea id="ratingComment" class="form-input" rows="4" placeholder="Comparte tu experiencia con otros usuarios..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">¿Recomendarías este servicio?</label>
+                    <div style="display: flex; gap: 15px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="recommend" value="yes"> Sí, lo recomiendo
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="recommend" value="no"> No lo recomiendo
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="submitRating()" style="width: 100%;">Enviar Calificación</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Chat Modal -->
     <div id="chatModal" class="modal">
         <div class="modal-content">
@@ -721,6 +873,9 @@
         let currentUser = null;
         let selectedRole = null;
         let currentChat = null;
+        let selectedService = null;
+        let currentRating = 0;
+        let bookingToRate = null;
         
         // Datos de prueba expandidos
         const testUsers = {
@@ -860,9 +1015,15 @@
                 serviceName: 'Veterinaria San Martín',
                 date: '2024-01-15',
                 time: '14:00',
-                status: 'confirmed',
+                duration: 1,
+                status: 'completed',
                 price: 800,
-                petName: 'Max'
+                petName: 'Max',
+                caregiverId: 2,
+                ownerId: 1,
+                canRate: true,
+                ownerRated: false,
+                caregiverRated: false
             },
             {
                 id: 2,
@@ -870,9 +1031,33 @@
                 serviceName: 'Hotel Canino Pocitos',
                 date: '2024-01-20',
                 time: '09:00',
-                status: 'pending',
+                duration: 24,
+                status: 'confirmed',
                 price: 1800,
-                petName: 'Luna'
+                petName: 'Luna',
+                caregiverId: 3,
+                ownerId: 1,
+                canRate: false,
+                ownerRated: false,
+                caregiverRated: false
+            },
+            {
+                id: 3,
+                serviceId: 3,
+                serviceName: 'Peluquería Canina Bella',
+                date: '2024-01-10',
+                time: '10:00',
+                duration: 2,
+                status: 'completed',
+                price: 900,
+                petName: 'Max',
+                caregiverId: 4,
+                ownerId: 1,
+                canRate: true,
+                ownerRated: true,
+                caregiverRated: true,
+                ownerRating: 5,
+                caregiverRating: 4
             }
         ];
 
@@ -1244,6 +1429,11 @@
                 return;
             }
             
+            if (parseInt(price) <= 0) {
+                showMessage('El precio debe ser mayor a 0', 'error');
+                return;
+            }
+            
             const icons = {
                 'veterinary': '🏥',
                 'boarding': '🏠',
@@ -1251,6 +1441,15 @@
                 'grooming': '✂️',
                 'walking': '🚶',
                 'training': '🎓'
+            };
+            
+            const defaultFeatures = {
+                'veterinary': ['Consultas generales', 'Vacunación', 'Atención profesional'],
+                'boarding': ['Cuidado 24h', 'Espacios amplios', 'Alimentación incluida'],
+                'daycare': ['Socialización', 'Actividades', 'Supervisión constante'],
+                'grooming': ['Baño completo', 'Corte profesional', 'Productos de calidad'],
+                'walking': ['Paseos seguros', 'Ejercicio adecuado', 'Cuidador responsable'],
+                'training': ['Métodos positivos', 'Entrenador certificado', 'Seguimiento personalizado']
             };
             
             const newService = {
@@ -1266,13 +1465,21 @@
                 reviews: 0,
                 caregiver: currentUser.name,
                 caregiverId: currentUser.id,
-                features: ['Servicio nuevo', 'Calidad garantizada']
+                features: defaultFeatures[type] || ['Servicio de calidad', 'Atención personalizada']
             };
             
             testServices.push(newService);
             closeAddServiceModal();
             showMessage('¡Servicio agregado exitosamente!', 'success');
             loadMyServices();
+            
+            // Actualizar servicios del usuario
+            if (!currentUser.services) {
+                currentUser.services = [];
+            }
+            if (!currentUser.services.includes(type)) {
+                currentUser.services.push(type);
+            }
         }
 
         function editService(serviceId) {
@@ -1378,7 +1585,119 @@
                 return;
             }
             
-            showMessage(`¿Deseas reservar "${service.title}" por $${service.price}?`, 'success');
+            selectedService = service;
+            showBookingModal();
+        }
+
+        // Funciones de reserva
+        function showBookingModal() {
+            if (!selectedService) return;
+            
+            // Configurar información del servicio
+            document.getElementById('bookingServiceInfo').innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <div style="font-size: 32px;">${selectedService.icon}</div>
+                    <div>
+                        <h3>${selectedService.title}</h3>
+                        <p style="color: #666; margin: 0;">$${selectedService.price}/${selectedService.priceUnit} - ${selectedService.location}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Configurar fecha mínima (hoy)
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingDate').min = today;
+            document.getElementById('bookingDate').value = today;
+            
+            // Configurar hora por defecto
+            document.getElementById('bookingTime').value = '09:00';
+            
+            // Cargar mascotas del usuario
+            loadUserPets();
+            
+            // Calcular precio inicial
+            calculatePrice();
+            
+            document.getElementById('bookingModal').style.display = 'block';
+        }
+
+        function closeBookingModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+            selectedService = null;
+        }
+
+        function loadUserPets() {
+            const petSelect = document.getElementById('bookingPet');
+            petSelect.innerHTML = '<option value="">Selecciona tu mascota</option>';
+            
+            if (currentUser && currentUser.pets) {
+                currentUser.pets.forEach(pet => {
+                    petSelect.innerHTML += `<option value="${pet.name}">${pet.name} (${pet.type} - ${pet.breed})</option>`;
+                });
+            }
+        }
+
+        function calculatePrice() {
+            if (!selectedService) return;
+            
+            const duration = parseInt(document.getElementById('bookingDuration').value);
+            const basePrice = selectedService.price;
+            let totalPrice = basePrice;
+            
+            // Calcular precio según el tipo de servicio
+            if (selectedService.priceUnit === 'hora') {
+                totalPrice = basePrice * duration;
+            } else if (selectedService.priceUnit === 'día' && duration >= 8) {
+                totalPrice = basePrice * Math.ceil(duration / 24);
+            } else if (selectedService.priceUnit === 'sesión') {
+                totalPrice = basePrice; // Precio fijo por sesión
+            }
+            
+            document.getElementById('basePrice').textContent = `$${basePrice}`;
+            document.getElementById('durationText').textContent = `${duration} hora${duration > 1 ? 's' : ''}`;
+            document.getElementById('totalPrice').textContent = `$${totalPrice}`;
+        }
+
+        function confirmBooking() {
+            const date = document.getElementById('bookingDate').value;
+            const time = document.getElementById('bookingTime').value;
+            const duration = parseInt(document.getElementById('bookingDuration').value);
+            const pet = document.getElementById('bookingPet').value;
+            const notes = document.getElementById('bookingNotes').value;
+            
+            if (!date || !time || !pet) {
+                showMessage('Por favor completa todos los campos obligatorios', 'error');
+                return;
+            }
+            
+            const totalPrice = parseInt(document.getElementById('totalPrice').textContent.replace('$', ''));
+            
+            const newBooking = {
+                id: Date.now(),
+                serviceId: selectedService.id,
+                serviceName: selectedService.title,
+                date: date,
+                time: time,
+                duration: duration,
+                status: 'pending',
+                price: totalPrice,
+                petName: pet,
+                caregiverId: selectedService.caregiverId,
+                ownerId: currentUser.id,
+                notes: notes,
+                canRate: false,
+                ownerRated: false,
+                caregiverRated: false
+            };
+            
+            testBookings.push(newBooking);
+            closeBookingModal();
+            showMessage(`¡Reserva creada exitosamente! Total: $${totalPrice}`, 'success');
+            
+            // Simular notificación al cuidador
+            setTimeout(() => {
+                showMessage('El cuidador ha sido notificado de tu solicitud', 'success');
+            }, 2000);
         }
 
         // Funciones de reservas
@@ -1390,31 +1709,68 @@
                 return;
             }
             
-            if (testBookings.length === 0) {
+            // Filtrar reservas del usuario actual
+            const userBookings = testBookings.filter(booking => 
+                booking.ownerId === currentUser.id || booking.caregiverId === currentUser.id
+            );
+            
+            if (userBookings.length === 0) {
                 container.innerHTML = '<p>No tienes reservas aún.</p>';
                 return;
             }
             
-            container.innerHTML = testBookings.map(booking => `
-                <div class="card booking-card">
-                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
-                        <div>
-                            <h3>${booking.serviceName}</h3>
-                            <p><strong>Mascota:</strong> ${booking.petName}</p>
-                            <p><strong>Fecha:</strong> ${booking.date} a las ${booking.time}</p>
-                            <p><strong>Precio:</strong> $${booking.price}</p>
+            container.innerHTML = userBookings.map(booking => {
+                const isOwner = booking.ownerId === currentUser.id;
+                const canRate = booking.status === 'completed' && booking.canRate;
+                const hasRated = isOwner ? booking.ownerRated : booking.caregiverRated;
+                
+                return `
+                    <div class="card booking-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                            <div>
+                                <h3>${booking.serviceName} ${booking.status === 'completed' ? '<span class="completed-badge">Completado</span>' : ''}</h3>
+                                <p><strong>Mascota:</strong> ${booking.petName}</p>
+                                <p><strong>Fecha:</strong> ${booking.date} a las ${booking.time}</p>
+                                <p><strong>Duración:</strong> ${booking.duration} hora${booking.duration > 1 ? 's' : ''}</p>
+                                <p><strong>Precio:</strong> $${booking.price}</p>
+                                ${booking.notes ? `<p><strong>Notas:</strong> ${booking.notes}</p>` : ''}
+                                ${hasRated ? `<p style="color: #28a745;"><strong>✓ Ya calificaste este servicio</strong></p>` : ''}
+                            </div>
+                            <span class="booking-status status-${booking.status}">
+                                ${booking.status === 'confirmed' ? 'Confirmada' : 
+                                  booking.status === 'pending' ? 'Pendiente' : 'Completada'}
+                            </span>
                         </div>
-                        <span class="booking-status status-${booking.status}">
-                            ${booking.status === 'confirmed' ? 'Confirmada' : 
-                              booking.status === 'pending' ? 'Pendiente' : 'Completada'}
-                        </span>
+                        <div class="service-actions">
+                            <button class="btn btn-primary" onclick="openChat(${booking.serviceId})">💬 Chat</button>
+                            ${booking.status === 'pending' ? '<button class="btn btn-danger" onclick="cancelBooking(' + booking.id + ')">Cancelar</button>' : ''}
+                            ${canRate && !hasRated ? '<button class="btn btn-success" onclick="showRatingModal(' + booking.id + ')">⭐ Calificar</button>' : ''}
+                            ${booking.status === 'confirmed' && isOwner ? '<button class="btn btn-secondary" onclick="markCompleted(' + booking.id + ')">Marcar Completado</button>' : ''}
+                        </div>
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-primary" onclick="openChat(${booking.serviceId})">💬 Chat</button>
-                        ${booking.status === 'pending' ? '<button class="btn btn-danger">Cancelar</button>' : ''}
-                    </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
+        }
+
+        function cancelBooking(bookingId) {
+            if (confirm('¿Estás seguro de que quieres cancelar esta reserva?')) {
+                const bookingIndex = testBookings.findIndex(b => b.id === bookingId);
+                if (bookingIndex !== -1) {
+                    testBookings.splice(bookingIndex, 1);
+                    showMessage('Reserva cancelada correctamente', 'success');
+                    loadBookings();
+                }
+            }
+        }
+
+        function markCompleted(bookingId) {
+            const booking = testBookings.find(b => b.id === bookingId);
+            if (booking) {
+                booking.status = 'completed';
+                booking.canRate = true;
+                showMessage('Servicio marcado como completado. ¡Ahora puedes calificarlo!', 'success');
+                loadBookings();
+            }
         }
 
         // Funciones de chat
@@ -1582,6 +1938,116 @@
             `;
         }
 
+        // Funciones de calificación
+        function showRatingModal(bookingId) {
+            bookingToRate = testBookings.find(b => b.id === bookingId);
+            if (!bookingToRate) return;
+            
+            const isOwner = bookingToRate.ownerId === currentUser.id;
+            const otherParty = isOwner ? 'cuidador' : 'dueño de mascota';
+            
+            document.getElementById('ratingTitle').textContent = `Calificar ${otherParty}`;
+            document.getElementById('ratingServiceInfo').innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <div style="font-size: 32px;">⭐</div>
+                    <div>
+                        <h3>${bookingToRate.serviceName}</h3>
+                        <p style="color: #666; margin: 0;">Servicio completado el ${bookingToRate.date}</p>
+                        <p style="color: #666; margin: 0;">Mascota: ${bookingToRate.petName}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Reset rating
+            currentRating = 0;
+            updateStars();
+            document.getElementById('ratingComment').value = '';
+            document.querySelector('input[name="recommend"]').checked = false;
+            
+            document.getElementById('ratingModal').style.display = 'block';
+        }
+
+        function closeRatingModal() {
+            document.getElementById('ratingModal').style.display = 'none';
+            bookingToRate = null;
+            currentRating = 0;
+        }
+
+        function setRating(rating) {
+            currentRating = rating;
+            updateStars();
+        }
+
+        function updateStars() {
+            const stars = document.querySelectorAll('.rating-stars .star');
+            stars.forEach((star, index) => {
+                if (index < currentRating) {
+                    star.textContent = '★';
+                    star.classList.add('active');
+                } else {
+                    star.textContent = '☆';
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        function submitRating() {
+            if (currentRating === 0) {
+                showMessage('Por favor selecciona una calificación', 'error');
+                return;
+            }
+            
+            const comment = document.getElementById('ratingComment').value;
+            const recommend = document.querySelector('input[name="recommend"]:checked')?.value;
+            
+            const isOwner = bookingToRate.ownerId === currentUser.id;
+            
+            // Actualizar la reserva con la calificación
+            if (isOwner) {
+                bookingToRate.ownerRated = true;
+                bookingToRate.ownerRating = currentRating;
+                bookingToRate.ownerComment = comment;
+            } else {
+                bookingToRate.caregiverRated = true;
+                bookingToRate.caregiverRating = currentRating;
+                bookingToRate.caregiverComment = comment;
+            }
+            
+            // Actualizar calificación promedio del cuidador
+            updateCaregiverRating(bookingToRate.caregiverId, currentRating);
+            
+            closeRatingModal();
+            showMessage('¡Calificación enviada exitosamente!', 'success');
+            loadBookings();
+        }
+
+        function updateCaregiverRating(caregiverId, newRating) {
+            // Encontrar el servicio del cuidador y actualizar su rating
+            const caregiverServices = testServices.filter(s => s.caregiverId === caregiverId);
+            caregiverServices.forEach(service => {
+                // Calcular nuevo promedio (simplificado)
+                const currentRating = service.rating;
+                const currentReviews = service.reviews;
+                const newAverage = ((currentRating * currentReviews) + newRating) / (currentReviews + 1);
+                
+                service.rating = Math.round(newAverage * 10) / 10; // Redondear a 1 decimal
+                service.reviews += 1;
+            });
+            
+            // Actualizar rating del usuario cuidador
+            const caregiver = Object.values(testUsers).find(u => u.id === caregiverId);
+            if (caregiver) {
+                const allRatings = testBookings
+                    .filter(b => b.caregiverId === caregiverId && b.ownerRated)
+                    .map(b => b.ownerRating);
+                
+                if (allRatings.length > 0) {
+                    const avgRating = allRatings.reduce((a, b) => a + b, 0) / allRatings.length;
+                    caregiver.rating = Math.round(avgRating * 10) / 10;
+                }
+            }
+        }
+
         // Función para mostrar mensajes
         function showMessage(message, type = 'success') {
             const messagesContainer = document.getElementById('messages');
@@ -1602,6 +2068,14 @@
         document.addEventListener('DOMContentLoaded', function() {
             loadFeaturedServices();
             updateUserInterface();
+            
+            // Configurar fechas mínimas para reservas
+            const today = new Date().toISOString().split('T')[0];
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            dateInputs.forEach(input => {
+                input.min = today;
+            });
+            
             showMessage('¡Bienvenido a PetCare Marketplace!', 'success');
         });
     </script>
