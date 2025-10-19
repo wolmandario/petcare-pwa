@@ -962,13 +962,79 @@
                 localStorage.removeItem('petcare_bookings');
                 localStorage.removeItem('petcare_users');
                 localStorage.removeItem('petcare_reviews');
+                localStorage.removeItem('petcare_current_user');
             } catch (e) {
                 console.error('Error clearing localStorage:', e);
             }
         }
 
-        // Cargar datos desde localStorage o usar datos por defecto
-        let testServices = loadFromStorage('petcare_services') || [
+        // Funciones para persistir sesión de usuario
+        function saveCurrentUser(user) {
+            saveToStorage('petcare_current_user', user);
+        }
+
+        function loadCurrentUser() {
+            return loadFromStorage('petcare_current_user');
+        }
+
+        function clearCurrentUser() {
+            localStorage.removeItem('petcare_current_user');
+        }
+
+        // Función para inicializar datos
+        function initializeData() {
+            // Cargar servicios
+            const storedServices = loadFromStorage('petcare_services');
+            if (storedServices && storedServices.length > 0) {
+                testServices = storedServices;
+            } else {
+                testServices = [...defaultServices];
+                saveToStorage('petcare_services', testServices);
+            }
+
+            // Cargar reservas
+            const storedBookings = loadFromStorage('petcare_bookings');
+            if (storedBookings && storedBookings.length > 0) {
+                testBookings = storedBookings;
+            } else {
+                testBookings = [...defaultBookings];
+                saveToStorage('petcare_bookings', testBookings);
+            }
+
+            // Cargar usuarios
+            const storedUsers = loadFromStorage('petcare_users');
+            if (storedUsers && Object.keys(storedUsers).length > 0) {
+                testUsers = storedUsers;
+            } else {
+                testUsers = {...defaultUsers};
+                saveToStorage('petcare_users', testUsers);
+            }
+
+            // Cargar reseñas
+            const storedReviews = loadFromStorage('petcare_reviews');
+            if (storedReviews && storedReviews.length > 0) {
+                testReviews = storedReviews;
+            } else {
+                testReviews = [];
+                saveToStorage('petcare_reviews', testReviews);
+            }
+
+            // Cargar usuario actual si existe
+            const savedUser = loadCurrentUser();
+            if (savedUser) {
+                currentUser = savedUser;
+                updateUserInterface();
+            }
+        }
+
+        // Variables globales para datos
+        let testServices = [];
+        let testBookings = [];
+        let testUsers = {};
+        let testReviews = [];
+
+        // Datos por defecto
+        const defaultServices = [
             {
                 id: 1,
                 title: 'Veterinaria San Martín',
@@ -1061,43 +1127,29 @@
             }
         ];
 
-        let testBookings = loadFromStorage('petcare_bookings') || [
+        const defaultBookings = [
             {
                 id: 1,
                 serviceId: 1,
                 serviceName: 'Veterinaria San Martín',
-                date: '2024-01-15',
+                date: '2024-12-20',
                 time: '14:00',
                 duration: 1,
-                status: 'completed',
+                status: 'pending',
                 price: 800,
                 petName: 'Max',
                 caregiverId: 2,
                 ownerId: 1,
-                canRate: true,
-                ownerRated: false,
-                caregiverRated: false
-            },
-            {
-                id: 2,
-                serviceId: 2,
-                serviceName: 'Hotel Canino Pocitos',
-                date: '2024-01-20',
-                time: '09:00',
-                duration: 24,
-                status: 'confirmed',
-                price: 1800,
-                petName: 'Luna',
-                caregiverId: 3,
-                ownerId: 1,
+                ownerName: 'María González',
+                caregiverName: 'Dr. Carlos Rodríguez',
                 canRate: false,
                 ownerRated: false,
-                caregiverRated: false
+                caregiverRated: false,
+                notes: 'Consulta de rutina para Max'
             }
         ];
 
-        // Datos de prueba expandidos
-        const testUsers = loadFromStorage('petcare_users') || {
+        const defaultUsers = {
             'maria@petcare.com': {
                 id: 1,
                 name: 'María González',
@@ -1240,15 +1292,10 @@
                 return;
             }
             
-            // Cargar usuarios desde storage
-            const storedUsers = loadFromStorage('petcare_users');
-            if (storedUsers) {
-                Object.assign(testUsers, storedUsers);
-            }
-            
             // Simulación de login
             if (testUsers[email]) {
                 currentUser = testUsers[email];
+                saveCurrentUser(currentUser); // Persistir sesión
                 updateUserInterface();
                 closeAuthModal();
                 showMessage(`¡Bienvenido ${currentUser.name}!`, 'success');
@@ -1279,12 +1326,16 @@
                 email,
                 phone,
                 role: selectedRole,
-                avatar: selectedRole === 'owner' ? '👤' : '👨‍⚕️'
+                avatar: selectedRole === 'owner' ? '👤' : '👨‍⚕️',
+                pets: selectedRole === 'owner' ? [
+                    { name: 'Mi Mascota', type: 'Perro', breed: 'Mestizo', age: 2 }
+                ] : undefined
             };
             
             testUsers[email] = newUser;
             saveToStorage('petcare_users', testUsers);
             currentUser = newUser;
+            saveCurrentUser(currentUser); // Persistir sesión
             updateUserInterface();
             closeAuthModal();
             showMessage(`¡Cuenta creada exitosamente! Bienvenido ${name}`, 'success');
@@ -1294,6 +1345,7 @@
         function logout() {
             currentUser = null;
             selectedRole = null;
+            clearCurrentUser(); // Limpiar sesión persistida
             updateUserInterface();
             clearAllData();
             showMessage('Sesión cerrada correctamente', 'success');
@@ -1442,8 +1494,7 @@
             const service = testServices.find(s => s.id === serviceId);
             if (!service) return;
 
-            const reviews = loadFromStorage('petcare_reviews') || [];
-            const serviceReviews = reviews.filter(r => r.serviceId === serviceId);
+            const serviceReviews = testReviews.filter(r => r.serviceId === serviceId);
 
             document.getElementById('reviewsTitle').textContent = `Reseñas de ${service.title}`;
             document.getElementById('reviewsServiceInfo').innerHTML = `
@@ -1840,6 +1891,8 @@
                 petName: pet,
                 caregiverId: selectedService.caregiverId,
                 ownerId: currentUser.id,
+                ownerName: currentUser.name,
+                caregiverName: selectedService.caregiver,
                 notes: notes,
                 canRate: false,
                 ownerRated: false,
@@ -1872,26 +1925,31 @@
             );
             
             if (userBookings.length === 0) {
-                container.innerHTML = '<p>No tienes reservas aún.</p>';
+                const roleMessage = currentUser.role === 'owner' ? 
+                    'No has hecho reservas aún.' : 
+                    'No tienes solicitudes de reserva aún.';
+                container.innerHTML = `<p>${roleMessage}</p>`;
                 return;
             }
             
             container.innerHTML = userBookings.map(booking => {
                 const isOwner = booking.ownerId === currentUser.id;
-                const canRate = booking.status === 'completed' && booking.canRate;
+                const canRate = booking.status === 'completed';
                 const hasRated = isOwner ? booking.ownerRated : booking.caregiverRated;
+                const otherParty = isOwner ? booking.caregiverName : booking.ownerName;
                 
                 return `
                     <div class="card booking-card">
                         <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
                             <div>
                                 <h3>${booking.serviceName} ${booking.status === 'completed' ? '<span class="completed-badge">Completado</span>' : ''}</h3>
+                                <p><strong>${isOwner ? 'Cuidador' : 'Cliente'}:</strong> ${otherParty}</p>
                                 <p><strong>Mascota:</strong> ${booking.petName}</p>
                                 <p><strong>Fecha:</strong> ${booking.date} a las ${booking.time}</p>
                                 <p><strong>Duración:</strong> ${booking.duration} hora${booking.duration > 1 ? 's' : ''}</p>
                                 <p><strong>Precio:</strong> $${booking.price}</p>
                                 ${booking.notes ? `<p><strong>Notas:</strong> ${booking.notes}</p>` : ''}
-                                ${hasRated ? `<p style="color: #28a745;"><strong>✓ Ya calificaste este servicio</strong></p>` : ''}
+                                ${hasRated ? `<p style="color: #28a745;"><strong>✓ Ya calificaste</strong></p>` : ''}
                             </div>
                             <span class="booking-status status-${booking.status}">
                                 ${booking.status === 'confirmed' ? 'Confirmada' : 
@@ -1900,13 +1958,37 @@
                         </div>
                         <div class="service-actions">
                             <button class="btn btn-primary" onclick="openChat(${booking.serviceId})">💬 Chat</button>
-                            ${booking.status === 'pending' ? '<button class="btn btn-danger" onclick="cancelBooking(' + booking.id + ')">Cancelar</button>' : ''}
+                            ${booking.status === 'pending' && !isOwner ? '<button class="btn btn-success" onclick="acceptBooking(' + booking.id + ')">✓ Aceptar</button>' : ''}
+                            ${booking.status === 'pending' && !isOwner ? '<button class="btn btn-danger" onclick="rejectBooking(' + booking.id + ')">✗ Rechazar</button>' : ''}
+                            ${booking.status === 'pending' && isOwner ? '<button class="btn btn-danger" onclick="cancelBooking(' + booking.id + ')">Cancelar</button>' : ''}
+                            ${booking.status === 'confirmed' ? '<button class="btn btn-secondary" onclick="markCompleted(' + booking.id + ')">Marcar Completado</button>' : ''}
                             ${canRate && !hasRated ? '<button class="btn btn-success" onclick="showRatingModal(' + booking.id + ')">⭐ Calificar</button>' : ''}
-                            ${booking.status === 'confirmed' && isOwner ? '<button class="btn btn-secondary" onclick="markCompleted(' + booking.id + ')">Marcar Completado</button>' : ''}
                         </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        function acceptBooking(bookingId) {
+            const booking = testBookings.find(b => b.id === bookingId);
+            if (booking) {
+                booking.status = 'confirmed';
+                saveToStorage('petcare_bookings', testBookings);
+                showMessage('Reserva aceptada correctamente', 'success');
+                loadBookings();
+            }
+        }
+
+        function rejectBooking(bookingId) {
+            if (confirm('¿Estás seguro de que quieres rechazar esta reserva?')) {
+                const bookingIndex = testBookings.findIndex(b => b.id === bookingId);
+                if (bookingIndex !== -1) {
+                    testBookings.splice(bookingIndex, 1);
+                    saveToStorage('petcare_bookings', testBookings);
+                    showMessage('Reserva rechazada', 'success');
+                    loadBookings();
+                }
+            }
         }
 
         function cancelBooking(bookingId) {
@@ -1925,9 +2007,8 @@
             const booking = testBookings.find(b => b.id === bookingId);
             if (booking) {
                 booking.status = 'completed';
-                booking.canRate = true;
                 saveToStorage('petcare_bookings', testBookings);
-                showMessage('Servicio marcado como completado. ¡Ahora puedes calificarlo!', 'success');
+                showMessage('Servicio marcado como completado. ¡Ahora pueden calificarse mutuamente!', 'success');
                 loadBookings();
             }
         }
@@ -1938,14 +2019,16 @@
             if (!bookingToRate) return;
             
             const isOwner = bookingToRate.ownerId === currentUser.id;
-            const otherParty = isOwner ? 'cuidador' : 'dueño de mascota';
+            const otherParty = isOwner ? bookingToRate.caregiverName : bookingToRate.ownerName;
+            const ratingType = isOwner ? 'servicio' : 'cliente';
             
-            document.getElementById('ratingTitle').textContent = `Calificar ${otherParty}`;
+            document.getElementById('ratingTitle').textContent = `Calificar ${ratingType}`;
             document.getElementById('ratingServiceInfo').innerHTML = `
                 <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
                     <div style="font-size: 32px;">⭐</div>
                     <div>
                         <h3>${bookingToRate.serviceName}</h3>
+                        <p style="color: #666; margin: 0;">${isOwner ? 'Cuidador' : 'Cliente'}: ${otherParty}</p>
                         <p style="color: #666; margin: 0;">Servicio completado el ${bookingToRate.date}</p>
                         <p style="color: #666; margin: 0;">Mascota: ${bookingToRate.petName}</p>
                     </div>
@@ -1996,39 +2079,37 @@
             const recommend = document.querySelector('input[name="recommend"]:checked')?.value;
             const isOwner = bookingToRate.ownerId === currentUser.id;
             
-            // Crear reseña pública
-            const review = {
-                id: Date.now(),
-                serviceId: bookingToRate.serviceId,
-                bookingId: bookingToRate.id,
-                authorId: currentUser.id,
-                authorName: currentUser.name,
-                authorRole: currentUser.role,
-                rating: currentRating,
-                comment: comment,
-                recommend: recommend === 'yes',
-                date: new Date().toLocaleDateString('es-UY'),
-                petName: bookingToRate.petName
-            };
-            
-            // Guardar reseña
-            let reviews = loadFromStorage('petcare_reviews') || [];
-            reviews.push(review);
-            saveToStorage('petcare_reviews', reviews);
-            
             // Actualizar la reserva con la calificación
             if (isOwner) {
                 bookingToRate.ownerRated = true;
                 bookingToRate.ownerRating = currentRating;
                 bookingToRate.ownerComment = comment;
+                
+                // Solo los dueños crean reseñas públicas del servicio
+                const review = {
+                    id: Date.now(),
+                    serviceId: bookingToRate.serviceId,
+                    bookingId: bookingToRate.id,
+                    authorId: currentUser.id,
+                    authorName: currentUser.name,
+                    authorRole: currentUser.role,
+                    rating: currentRating,
+                    comment: comment,
+                    recommend: recommend === 'yes',
+                    date: new Date().toLocaleDateString('es-UY'),
+                    petName: bookingToRate.petName
+                };
+                
+                testReviews.push(review);
+                saveToStorage('petcare_reviews', testReviews);
+                
+                // Actualizar calificación promedio del servicio
+                updateServiceRating(bookingToRate.serviceId, currentRating);
             } else {
                 bookingToRate.caregiverRated = true;
                 bookingToRate.caregiverRating = currentRating;
                 bookingToRate.caregiverComment = comment;
             }
-            
-            // Actualizar calificación promedio del cuidador
-            updateCaregiverRating(bookingToRate.caregiverId, currentRating);
             
             // Guardar cambios
             saveToStorage('petcare_bookings', testBookings);
@@ -2039,20 +2120,21 @@
             loadBookings();
         }
 
-        function updateCaregiverRating(caregiverId, newRating) {
-            // Encontrar el servicio del cuidador y actualizar su rating
-            const caregiverServices = testServices.filter(s => s.caregiverId === caregiverId);
-            caregiverServices.forEach(service => {
-                // Calcular nuevo promedio (simplificado)
-                const currentRating = service.rating;
-                const currentReviews = service.reviews;
-                const newAverage = ((currentRating * currentReviews) + newRating) / (currentReviews + 1);
-                
-                service.rating = Math.round(newAverage * 10) / 10; // Redondear a 1 decimal
-                service.reviews += 1;
-            });
-            
-            // Actualizar rating del usuario cuidador
+        function updateServiceRating(serviceId, newRating) {
+            const service = testServices.find(s => s.id === serviceId);
+            if (service) {
+                // Calcular nuevo promedio basado en todas las reseñas del servicio
+                const serviceReviews = testReviews.filter(r => r.serviceId === serviceId);
+                if (serviceReviews.length > 0) {
+                    const totalRating = serviceReviews.reduce((sum, review) => sum + review.rating, 0);
+                    service.rating = Math.round((totalRating / serviceReviews.length) * 10) / 10;
+                    service.reviews = serviceReviews.length;
+                }
+            }
+        }
+
+        function updateCaregiverRating(caregiverId) {
+            // Actualizar rating del usuario cuidador basado en todas sus calificaciones
             const caregiver = Object.values(testUsers).find(u => u.id === caregiverId);
             if (caregiver) {
                 const allRatings = testBookings
@@ -2249,29 +2331,8 @@
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            // Cargar datos persistentes
-            const storedServices = loadFromStorage('petcare_services');
-            const storedBookings = loadFromStorage('petcare_bookings');
-            const storedUsers = loadFromStorage('petcare_users');
-            
-            if (storedServices) {
-                testServices = storedServices;
-            } else {
-                // Guardar datos iniciales
-                saveToStorage('petcare_services', testServices);
-            }
-            
-            if (storedBookings) {
-                testBookings = storedBookings;
-            } else {
-                saveToStorage('petcare_bookings', testBookings);
-            }
-            
-            if (storedUsers) {
-                Object.assign(testUsers, storedUsers);
-            } else {
-                saveToStorage('petcare_users', testUsers);
-            }
+            // Inicializar todos los datos
+            initializeData();
             
             loadFeaturedServices();
             updateUserInterface();
