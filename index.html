@@ -394,6 +394,130 @@
             margin-left: 10px;
         }
         
+        /* Photo Upload Styles */
+        .photo-upload-container {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+        }
+        
+        .photo-upload-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100px;
+            height: 100px;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .photo-upload-btn:hover {
+            background: #e3f2fd;
+            border-color: #5a6fd8;
+        }
+        
+        .photo-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #ddd;
+        }
+        
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .photo-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+        
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .photo-delete {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pet-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #667eea;
+        }
+        
+        .chat-photo {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        
+        /* Photo Modal */
+        .photo-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+        }
+        
+        .photo-modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90%;
+            max-height: 90%;
+        }
+        
+        .photo-modal img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        
+        .photo-modal-close {
+            position: absolute;
+            top: 15px;
+            right: 35px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
         /* Reviews Styles */
         .review-item {
             border-bottom: 1px solid #eee;
@@ -463,6 +587,119 @@
             100% { transform: rotate(360deg); }
         }
         
+        /* Map Styles */
+        .map-container {
+            height: 400px;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 20px 0;
+            border: 2px solid #ddd;
+        }
+        
+        .map-controls {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .distance-filter {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        
+        .distance-btn {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .distance-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .location-btn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            padding: 8px 16px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .location-btn:hover {
+            background: #218838;
+        }
+        
+        .location-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        
+        .service-popup {
+            max-width: 250px;
+        }
+        
+        .service-popup h4 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+        }
+        
+        .service-popup p {
+            margin: 2px 0;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .service-popup .rating {
+            margin: 5px 0;
+        }
+        
+        .service-popup .btn {
+            padding: 6px 12px;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+        
+        .distance-info {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+            color: #1976d2;
+        }
+        
+        .no-location {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .loading-map {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #666;
+        }
+
         /* Touch improvements */
         .nav-tabs::-webkit-scrollbar { display: none; }
         .nav-tabs { -ms-overflow-style: none; scrollbar-width: none; }
@@ -488,6 +725,7 @@
         <div class="nav-tabs">
             <button class="nav-tab active" onclick="showScreen('home')">🏠 Inicio</button>
             <button class="nav-tab" onclick="showScreen('services')">🔍 Servicios</button>
+            <button class="nav-tab" onclick="showScreen('map')">🗺️ Mapa</button>
             <button class="nav-tab caregiver-only" onclick="showScreen('myservices')">📋 Mis Servicios</button>
             <button class="nav-tab" onclick="showScreen('bookings')">📅 Reservas</button>
             <button class="nav-tab" onclick="showScreen('chats')">💬 Chats</button>
@@ -535,6 +773,42 @@
                 <h3>Servicios Destacados</h3>
                 <div id="featuredServices">
                     <!-- Los servicios se cargan dinámicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Map Screen -->
+        <div id="mapScreen" class="screen">
+            <div class="card">
+                <h2>🗺️ Servicios Cercanos</h2>
+                
+                <div class="map-controls">
+                    <button id="locationBtn" class="location-btn" onclick="getCurrentLocation()">
+                        📍 Mi Ubicación
+                    </button>
+                    
+                    <div class="distance-filter">
+                        <span style="font-weight: 600; margin-right: 10px;">Distancia:</span>
+                        <button class="distance-btn active" onclick="setDistanceFilter(5)" data-distance="5">5km</button>
+                        <button class="distance-btn" onclick="setDistanceFilter(10)" data-distance="10">10km</button>
+                        <button class="distance-btn" onclick="setDistanceFilter(25)" data-distance="25">25km</button>
+                        <button class="distance-btn" onclick="setDistanceFilter(0)" data-distance="0">Todos</button>
+                    </div>
+                </div>
+                
+                <div id="locationInfo" class="distance-info" style="display: none;">
+                    <span id="locationText">📍 Ubicación detectada</span>
+                </div>
+                
+                <div id="mapContainer" class="map-container">
+                    <div class="loading-map">
+                        <div class="loading"></div>
+                        <span style="margin-left: 10px;">Cargando mapa...</span>
+                    </div>
+                </div>
+                
+                <div id="nearbyServices" style="margin-top: 20px;">
+                    <!-- Servicios cercanos aparecen aquí -->
                 </div>
             </div>
         </div>
@@ -903,6 +1177,14 @@
         </div>
     </div>
 
+    <!-- Photo Modal -->
+    <div id="photoModal" class="photo-modal">
+        <span class="photo-modal-close" onclick="closePhotoModal()">&times;</span>
+        <div class="photo-modal-content">
+            <img id="photoModalImage" src="" alt="Foto">
+        </div>
+    </div>
+
     <!-- Chat Modal -->
     <div id="chatModal" class="modal">
         <div class="modal-content">
@@ -916,6 +1198,8 @@
                         <!-- Los mensajes aparecen aquí -->
                     </div>
                     <div class="chat-input-container">
+                        <input type="file" id="chatPhotoInput" accept="image/*" style="display: none;" onchange="handleChatPhoto(event)">
+                        <button class="btn btn-secondary" onclick="document.getElementById('chatPhotoInput').click()">📷</button>
                         <input type="text" class="chat-input" id="messageInput" placeholder="Escribe un mensaje..." onkeypress="handleMessageKeyPress(event)">
                         <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
                     </div>
@@ -936,6 +1220,13 @@
         let selectedService = null;
         let currentRating = 0;
         let bookingToRate = null;
+        
+        // Variables para mapa y geolocalización
+        let map = null;
+        let userLocation = null;
+        let currentDistanceFilter = 5; // km
+        let serviceMarkers = [];
+        let userMarker = null;
 
         // Funciones de persistencia
         function saveToStorage(key, data) {
@@ -1044,6 +1335,7 @@
                 priceUnit: 'consulta',
                 description: 'Atención veterinaria completa con más de 20 años de experiencia. Consultas, vacunación, cirugías menores y emergencias.',
                 location: 'Centro',
+                coordinates: [-34.9011, -56.1645], // Centro de Montevideo
                 rating: 4.8,
                 reviews: 127,
                 caregiver: 'Dr. Carlos Rodríguez',
@@ -1059,6 +1351,7 @@
                 priceUnit: 'día',
                 description: 'Hospedaje para mascotas con amplios espacios verdes, cuidado personalizado las 24 horas y actividades recreativas.',
                 location: 'Pocitos',
+                coordinates: [-34.9167, -56.1167], // Pocitos
                 rating: 4.9,
                 reviews: 89,
                 caregiver: 'Ana Martínez',
@@ -1074,6 +1367,7 @@
                 priceUnit: 'sesión',
                 description: 'Corte, baño, uñas y limpieza de oídos. Productos premium para el cuidado de tu mascota.',
                 location: 'Carrasco',
+                coordinates: [-34.8833, -56.0333], // Carrasco
                 rating: 4.7,
                 reviews: 156,
                 caregiver: 'Laura Fernández',
@@ -1089,6 +1383,7 @@
                 priceUnit: 'día',
                 description: 'Guardería diurna con actividades, socialización y cuidado profesional mientras trabajas.',
                 location: 'Punta Gorda',
+                coordinates: [-34.8667, -56.1167], // Punta Gorda
                 rating: 4.6,
                 reviews: 203,
                 caregiver: 'Roberto Silva',
@@ -1104,6 +1399,7 @@
                 priceUnit: 'paseo',
                 description: 'Paseos individuales o grupales con cuidadores certificados. Reportes con fotos incluidos.',
                 location: 'Malvín',
+                coordinates: [-34.8833, -56.0833], // Malvín
                 rating: 4.5,
                 reviews: 78,
                 caregiver: 'Diego López',
@@ -1119,6 +1415,7 @@
                 priceUnit: 'sesión',
                 description: 'Entrenamiento profesional para obediencia básica, problemas de comportamiento y trucos.',
                 location: 'Cordón',
+                coordinates: [-34.9056, -56.1889], // Cordón
                 rating: 4.9,
                 reviews: 45,
                 caregiver: 'Patricia Vega',
@@ -1158,8 +1455,22 @@
                 role: 'owner',
                 avatar: '👩',
                 pets: [
-                    { name: 'Max', type: 'Perro', breed: 'Golden Retriever', age: 3 },
-                    { name: 'Luna', type: 'Gato', breed: 'Siamés', age: 2 }
+                    { 
+                        name: 'Max', 
+                        type: 'Perro', 
+                        breed: 'Golden Retriever', 
+                        age: 3,
+                        photos: [],
+                        profilePhoto: null
+                    },
+                    { 
+                        name: 'Luna', 
+                        type: 'Gato', 
+                        breed: 'Siamés', 
+                        age: 2,
+                        photos: [],
+                        profilePhoto: null
+                    }
                 ]
             },
             'carlos@petcare.com': {
@@ -1243,6 +1554,12 @@
             // Cargar contenido específico de la pantalla
             if (screenName === 'services') {
                 loadAllServices();
+            } else if (screenName === 'map') {
+                // Inicializar mapa con un pequeño delay para que el contenedor esté visible
+                setTimeout(() => {
+                    initializeMap();
+                    updateNearbyServices();
+                }, 100);
             } else if (screenName === 'myservices') {
                 loadMyServices();
             } else if (screenName === 'bookings') {
@@ -1328,7 +1645,14 @@
                 role: selectedRole,
                 avatar: selectedRole === 'owner' ? '👤' : '👨‍⚕️',
                 pets: selectedRole === 'owner' ? [
-                    { name: 'Mi Mascota', type: 'Perro', breed: 'Mestizo', age: 2 }
+                    { 
+                        name: 'Mi Mascota', 
+                        type: 'Perro', 
+                        breed: 'Mestizo', 
+                        age: 2,
+                        photos: [],
+                        profilePhoto: null
+                    }
                 ] : undefined
             };
             
@@ -1645,6 +1969,16 @@
                 'training': ['Métodos positivos', 'Entrenador certificado', 'Seguimiento personalizado']
             };
             
+            // Coordenadas por defecto según ubicación
+            const defaultCoordinates = {
+                'Centro': [-34.9011, -56.1645],
+                'Pocitos': [-34.9167, -56.1167],
+                'Carrasco': [-34.8833, -56.0333],
+                'Punta Gorda': [-34.8667, -56.1167],
+                'Malvín': [-34.8833, -56.0833],
+                'Cordón': [-34.9056, -56.1889]
+            };
+            
             const newService = {
                 id: Date.now(),
                 title: name,
@@ -1654,6 +1988,7 @@
                 priceUnit: priceUnit,
                 description: description,
                 location: location,
+                coordinates: defaultCoordinates[location] || [-34.9011, -56.1645], // Centro por defecto
                 rating: 5.0,
                 reviews: 0,
                 caregiver: currentUser.name,
@@ -2204,12 +2539,23 @@
             if (!currentChat) return;
             
             const container = document.getElementById('chatMessages');
-            container.innerHTML = currentChat.messages.map(message => `
-                <div class="chat-message ${message.sender === 'me' ? 'sent' : 'received'}">
-                    <div>${message.text}</div>
-                    <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">${message.time}</div>
-                </div>
-            `).join('');
+            container.innerHTML = currentChat.messages.map(message => {
+                if (message.type === 'photo') {
+                    return `
+                        <div class="chat-message ${message.sender === 'me' ? 'sent' : 'received'}">
+                            <img src="${message.imageData}" class="chat-photo" onclick="showPhotoModal('${message.imageData}')" alt="Foto">
+                            <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">${message.time}</div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="chat-message ${message.sender === 'me' ? 'sent' : 'received'}">
+                            <div>${message.text}</div>
+                            <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">${message.time}</div>
+                        </div>
+                    `;
+                }
+            }).join('');
             
             container.scrollTop = container.scrollHeight;
         }
@@ -2290,9 +2636,40 @@
                     <div class="card">
                         <h3>Mis Mascotas</h3>
                         ${currentUser.pets.map(pet => `
-                            <div style="padding: 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px;">
-                                <h4>${pet.name}</h4>
-                                <p>${pet.type} - ${pet.breed} - ${pet.age} años</p>
+                            <div style="padding: 15px; background: #f8f9fa; border-radius: 8px; margin-bottom: 15px;">
+                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                                    ${pet.profilePhoto ? 
+                                        `<img src="${pet.profilePhoto}" class="pet-avatar" onclick="showPhotoModal('${pet.profilePhoto}')" alt="${pet.name}">` :
+                                        `<div class="pet-avatar" style="background: #ddd; display: flex; align-items: center; justify-content: center; font-size: 24px;">🐾</div>`
+                                    }
+                                    <div>
+                                        <h4>${pet.name}</h4>
+                                        <p>${pet.type} - ${pet.breed} - ${pet.age} años</p>
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 15px;">
+                                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                        <h5>Fotos:</h5>
+                                        <div class="photo-upload-container">
+                                            <input type="file" id="petPhoto_${pet.name}" accept="image/*" style="display: none;" onchange="handlePetPhoto(event, '${pet.name}')">
+                                            <div class="photo-upload-btn" onclick="document.getElementById('petPhoto_${pet.name}').click()">
+                                                <span style="font-size: 24px;">📷</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    ${pet.photos && pet.photos.length > 0 ? `
+                                        <div class="photo-gallery">
+                                            ${pet.photos.map(photo => `
+                                                <div class="photo-item">
+                                                    <img src="${photo.data}" onclick="showPhotoModal('${photo.data}')" alt="Foto de ${pet.name}">
+                                                    <button class="photo-delete" onclick="removePetPhoto('${pet.name}', '${photo.id}')" title="Eliminar foto">×</button>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    ` : '<p style="color: #666; font-size: 14px;">No hay fotos aún. ¡Agrega la primera!</p>'}
+                                </div>
                             </div>
                         `).join('')}
                     </div>
@@ -2311,6 +2688,454 @@
                     </div>
                 ` : ''}
             `;
+        }
+
+        // Funciones de manejo de fotos
+        function compressImage(file, maxWidth = 800, quality = 0.8) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = function() {
+                    // Calcular nuevas dimensiones manteniendo proporción
+                    let { width, height } = img;
+                    if (width > maxWidth) {
+                        height = (height * maxWidth) / width;
+                        width = maxWidth;
+                    }
+                    
+                    canvas.width = width;
+                    canvas.height = height;
+                    
+                    // Dibujar imagen redimensionada
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Convertir a base64
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+                    resolve(compressedDataUrl);
+                };
+                
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        function generatePhotoId() {
+            return 'photo_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function showPhotoModal(imageSrc) {
+            document.getElementById('photoModalImage').src = imageSrc;
+            document.getElementById('photoModal').style.display = 'block';
+        }
+
+        function closePhotoModal() {
+            document.getElementById('photoModal').style.display = 'none';
+        }
+
+        // Cerrar modal al hacer clic fuera de la imagen
+        document.addEventListener('click', function(event) {
+            const photoModal = document.getElementById('photoModal');
+            if (event.target === photoModal) {
+                closePhotoModal();
+            }
+        });
+
+        // Funciones para fotos en chat
+        async function handleChatPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                showMessage('Por favor selecciona una imagen válida', 'error');
+                return;
+            }
+            
+            try {
+                const compressedImage = await compressImage(file, 600, 0.7);
+                sendPhotoMessage(compressedImage);
+                event.target.value = ''; // Limpiar input
+            } catch (error) {
+                showMessage('Error al procesar la imagen', 'error');
+            }
+        }
+
+        function sendPhotoMessage(imageData) {
+            if (!currentChat) return;
+            
+            const newMessage = {
+                sender: 'me',
+                type: 'photo',
+                imageData: imageData,
+                time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            currentChat.messages.push(newMessage);
+            currentChat.lastMessage = '📷 Foto';
+            currentChat.lastMessageTime = newMessage.time;
+            
+            loadChatMessages();
+            
+            // Simular respuesta automática
+            setTimeout(() => {
+                const responses = [
+                    '¡Qué linda foto! 😍',
+                    'Se ve muy bien la mascota',
+                    'Gracias por compartir la foto',
+                    '¡Excelente! Todo en orden'
+                ];
+                
+                const autoResponse = {
+                    sender: 'other',
+                    text: responses[Math.floor(Math.random() * responses.length)],
+                    time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })
+                };
+                
+                currentChat.messages.push(autoResponse);
+                currentChat.lastMessage = autoResponse.text;
+                currentChat.lastMessageTime = autoResponse.time;
+                
+                loadChatMessages();
+            }, 2000);
+        }
+
+        // Funciones para galería de mascotas
+        function addPetPhoto(petName, imageData) {
+            if (!currentUser || !currentUser.pets) return;
+            
+            const pet = currentUser.pets.find(p => p.name === petName);
+            if (!pet) return;
+            
+            if (!pet.photos) pet.photos = [];
+            
+            const photoId = generatePhotoId();
+            pet.photos.push({
+                id: photoId,
+                data: imageData,
+                date: new Date().toISOString()
+            });
+            
+            // Actualizar foto de perfil si es la primera
+            if (pet.photos.length === 1) {
+                pet.profilePhoto = imageData;
+            }
+            
+            saveToStorage('petcare_users', testUsers);
+            saveCurrentUser(currentUser);
+        }
+
+        function removePetPhoto(petName, photoId) {
+            if (!currentUser || !currentUser.pets) return;
+            
+            const pet = currentUser.pets.find(p => p.name === petName);
+            if (!pet || !pet.photos) return;
+            
+            pet.photos = pet.photos.filter(photo => photo.id !== photoId);
+            
+            // Si era la foto de perfil, usar la primera disponible
+            if (pet.photos.length > 0) {
+                pet.profilePhoto = pet.photos[0].data;
+            } else {
+                delete pet.profilePhoto;
+            }
+            
+            saveToStorage('petcare_users', testUsers);
+            saveCurrentUser(currentUser);
+        }
+
+        function setPetProfilePhoto(petName, photoId) {
+            if (!currentUser || !currentUser.pets) return;
+            
+            const pet = currentUser.pets.find(p => p.name === petName);
+            if (!pet || !pet.photos) return;
+            
+            const photo = pet.photos.find(p => p.id === photoId);
+            if (photo) {
+                pet.profilePhoto = photo.data;
+                saveToStorage('petcare_users', testUsers);
+                saveCurrentUser(currentUser);
+            }
+        }
+
+        async function handlePetPhoto(event, petName) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            if (!file.type.startsWith('image/')) {
+                showMessage('Por favor selecciona una imagen válida', 'error');
+                return;
+            }
+            
+            try {
+                const compressedImage = await compressImage(file, 800, 0.8);
+                addPetPhoto(petName, compressedImage);
+                showMessage('¡Foto agregada exitosamente!', 'success');
+                loadProfile(); // Recargar perfil para mostrar la nueva foto
+                event.target.value = ''; // Limpiar input
+            } catch (error) {
+                showMessage('Error al procesar la imagen', 'error');
+            }
+        }
+
+        // Funciones de geolocalización y mapas
+        function initializeMap() {
+            if (map) return; // Ya está inicializado
+            
+            try {
+                // Centrar en Montevideo por defecto
+                const montevideoCenter = [-34.9011, -56.1645];
+                
+                map = L.map('mapContainer').setView(montevideoCenter, 12);
+                
+                // Usar OpenStreetMap (gratuito)
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+                
+                // Cargar servicios en el mapa
+                loadServicesOnMap();
+                
+            } catch (error) {
+                console.error('Error inicializando mapa:', error);
+                document.getElementById('mapContainer').innerHTML = `
+                    <div class="no-location">
+                        <div style="font-size: 48px; margin-bottom: 15px;">🗺️</div>
+                        <h3>Error cargando mapa</h3>
+                        <p>Verifica tu conexión a internet</p>
+                        <button class="btn btn-primary" onclick="initializeMap()">Reintentar</button>
+                    </div>
+                `;
+            }
+        }
+
+        function getCurrentLocation() {
+            const locationBtn = document.getElementById('locationBtn');
+            locationBtn.disabled = true;
+            locationBtn.innerHTML = '📍 Detectando...';
+            
+            if (!navigator.geolocation) {
+                showMessage('Geolocalización no soportada en este navegador', 'error');
+                locationBtn.disabled = false;
+                locationBtn.innerHTML = '📍 Mi Ubicación';
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    userLocation = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+                    
+                    showUserLocation();
+                    updateNearbyServices();
+                    
+                    locationBtn.disabled = false;
+                    locationBtn.innerHTML = '📍 Ubicación Detectada';
+                    
+                    document.getElementById('locationInfo').style.display = 'block';
+                    document.getElementById('locationText').textContent = 
+                        `📍 Ubicación detectada - Mostrando servicios cercanos`;
+                },
+                (error) => {
+                    let errorMessage = 'Error detectando ubicación';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'Permiso de ubicación denegado';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'Ubicación no disponible';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'Tiempo de espera agotado';
+                            break;
+                    }
+                    
+                    showMessage(errorMessage, 'error');
+                    locationBtn.disabled = false;
+                    locationBtn.innerHTML = '📍 Mi Ubicación';
+                }
+            );
+        }
+
+        function showUserLocation() {
+            if (!map || !userLocation) return;
+            
+            // Remover marcador anterior si existe
+            if (userMarker) {
+                map.removeLayer(userMarker);
+            }
+            
+            // Agregar marcador de usuario
+            userMarker = L.marker([userLocation.lat, userLocation.lng])
+                .addTo(map)
+                .bindPopup('📍 Tu ubicación')
+                .openPopup();
+            
+            // Centrar mapa en la ubicación del usuario
+            map.setView([userLocation.lat, userLocation.lng], 14);
+        }
+
+        function loadServicesOnMap() {
+            if (!map) return;
+            
+            // Limpiar marcadores anteriores
+            serviceMarkers.forEach(marker => map.removeLayer(marker));
+            serviceMarkers = [];
+            
+            // Agregar marcadores de servicios
+            testServices.forEach(service => {
+                if (!service.coordinates) return;
+                
+                const [lat, lng] = service.coordinates;
+                const distance = userLocation ? 
+                    calculateDistance(userLocation.lat, userLocation.lng, lat, lng) : null;
+                
+                // Filtrar por distancia si está activo
+                if (currentDistanceFilter > 0 && distance && distance > currentDistanceFilter) {
+                    return;
+                }
+                
+                const marker = L.marker([lat, lng])
+                    .addTo(map)
+                    .bindPopup(`
+                        <div class="service-popup">
+                            <h4>${service.icon} ${service.title}</h4>
+                            <p><strong>$${service.price}/${service.priceUnit}</strong></p>
+                            <p>📍 ${service.location}</p>
+                            ${distance ? `<p>📏 ${distance.toFixed(1)} km</p>` : ''}
+                            <div class="rating">
+                                <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                                <span>${service.rating} (${service.reviews})</span>
+                            </div>
+                            ${currentUser && currentUser.role === 'owner' ? 
+                                `<button class="btn btn-primary" onclick="selectServiceFromMap(${service.id})">Reservar</button>` :
+                                `<button class="btn btn-secondary" onclick="showReviews(${service.id})">Ver Reseñas</button>`
+                            }
+                        </div>
+                    `);
+                
+                serviceMarkers.push(marker);
+            });
+        }
+
+        function calculateDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371; // Radio de la Tierra en km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLng = (lng2 - lng1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dLng/2) * Math.sin(dLng/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function setDistanceFilter(distance) {
+            currentDistanceFilter = distance;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.distance-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-distance="${distance}"]`).classList.add('active');
+            
+            // Recargar servicios en mapa
+            loadServicesOnMap();
+            updateNearbyServices();
+        }
+
+        function updateNearbyServices() {
+            const container = document.getElementById('nearbyServices');
+            
+            if (!userLocation) {
+                container.innerHTML = `
+                    <div class="no-location">
+                        <div style="font-size: 32px; margin-bottom: 10px;">📍</div>
+                        <p>Activa tu ubicación para ver servicios cercanos</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Calcular distancias y filtrar
+            const servicesWithDistance = testServices
+                .map(service => {
+                    if (!service.coordinates) return null;
+                    const [lat, lng] = service.coordinates;
+                    const distance = calculateDistance(userLocation.lat, userLocation.lng, lat, lng);
+                    return { ...service, distance };
+                })
+                .filter(service => service && (currentDistanceFilter === 0 || service.distance <= currentDistanceFilter))
+                .sort((a, b) => a.distance - b.distance);
+            
+            if (servicesWithDistance.length === 0) {
+                container.innerHTML = `
+                    <div class="no-location">
+                        <div style="font-size: 32px; margin-bottom: 10px;">🔍</div>
+                        <p>No hay servicios en el radio seleccionado</p>
+                        <button class="btn btn-secondary" onclick="setDistanceFilter(25)">Ampliar búsqueda</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <h3>Servicios Cercanos (${servicesWithDistance.length})</h3>
+                ${servicesWithDistance.map(service => `
+                    <div class="service-card">
+                        <div class="service-header">
+                            <div class="service-icon">${service.icon}</div>
+                            <div class="service-info">
+                                <h3>${service.title}</h3>
+                                <div class="service-price">$${service.price}/${service.priceUnit}</div>
+                            </div>
+                        </div>
+                        <div class="service-description">${service.description}</div>
+                        <div class="service-meta">
+                            <div class="rating">
+                                <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                                <span>${service.rating} (${service.reviews} reseñas)</span>
+                            </div>
+                            <span>📍 ${service.location} - ${service.distance.toFixed(1)} km</span>
+                        </div>
+                        <div class="service-actions" style="margin-top: 15px;">
+                            ${currentUser && currentUser.role === 'owner' ? 
+                                `<button class="btn btn-primary" onclick="selectService(${service.id})">📅 Reservar</button>` : 
+                                ''
+                            }
+                            <button class="btn btn-secondary" onclick="showReviews(${service.id})">👁️ Ver Reseñas</button>
+                            <button class="btn btn-secondary" onclick="showServiceOnMap(${service.id})">🗺️ Ver en Mapa</button>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function selectServiceFromMap(serviceId) {
+            selectService(serviceId);
+        }
+
+        function showServiceOnMap(serviceId) {
+            const service = testServices.find(s => s.id === serviceId);
+            if (!service || !service.coordinates) return;
+            
+            const [lat, lng] = service.coordinates;
+            
+            // Cambiar a la pestaña del mapa
+            showScreen('map');
+            
+            // Centrar mapa en el servicio
+            if (map) {
+                map.setView([lat, lng], 16);
+                
+                // Abrir popup del servicio
+                const marker = serviceMarkers.find(m => 
+                    m.getLatLng().lat === lat && m.getLatLng().lng === lng
+                );
+                if (marker) {
+                    marker.openPopup();
+                }
+            }
         }
 
         // Función para mostrar mensajes
