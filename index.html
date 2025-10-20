@@ -1290,6 +1290,15 @@
         // Variables para favoritos
         let userFavorites = [];
 
+        // Funciones de autenticación (declaradas temprano para uso en HTML)
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'block';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
         // Sistema de persistencia mejorado con sincronización
         const STORAGE_KEYS = {
             SERVICES: 'petcare_services_v2',
@@ -1441,7 +1450,7 @@
             }
 
             // Cargar reseñas
-            const storedReviews = loadFromStorage('petcare_reviews');
+            const storedReviews = loadFromStorage(STORAGE_KEYS.REVIEWS);
             if (storedReviews && storedReviews.length > 0) {
                 testReviews = storedReviews;
             } else {
@@ -1637,23 +1646,7 @@
             }
         };
 
-        let testChats = [
-            {
-                id: 1,
-                participantName: 'Dr. Carlos Rodríguez',
-                participantAvatar: '👨‍⚕️',
-                lastMessage: 'Perfecto, nos vemos mañana a las 2 PM',
-                lastMessageTime: '10:30',
-                unreadCount: 0,
-                messages: [
-                    { sender: 'other', text: 'Hola María, ¿cómo está Max?', time: '09:15' },
-                    { sender: 'me', text: 'Hola Doctor, está bien pero quería consultar sobre su vacuna', time: '09:20' },
-                    { sender: 'other', text: 'Claro, ¿podemos agendar para mañana?', time: '09:25' },
-                    { sender: 'me', text: 'Perfecto, ¿a las 2 PM está bien?', time: '09:30' },
-                    { sender: 'other', text: 'Perfecto, nos vemos mañana a las 2 PM', time: '10:30' }
-                ]
-            }
-        ];       
+
  // PWA Install
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
@@ -1713,14 +1706,7 @@
             }
         }
 
-        // Funciones de autenticación
-        function showAuthModal() {
-            document.getElementById('authModal').style.display = 'block';
-        }
 
-        function closeAuthModal() {
-            document.getElementById('authModal').style.display = 'none';
-        }
 
         function showLoginForm() {
             document.getElementById('loginForm').style.display = 'block';
@@ -2205,7 +2191,7 @@
         function deleteService(serviceId) {
             if (confirm('¿Estás seguro de que quieres eliminar este servicio?')) {
                 testServices = testServices.filter(service => service.id !== serviceId);
-                saveToStorage('petcare_services', testServices);
+                saveToStorage(STORAGE_KEYS.SERVICES, testServices);
                 showMessage('Servicio eliminado correctamente', 'success');
                 loadMyServices();
                 loadFeaturedServices();
