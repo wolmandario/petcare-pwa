@@ -21,6 +21,16 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
+    <!-- Funciones críticas para uso inmediato -->
+    <script>
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'block';
+        }
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+    </script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -1271,15 +1281,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Funciones críticas declaradas primero para uso en HTML
-        function showAuthModal() {
-            document.getElementById('authModal').style.display = 'block';
-        }
-
-        function closeAuthModal() {
-            document.getElementById('authModal').style.display = 'none';
-        }
-
         // Variables globales
         let deferredPrompt;
         let currentUser = null;
@@ -2160,7 +2161,7 @@
                 description: description,
                 location: finalLocation,
                 coordinates: finalCoordinates,
-                customAddress: location === 'custom' ? customAddress : null
+                customAddress: location === 'custom' ? customAddress : null,
                 rating: 5.0,
                 reviews: 0,
                 caregiver: currentUser.name,
