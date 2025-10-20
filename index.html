@@ -1079,7 +1079,7 @@
                 
                 <div class="form-group">
                     <label class="form-label">Ubicación</label>
-                    <select id="serviceLocation" class="form-input">
+                    <select id="serviceLocation" class="form-input" onchange="toggleCustomAddress()">
                         <option value="">Selecciona ubicación</option>
                         <option value="Centro">Centro</option>
                         <option value="Pocitos">Pocitos</option>
@@ -1087,7 +1087,14 @@
                         <option value="Punta Gorda">Punta Gorda</option>
                         <option value="Malvín">Malvín</option>
                         <option value="Cordón">Cordón</option>
+                        <option value="custom">📍 Dirección personalizada</option>
                     </select>
+                </div>
+                
+                <div id="customAddressGroup" class="form-group" style="display: none;">
+                    <label class="form-label">Dirección Completa</label>
+                    <input type="text" id="customAddress" class="form-input" placeholder="Ej: Av. 18 de Julio 1234, Montevideo">
+                    <small style="color: #666; font-size: 12px;">Se usarán coordenadas aproximadas del Centro si no se puede geocodificar</small>
                 </div>
                 
                 <button class="btn btn-primary" onclick="addService()" style="width: 100%;">Publicar Servicio</button>
@@ -1283,10 +1290,32 @@
         // Variables para favoritos
         let userFavorites = [];
 
-        // Funciones de persistencia
+        // Sistema de persistencia mejorado con sincronización
+        const STORAGE_KEYS = {
+            SERVICES: 'petcare_services_v2',
+            USERS: 'petcare_users_v2',
+            BOOKINGS: 'petcare_bookings_v2',
+            CHATS: 'petcare_chats_v2',
+            REVIEWS: 'petcare_reviews_v2',
+            CURRENT_USER: 'petcare_current_user_v2',
+            SYNC_TIMESTAMP: 'petcare_sync_timestamp'
+        };
+
         function saveToStorage(key, data) {
             try {
-                localStorage.setItem(key, JSON.stringify(data));
+                const timestamp = Date.now();
+                const dataWithTimestamp = {
+                    data: data,
+                    timestamp: timestamp,
+                    version: '2.0'
+                };
+                localStorage.setItem(key, JSON.stringify(dataWithTimestamp));
+                localStorage.setItem(STORAGE_KEYS.SYNC_TIMESTAMP, timestamp.toString());
+                
+                // Disparar evento de sincronización para otros tabs/ventanas
+                window.dispatchEvent(new CustomEvent('petcare-data-sync', { 
+                    detail: { key, timestamp } 
+                }));
             } catch (e) {
                 console.error('Error saving to localStorage:', e);
             }
@@ -1294,11 +1323,66 @@
 
         function loadFromStorage(key, defaultValue = null) {
             try {
-                const data = localStorage.getItem(key);
-                return data ? JSON.parse(data) : defaultValue;
+                const stored = localStorage.getItem(key);
+                if (!stored) return defaultValue;
+                
+                const parsed = JSON.parse(stored);
+                
+                // Verificar si es el nuevo formato con timestamp
+                if (parsed && parsed.data !== undefined && parsed.timestamp) {
+                    return parsed.data;
+                }
+                
+                // Formato antiguo, migrar
+                if (parsed) {
+                    saveToStorage(key, parsed);
+                    return parsed;
+                }
+                
+                return defaultValue;
             } catch (e) {
                 console.error('Error loading from localStorage:', e);
                 return defaultValue;
+            }
+        }
+
+        // Sincronización entre pestañas/ventanas
+        function setupCrossTabSync() {
+            window.addEventListener('petcare-data-sync', function(event) {
+                const { key, timestamp } = event.detail;
+                
+                // Recargar datos si es más reciente
+                const lastSync = parseInt(localStorage.getItem(STORAGE_KEYS.SYNC_TIMESTAMP) || '0');
+                if (timestamp > lastSync) {
+                    reloadDataFromStorage();
+                }
+            });
+            
+            // También escuchar cambios de storage de otras pestañas
+            window.addEventListener('storage', function(event) {
+                if (event.key && event.key.startsWith('petcare_')) {
+                    setTimeout(reloadDataFromStorage, 100);
+                }
+            });
+        }
+
+        function reloadDataFromStorage() {
+            // Recargar todos los datos
+            testServices = loadFromStorage(STORAGE_KEYS.SERVICES) || [...defaultServices];
+            testBookings = loadFromStorage(STORAGE_KEYS.BOOKINGS) || [...defaultBookings];
+            testUsers = loadFromStorage(STORAGE_KEYS.USERS) || {...defaultUsers};
+            testChats = loadFromStorage(STORAGE_KEYS.CHATS) || [];
+            testReviews = loadFromStorage(STORAGE_KEYS.REVIEWS) || [];
+            
+            // Actualizar UI si es necesario
+            if (document.getElementById('servicesScreen').classList.contains('active')) {
+                loadAllServices();
+            }
+            if (document.getElementById('chatsScreen').classList.contains('active')) {
+                loadChats();
+            }
+            if (document.getElementById('bookingsScreen').classList.contains('active')) {
+                loadBookings();
             }
         }
 
@@ -1316,44 +1400,44 @@
 
         // Funciones para persistir sesión de usuario
         function saveCurrentUser(user) {
-            saveToStorage('petcare_current_user', user);
+            saveToStorage(STORAGE_KEYS.CURRENT_USER, user);
         }
 
         function loadCurrentUser() {
-            return loadFromStorage('petcare_current_user');
+            return loadFromStorage(STORAGE_KEYS.CURRENT_USER);
         }
 
         function clearCurrentUser() {
-            localStorage.removeItem('petcare_current_user');
+            localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
         }
 
         // Función para inicializar datos
         function initializeData() {
             // Cargar servicios
-            const storedServices = loadFromStorage('petcare_services');
+            const storedServices = loadFromStorage(STORAGE_KEYS.SERVICES);
             if (storedServices && storedServices.length > 0) {
                 testServices = storedServices;
             } else {
                 testServices = [...defaultServices];
-                saveToStorage('petcare_services', testServices);
+                saveToStorage(STORAGE_KEYS.SERVICES, testServices);
             }
 
             // Cargar reservas
-            const storedBookings = loadFromStorage('petcare_bookings');
+            const storedBookings = loadFromStorage(STORAGE_KEYS.BOOKINGS);
             if (storedBookings && storedBookings.length > 0) {
                 testBookings = storedBookings;
             } else {
                 testBookings = [...defaultBookings];
-                saveToStorage('petcare_bookings', testBookings);
+                saveToStorage(STORAGE_KEYS.BOOKINGS, testBookings);
             }
 
             // Cargar usuarios
-            const storedUsers = loadFromStorage('petcare_users');
+            const storedUsers = loadFromStorage(STORAGE_KEYS.USERS);
             if (storedUsers && Object.keys(storedUsers).length > 0) {
                 testUsers = storedUsers;
             } else {
                 testUsers = {...defaultUsers};
-                saveToStorage('petcare_users', testUsers);
+                saveToStorage(STORAGE_KEYS.USERS, testUsers);
             }
 
             // Cargar reseñas
@@ -1378,6 +1462,7 @@
         let testBookings = [];
         let testUsers = {};
         let testReviews = [];
+        let testChats = [];
 
         // Datos por defecto
         const defaultServices = [
@@ -1406,7 +1491,7 @@
                 priceUnit: 'día',
                 description: 'Hospedaje para mascotas con amplios espacios verdes, cuidado personalizado las 24 horas y actividades recreativas.',
                 location: 'Pocitos',
-                coordinates: [-56.1167, -34.9167], // Pocitos
+                coordinates: [-56.1644, -34.9089], // Pocitos (corregido)
                 rating: 4.9,
                 reviews: 89,
                 caregiver: 'Ana Martínez',
@@ -1718,7 +1803,7 @@
             };
             
             testUsers[email] = newUser;
-            saveToStorage('petcare_users', testUsers);
+            saveToStorage(STORAGE_KEYS.USERS, testUsers);
             currentUser = newUser;
             saveCurrentUser(currentUser); // Persistir sesión
             updateUserInterface();
@@ -1995,6 +2080,17 @@
             clearServiceForm();
         }
 
+        function toggleCustomAddress() {
+            const locationSelect = document.getElementById('serviceLocation');
+            const customAddressGroup = document.getElementById('customAddressGroup');
+            
+            if (locationSelect.value === 'custom') {
+                customAddressGroup.style.display = 'block';
+            } else {
+                customAddressGroup.style.display = 'none';
+            }
+        }
+
         function clearServiceForm() {
             document.getElementById('serviceType').value = '';
             document.getElementById('serviceName').value = '';
@@ -2011,9 +2107,15 @@
             const price = document.getElementById('servicePrice').value;
             const priceUnit = document.getElementById('servicePriceUnit').value;
             const location = document.getElementById('serviceLocation').value;
+            const customAddress = document.getElementById('customAddress').value;
             
             if (!type || !name || !description || !price || !location) {
                 showMessage('Por favor completa todos los campos', 'error');
+                return;
+            }
+            
+            if (location === 'custom' && !customAddress) {
+                showMessage('Por favor ingresa la dirección personalizada', 'error');
                 return;
             }
             
@@ -2043,13 +2145,24 @@
             // Coordenadas por defecto según ubicación (lng, lat)
             const defaultCoordinates = {
                 'Centro': [-56.1645, -34.9011],
-                'Pocitos': [-56.1167, -34.9167],
+                'Pocitos': [-56.1644, -34.9089],
                 'Carrasco': [-56.0333, -34.8833],
                 'Punta Gorda': [-56.1167, -34.8667],
                 'Malvín': [-56.0833, -34.8833],
                 'Cordón': [-56.1889, -34.9056]
             };
             
+            // Determinar ubicación y coordenadas
+            let finalLocation = location;
+            let finalCoordinates = defaultCoordinates[location] || [-56.1645, -34.9011];
+            
+            if (location === 'custom') {
+                finalLocation = customAddress;
+                // Para direcciones personalizadas, usar coordenadas del Centro por defecto
+                // En una implementación real, aquí se haría geocoding
+                finalCoordinates = [-56.1645, -34.9011];
+            }
+
             const newService = {
                 id: Date.now(),
                 title: name,
@@ -2058,8 +2171,9 @@
                 price: parseInt(price),
                 priceUnit: priceUnit,
                 description: description,
-                location: location,
-                coordinates: defaultCoordinates[location] || [-56.1645, -34.9011], // Centro por defecto
+                location: finalLocation,
+                coordinates: finalCoordinates,
+                customAddress: location === 'custom' ? customAddress : null
                 rating: 5.0,
                 reviews: 0,
                 caregiver: currentUser.name,
@@ -2068,7 +2182,7 @@
             };
             
             testServices.push(newService);
-            saveToStorage('petcare_services', testServices);
+            saveToStorage(STORAGE_KEYS.SERVICES, testServices);
             closeAddServiceModal();
             showMessage('¡Servicio agregado exitosamente!', 'success');
             loadMyServices();
@@ -2563,23 +2677,32 @@
                 return;
             }
             
-            if (testChats.length === 0) {
-                container.innerHTML = '<p>No tienes conversaciones aún.</p>';
+            // Obtener conversaciones del usuario actual
+            const userChats = getUserChats();
+            
+            if (userChats.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">💬</div>
+                        <h3>No tienes conversaciones</h3>
+                        <p>Las conversaciones aparecerán cuando reserves un servicio</p>
+                    </div>
+                `;
                 return;
             }
             
-            container.innerHTML = testChats.map(chat => `
-                <div class="chat-list-item" onclick="openChatModal(${chat.id})">
+            container.innerHTML = userChats.map(chat => `
+                <div class="chat-list-item" onclick="openChatModal('${chat.id}')">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="display: flex; align-items: center; gap: 15px;">
-                            <div style="font-size: 32px;">${chat.participantAvatar}</div>
+                            <div style="font-size: 32px;">${chat.otherUser.role === 'caregiver' ? '👨‍⚕️' : '👤'}</div>
                             <div>
-                                <h4>${chat.participantName}</h4>
-                                <p style="color: #666; margin: 0;">${chat.lastMessage}</p>
+                                <h4>${chat.otherUser.name}</h4>
+                                <p style="color: #666; margin: 0; font-size: 14px;">${chat.lastMessage || 'Conversación iniciada'}</p>
                             </div>
                         </div>
                         <div style="text-align: right;">
-                            <div style="font-size: 12px; color: #888;">${chat.lastMessageTime}</div>
+                            <div style="font-size: 12px; color: #888;">${chat.lastMessageTime || ''}</div>
                             ${chat.unreadCount > 0 ? `<div style="background: #667eea; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-top: 5px;">${chat.unreadCount}</div>` : ''}
                         </div>
                     </div>
@@ -2587,18 +2710,110 @@
             `).join('');
         }
 
+        function getUserChats() {
+            if (!currentUser) return [];
+            
+            // Obtener todos los mensajes del usuario
+            const userMessages = testChats.filter(msg => 
+                msg.senderId === currentUser.id || msg.receiverId === currentUser.id
+            );
+            
+            // Agrupar por conversación
+            const chatGroups = {};
+            
+            userMessages.forEach(msg => {
+                const otherUserId = msg.senderId === currentUser.id ? msg.receiverId : msg.senderId;
+                const chatId = [currentUser.id, otherUserId].sort().join('-');
+                
+                if (!chatGroups[chatId]) {
+                    const otherUser = Object.values(testUsers).find(u => u.id === otherUserId);
+                    if (!otherUser) return;
+                    
+                    chatGroups[chatId] = {
+                        id: chatId,
+                        otherUser: otherUser,
+                        messages: [],
+                        lastMessage: '',
+                        lastMessageTime: '',
+                        lastActivity: 0,
+                        unreadCount: 0
+                    };
+                }
+                
+                chatGroups[chatId].messages.push(msg);
+                
+                // Actualizar último mensaje
+                if (msg.timestamp > chatGroups[chatId].lastActivity) {
+                    chatGroups[chatId].lastMessage = msg.text;
+                    chatGroups[chatId].lastMessageTime = msg.time;
+                    chatGroups[chatId].lastActivity = msg.timestamp;
+                }
+                
+                // Contar no leídos
+                if (msg.senderId !== currentUser.id && !msg.read) {
+                    chatGroups[chatId].unreadCount++;
+                }
+            });
+            
+            // Convertir a array y ordenar por actividad
+            return Object.values(chatGroups).sort((a, b) => b.lastActivity - a.lastActivity);
+        }
+
         function openChat(serviceId) {
-            const chat = testChats.find(c => c.id === serviceId) || testChats[0];
-            openChatModal(chat.id);
+            // Buscar o crear chat con el cuidador del servicio
+            const service = testServices.find(s => s.id === serviceId);
+            if (!service) return;
+            
+            const caregiver = Object.values(testUsers).find(u => u.id === service.caregiverId);
+            if (!caregiver) return;
+            
+            const chatId = [currentUser.id, caregiver.id].sort().join('-');
+            openChatModal(chatId);
         }
 
         function openChatModal(chatId) {
-            currentChat = testChats.find(c => c.id === chatId);
-            if (!currentChat) return;
+            const userChats = getUserChats();
+            currentChat = userChats.find(c => c.id === chatId);
             
-            document.getElementById('chatTitle').textContent = currentChat.participantName;
+            if (!currentChat) {
+                // Crear nuevo chat si no existe
+                const otherUserId = chatId.split('-').find(id => parseInt(id) !== currentUser.id);
+                const otherUser = Object.values(testUsers).find(u => u.id === parseInt(otherUserId));
+                
+                if (!otherUser) return;
+                
+                currentChat = {
+                    id: chatId,
+                    otherUser: otherUser,
+                    messages: [],
+                    lastMessage: '',
+                    lastMessageTime: '',
+                    lastActivity: 0,
+                    unreadCount: 0
+                };
+            }
+            
+            document.getElementById('chatTitle').textContent = currentChat.otherUser.name;
             loadChatMessages();
+            markMessagesAsRead(chatId);
             document.getElementById('chatModal').style.display = 'block';
+        }
+
+        function markMessagesAsRead(chatId) {
+            let updated = false;
+            testChats.forEach(msg => {
+                if ((msg.senderId !== currentUser.id) && 
+                    ([msg.senderId, msg.receiverId].sort().join('-') === chatId) && 
+                    !msg.read) {
+                    msg.read = true;
+                    updated = true;
+                }
+            });
+            
+            if (updated) {
+                saveToStorage(STORAGE_KEYS.CHATS, testChats);
+                loadChats(); // Actualizar lista de chats
+            }
         }
 
         function closeChatModal() {
@@ -2609,18 +2824,26 @@
         function loadChatMessages() {
             if (!currentChat) return;
             
+            // Obtener mensajes de este chat
+            const chatMessages = testChats.filter(msg => {
+                const msgChatId = [msg.senderId, msg.receiverId].sort().join('-');
+                return msgChatId === currentChat.id;
+            }).sort((a, b) => a.timestamp - b.timestamp);
+            
             const container = document.getElementById('chatMessages');
-            container.innerHTML = currentChat.messages.map(message => {
+            container.innerHTML = chatMessages.map(message => {
+                const isFromMe = message.senderId === currentUser.id;
+                
                 if (message.type === 'photo') {
                     return `
-                        <div class="chat-message ${message.sender === 'me' ? 'sent' : 'received'}">
+                        <div class="chat-message ${isFromMe ? 'sent' : 'received'}">
                             <img src="${message.imageData}" class="chat-photo" onclick="showPhotoModal('${message.imageData}')" alt="Foto">
                             <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">${message.time}</div>
                         </div>
                     `;
                 } else {
                     return `
-                        <div class="chat-message ${message.sender === 'me' ? 'sent' : 'received'}">
+                        <div class="chat-message ${isFromMe ? 'sent' : 'received'}">
                             <div>${message.text}</div>
                             <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">${message.time}</div>
                         </div>
@@ -2637,40 +2860,32 @@
             
             if (!message || !currentChat) return;
             
+            const timestamp = Date.now();
             const newMessage = {
-                sender: 'me',
+                id: timestamp,
+                chatId: currentChat.id,
+                senderId: currentUser.id,
+                receiverId: currentChat.otherUser.id,
+                senderName: currentUser.name,
                 text: message,
-                time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })
+                timestamp: timestamp,
+                time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' }),
+                read: false
             };
             
-            currentChat.messages.push(newMessage);
+            // Agregar mensaje al chat global
+            testChats.push(newMessage);
+            saveToStorage(STORAGE_KEYS.CHATS, testChats);
+            
+            // Actualizar chat actual
             currentChat.lastMessage = message;
             currentChat.lastMessageTime = newMessage.time;
+            currentChat.lastActivity = timestamp;
             
             loadChatMessages();
             input.value = '';
             
-            // Simular respuesta automática
-            setTimeout(() => {
-                const responses = [
-                    'Perfecto, gracias por la información',
-                    'Entendido, estaremos atentos',
-                    'Excelente, nos mantenemos en contacto',
-                    'Muchas gracias por avisar'
-                ];
-                
-                const autoResponse = {
-                    sender: 'other',
-                    text: responses[Math.floor(Math.random() * responses.length)],
-                    time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })
-                };
-                
-                currentChat.messages.push(autoResponse);
-                currentChat.lastMessage = autoResponse.text;
-                currentChat.lastMessageTime = autoResponse.time;
-                
-                loadChatMessages();
-            }, 2000);
+            showMessage('Mensaje enviado', 'success');
         }
 
         function handleMessageKeyPress(event) {
