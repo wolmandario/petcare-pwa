@@ -571,6 +571,45 @@
             .user-info { justify-content: center; }
         }
         
+        /* Favorites Styles */
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 5px;
+            border-radius: 50%;
+        }
+        
+        .favorite-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .favorite-btn.active {
+            color: #ff4757;
+            transform: scale(1.1);
+        }
+        
+        .favorite-btn.inactive {
+            color: #ddd;
+        }
+        
+        .favorites-empty {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        .favorite-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            padding: 5px;
+        }
+
         /* Loading Spinner */
         .loading {
             display: inline-block;
@@ -726,6 +765,7 @@
             <button class="nav-tab active" onclick="showScreen('home')">🏠 Inicio</button>
             <button class="nav-tab" onclick="showScreen('services')">🔍 Servicios</button>
             <button class="nav-tab" onclick="showScreen('map')">🗺️ Mapa</button>
+            <button class="nav-tab owner-only" onclick="showScreen('favorites')">❤️ Favoritos</button>
             <button class="nav-tab caregiver-only" onclick="showScreen('myservices')">📋 Mis Servicios</button>
             <button class="nav-tab" onclick="showScreen('bookings')">📅 Reservas</button>
             <button class="nav-tab" onclick="showScreen('chats')">💬 Chats</button>
@@ -773,6 +813,18 @@
                 <h3>Servicios Destacados</h3>
                 <div id="featuredServices">
                     <!-- Los servicios se cargan dinámicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Favorites Screen -->
+        <div id="favoritesScreen" class="screen">
+            <div class="card">
+                <h2>❤️ Mis Favoritos</h2>
+                <p style="color: #666; margin-bottom: 20px;">Servicios que has marcado como favoritos</p>
+                
+                <div id="favoritesList">
+                    <!-- Los favoritos aparecen aquí -->
                 </div>
             </div>
         </div>
@@ -1227,6 +1279,9 @@
         let currentDistanceFilter = 5; // km
         let serviceMarkers = [];
         let userMarker = null;
+        
+        // Variables para favoritos
+        let userFavorites = [];
 
         // Funciones de persistencia
         function saveToStorage(key, data) {
@@ -1335,7 +1390,7 @@
                 priceUnit: 'consulta',
                 description: 'Atención veterinaria completa con más de 20 años de experiencia. Consultas, vacunación, cirugías menores y emergencias.',
                 location: 'Centro',
-                coordinates: [-34.9011, -56.1645], // Centro de Montevideo
+                coordinates: [-56.1645, -34.9011], // Centro de Montevideo
                 rating: 4.8,
                 reviews: 127,
                 caregiver: 'Dr. Carlos Rodríguez',
@@ -1351,7 +1406,7 @@
                 priceUnit: 'día',
                 description: 'Hospedaje para mascotas con amplios espacios verdes, cuidado personalizado las 24 horas y actividades recreativas.',
                 location: 'Pocitos',
-                coordinates: [-34.9167, -56.1167], // Pocitos
+                coordinates: [-56.1167, -34.9167], // Pocitos
                 rating: 4.9,
                 reviews: 89,
                 caregiver: 'Ana Martínez',
@@ -1367,7 +1422,7 @@
                 priceUnit: 'sesión',
                 description: 'Corte, baño, uñas y limpieza de oídos. Productos premium para el cuidado de tu mascota.',
                 location: 'Carrasco',
-                coordinates: [-34.8833, -56.0333], // Carrasco
+                coordinates: [-56.0333, -34.8833], // Carrasco
                 rating: 4.7,
                 reviews: 156,
                 caregiver: 'Laura Fernández',
@@ -1383,7 +1438,7 @@
                 priceUnit: 'día',
                 description: 'Guardería diurna con actividades, socialización y cuidado profesional mientras trabajas.',
                 location: 'Punta Gorda',
-                coordinates: [-34.8667, -56.1167], // Punta Gorda
+                coordinates: [-56.1167, -34.8667], // Punta Gorda
                 rating: 4.6,
                 reviews: 203,
                 caregiver: 'Roberto Silva',
@@ -1399,7 +1454,7 @@
                 priceUnit: 'paseo',
                 description: 'Paseos individuales o grupales con cuidadores certificados. Reportes con fotos incluidos.',
                 location: 'Malvín',
-                coordinates: [-34.8833, -56.0833], // Malvín
+                coordinates: [-56.0833, -34.8833], // Malvín
                 rating: 4.5,
                 reviews: 78,
                 caregiver: 'Diego López',
@@ -1415,7 +1470,7 @@
                 priceUnit: 'sesión',
                 description: 'Entrenamiento profesional para obediencia básica, problemas de comportamiento y trucos.',
                 location: 'Cordón',
-                coordinates: [-34.9056, -56.1889], // Cordón
+                coordinates: [-56.1889, -34.9056], // Cordón
                 rating: 4.9,
                 reviews: 45,
                 caregiver: 'Patricia Vega',
@@ -1560,6 +1615,8 @@
                     initializeMap();
                     updateNearbyServices();
                 }, 100);
+            } else if (screenName === 'favorites') {
+                loadFavorites();
             } else if (screenName === 'myservices') {
                 loadMyServices();
             } else if (screenName === 'bookings') {
@@ -1617,9 +1674,13 @@
                 closeAuthModal();
                 showMessage(`¡Bienvenido ${currentUser.name}!`, 'success');
                 clearFormData();
+                // Cargar favoritos del usuario
+                loadUserFavorites();
                 // Refrescar servicios para mostrar botones correctos
                 loadFeaturedServices();
                 loadAllServices();
+                // Actualizar botones de favoritos
+                setTimeout(updateFavoriteButtons, 100);
             } else {
                 showMessage('Email o contraseña incorrectos', 'error');
             }
@@ -1664,6 +1725,10 @@
             closeAuthModal();
             showMessage(`¡Cuenta creada exitosamente! Bienvenido ${name}`, 'success');
             clearFormData();
+            // Cargar favoritos del usuario
+            loadUserFavorites();
+            // Actualizar botones de favoritos
+            setTimeout(updateFavoriteButtons, 100);
         }
 
         function logout() {
@@ -1674,9 +1739,13 @@
             clearAllData();
             showMessage('Sesión cerrada correctamente', 'success');
             showScreen('home');
+            // Limpiar favoritos
+            userFavorites = [];
             // Refrescar servicios para mostrar botones correctos
             loadFeaturedServices();
             loadAllServices();
+            // Actualizar botones de favoritos
+            setTimeout(updateFavoriteButtons, 100);
         }
 
         function clearFormData() {
@@ -1767,7 +1836,8 @@
                     </div>
                     <div class="service-actions" style="margin-top: 15px;">
                         ${currentUser && currentUser.role === 'owner' ? 
-                            `<button class="btn btn-primary" onclick="selectService(${service.id})">📅 Reservar</button>` : 
+                            `<button class="btn btn-primary" onclick="selectService(${service.id})">📅 Reservar</button>
+                             <button class="favorite-btn" data-service-id="${service.id}" onclick="toggleFavorite(${service.id})" title="Agregar a favoritos">🤍</button>` : 
                             ''
                         }
                         <button class="btn btn-secondary" onclick="showReviews(${service.id})">👁️ Ver Reseñas</button>
@@ -1804,7 +1874,8 @@
                     </div>
                     <div class="service-actions" style="margin-top: 15px;">
                         ${currentUser && currentUser.role === 'owner' ? 
-                            `<button class="btn btn-primary" onclick="selectService(${service.id})">📅 Reservar</button>` : 
+                            `<button class="btn btn-primary" onclick="selectService(${service.id})">📅 Reservar</button>
+                             <button class="favorite-btn" data-service-id="${service.id}" onclick="toggleFavorite(${service.id})" title="Agregar a favoritos">🤍</button>` : 
                             ''
                         }
                         <button class="btn btn-secondary" onclick="showReviews(${service.id})">👁️ Ver Reseñas</button>
@@ -1969,14 +2040,14 @@
                 'training': ['Métodos positivos', 'Entrenador certificado', 'Seguimiento personalizado']
             };
             
-            // Coordenadas por defecto según ubicación
+            // Coordenadas por defecto según ubicación (lng, lat)
             const defaultCoordinates = {
-                'Centro': [-34.9011, -56.1645],
-                'Pocitos': [-34.9167, -56.1167],
-                'Carrasco': [-34.8833, -56.0333],
-                'Punta Gorda': [-34.8667, -56.1167],
-                'Malvín': [-34.8833, -56.0833],
-                'Cordón': [-34.9056, -56.1889]
+                'Centro': [-56.1645, -34.9011],
+                'Pocitos': [-56.1167, -34.9167],
+                'Carrasco': [-56.0333, -34.8833],
+                'Punta Gorda': [-56.1167, -34.8667],
+                'Malvín': [-56.0833, -34.8833],
+                'Cordón': [-56.1889, -34.9056]
             };
             
             const newService = {
@@ -1988,7 +2059,7 @@
                 priceUnit: priceUnit,
                 description: description,
                 location: location,
-                coordinates: defaultCoordinates[location] || [-34.9011, -56.1645], // Centro por defecto
+                coordinates: defaultCoordinates[location] || [-56.1645, -34.9011], // Centro por defecto
                 rating: 5.0,
                 reviews: 0,
                 caregiver: currentUser.name,
@@ -2987,7 +3058,7 @@
             testServices.forEach(service => {
                 if (!service.coordinates) return;
                 
-                const [lat, lng] = service.coordinates;
+                const [lng, lat] = service.coordinates; // coordinates están en formato [lng, lat]
                 const distance = userLocation ? 
                     calculateDistance(userLocation.lat, userLocation.lng, lat, lng) : null;
                 
@@ -3061,7 +3132,7 @@
             const servicesWithDistance = testServices
                 .map(service => {
                     if (!service.coordinates) return null;
-                    const [lat, lng] = service.coordinates;
+                    const [lng, lat] = service.coordinates; // coordinates están en formato [lng, lat]
                     const distance = calculateDistance(userLocation.lat, userLocation.lng, lat, lng);
                     return { ...service, distance };
                 })
@@ -3100,7 +3171,8 @@
                         </div>
                         <div class="service-actions" style="margin-top: 15px;">
                             ${currentUser && currentUser.role === 'owner' ? 
-                                `<button class="btn btn-primary" onclick="selectService(${service.id})">📅 Reservar</button>` : 
+                                `<button class="btn btn-primary" onclick="selectService(${service.id})">📅 Reservar</button>
+                                 <button class="favorite-btn" data-service-id="${service.id}" onclick="toggleFavorite(${service.id})" title="Agregar a favoritos">🤍</button>` : 
                                 ''
                             }
                             <button class="btn btn-secondary" onclick="showReviews(${service.id})">👁️ Ver Reseñas</button>
@@ -3119,7 +3191,7 @@
             const service = testServices.find(s => s.id === serviceId);
             if (!service || !service.coordinates) return;
             
-            const [lat, lng] = service.coordinates;
+            const [lng, lat] = service.coordinates; // coordinates están en formato [lng, lat]
             
             // Cambiar a la pestaña del mapa
             showScreen('map');
@@ -3136,6 +3208,147 @@
                     marker.openPopup();
                 }
             }
+        }
+
+        // Funciones de favoritos
+        function loadUserFavorites() {
+            if (!currentUser) {
+                userFavorites = [];
+                return;
+            }
+            
+            userFavorites = loadFromStorage('petcare_favorites_' + currentUser.id) || [];
+        }
+
+        function saveUserFavorites() {
+            if (!currentUser) return;
+            saveToStorage('petcare_favorites_' + currentUser.id, userFavorites);
+        }
+
+        function toggleFavorite(serviceId) {
+            if (!currentUser) {
+                showMessage('Inicia sesión para agregar favoritos', 'error');
+                showAuthModal();
+                return;
+            }
+            
+            const index = userFavorites.indexOf(serviceId);
+            
+            if (index === -1) {
+                // Agregar a favoritos
+                userFavorites.push(serviceId);
+                showMessage('Agregado a favoritos ❤️', 'success');
+            } else {
+                // Quitar de favoritos
+                userFavorites.splice(index, 1);
+                showMessage('Quitado de favoritos 💔', 'success');
+            }
+            
+            saveUserFavorites();
+            updateFavoriteButtons();
+            
+            // Si estamos en la pantalla de favoritos, recargar
+            if (document.getElementById('favoritesScreen').classList.contains('active')) {
+                loadFavorites();
+            }
+        }
+
+        function isFavorite(serviceId) {
+            return userFavorites.includes(serviceId);
+        }
+
+        function updateFavoriteButtons() {
+            document.querySelectorAll('.favorite-btn').forEach(btn => {
+                const serviceId = parseInt(btn.dataset.serviceId);
+                if (isFavorite(serviceId)) {
+                    btn.classList.add('active');
+                    btn.classList.remove('inactive');
+                    btn.innerHTML = '❤️';
+                    btn.title = 'Quitar de favoritos';
+                } else {
+                    btn.classList.remove('active');
+                    btn.classList.add('inactive');
+                    btn.innerHTML = '🤍';
+                    btn.title = 'Agregar a favoritos';
+                }
+            });
+        }
+
+        function loadFavorites() {
+            const container = document.getElementById('favoritesList');
+            
+            if (!currentUser) {
+                container.innerHTML = '<p>Inicia sesión para ver tus favoritos.</p>';
+                return;
+            }
+            
+            if (userFavorites.length === 0) {
+                container.innerHTML = `
+                    <div class="favorites-empty">
+                        <div style="font-size: 64px; margin-bottom: 20px;">💔</div>
+                        <h3>No tienes favoritos aún</h3>
+                        <p>Explora servicios y marca los que más te gusten</p>
+                        <button class="btn btn-primary" onclick="showScreen('services')">Explorar Servicios</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Obtener servicios favoritos
+            const favoriteServices = testServices.filter(service => 
+                userFavorites.includes(service.id)
+            );
+            
+            if (favoriteServices.length === 0) {
+                container.innerHTML = `
+                    <div class="favorites-empty">
+                        <div style="font-size: 64px; margin-bottom: 20px;">😔</div>
+                        <h3>Algunos favoritos ya no están disponibles</h3>
+                        <p>Los servicios pueden haber sido eliminados</p>
+                        <button class="btn btn-primary" onclick="showScreen('services')">Buscar Nuevos Servicios</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <span style="color: #666;">Tienes ${favoriteServices.length} servicio${favoriteServices.length > 1 ? 's' : ''} favorito${favoriteServices.length > 1 ? 's' : ''}</span>
+                </div>
+                ${favoriteServices.map(service => `
+                    <div class="service-card" style="position: relative;">
+                        <div class="favorite-badge">
+                            <button class="favorite-btn active" data-service-id="${service.id}" onclick="toggleFavorite(${service.id})" title="Quitar de favoritos">❤️</button>
+                        </div>
+                        <div class="service-header">
+                            <div class="service-icon">${service.icon}</div>
+                            <div class="service-info">
+                                <h3>${service.title}</h3>
+                                <div class="service-price">$${service.price}/${service.priceUnit}</div>
+                            </div>
+                        </div>
+                        <div class="service-description">${service.description}</div>
+                        <div style="margin: 10px 0;">
+                            <strong>Características:</strong>
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;">
+                                ${service.features.map(feature => `<span style="background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${feature}</span>`).join('')}
+                            </div>
+                        </div>
+                        <div class="service-meta">
+                            <div class="rating">
+                                <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                                <span>${service.rating} (${service.reviews} reseñas)</span>
+                            </div>
+                            <span>📍 ${service.location}</span>
+                        </div>
+                        <div class="service-actions" style="margin-top: 15px;">
+                            <button class="btn btn-primary" onclick="selectService(${service.id})">📅 Reservar</button>
+                            <button class="btn btn-secondary" onclick="showReviews(${service.id})">👁️ Ver Reseñas</button>
+                            <button class="btn btn-secondary" onclick="showServiceOnMap(${service.id})">🗺️ Ver en Mapa</button>
+                        </div>
+                    </div>
+                `).join('')}
+            `;
         }
 
         // Función para mostrar mensajes
@@ -3161,6 +3374,12 @@
             
             loadFeaturedServices();
             updateUserInterface();
+            
+            // Cargar favoritos si hay usuario logueado
+            if (currentUser) {
+                loadUserFavorites();
+                setTimeout(updateFavoriteButtons, 200);
+            }
             
             // Configurar fechas mínimas para reservas
             const today = new Date().toISOString().split('T')[0];
