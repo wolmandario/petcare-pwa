@@ -1271,6 +1271,15 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
+        // Funciones críticas declaradas primero para uso en HTML
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'block';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
         // Variables globales
         let deferredPrompt;
         let currentUser = null;
@@ -1290,14 +1299,7 @@
         // Variables para favoritos
         let userFavorites = [];
 
-        // Funciones de autenticación (declaradas temprano para uso en HTML)
-        function showAuthModal() {
-            document.getElementById('authModal').style.display = 'block';
-        }
 
-        function closeAuthModal() {
-            document.getElementById('authModal').style.display = 'none';
-        }
 
         // Sistema de persistencia mejorado con sincronización
         const STORAGE_KEYS = {
@@ -1471,7 +1473,6 @@
         let testBookings = [];
         let testUsers = {};
         let testReviews = [];
-        let testChats = [];
 
         // Datos por defecto
         const defaultServices = [
