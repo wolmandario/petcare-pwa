@@ -1954,8 +1954,8 @@
                 // 🧪 FUNCIÓN DE PRUEBA DESHABILITADA - CAUSA INTERFERENCIAS
                 // await testUserSync();
                 
-                // 🚨 FORZAR CREACIÓN DE TABLA USERS SI NO EXISTE
-                await forceCreateUsersTable();
+                // 🚨 FUNCIÓN FORZAR CREACIÓN DESHABILITADA - SOBRESCRIBE USUARIOS REGISTRADOS
+                // await forceCreateUsersTable();
                 
             } catch (error) {
                 console.error('❌ Error inicializando datos:', error);
@@ -2224,8 +2224,12 @@
             }
         }
 
-        // 🚨 FUNCIÓN PARA FORZAR CREACIÓN DE TABLA USERS
+        // 🚨 FUNCIÓN DESHABILITADA - SOBRESCRIBÍA USUARIOS REGISTRADOS
         async function forceCreateUsersTable() {
+            console.log('🚨 FUNCIÓN forceCreateUsersTable DESHABILITADA para proteger usuarios registrados');
+            return;
+            /*
+            // FUNCIÓN COMPLETAMENTE DESHABILITADA
             try {
                 console.log('🚨 Verificando si existe tabla users en Firebase...');
                 
@@ -2244,6 +2248,7 @@
             } catch (e) {
                 console.error('❌ Error verificando/creando tabla users:', e);
             }
+            */
         }
 
         // 📦 FUNCIÓN FALLBACK PARA LOCALSTORAGE
