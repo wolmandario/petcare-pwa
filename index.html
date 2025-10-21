@@ -1716,7 +1716,12 @@
 
                 // Cargar usuarios desde Firebase
                 const storedUsers = await loadData('users');
-                if (storedUsers && Object.keys(storedUsers).length > 0) {
+                console.log('🔍 Usuarios cargados desde Firebase:', storedUsers);
+                console.log('🔍 Tipo de datos:', typeof storedUsers);
+                console.log('🔍 Es null:', storedUsers === null);
+                console.log('🔍 Tiene keys:', storedUsers ? Object.keys(storedUsers).length : 0);
+                
+                if (storedUsers && typeof storedUsers === 'object' && Object.keys(storedUsers).length > 0) {
                     testUsers = storedUsers;
                     
                     // 🔧 HOTFIX: Verificar si los usuarios por defecto tienen contraseñas
@@ -1738,9 +1743,15 @@
                     
                     console.log(`✅ ${Object.keys(testUsers).length} usuarios cargados desde Firebase`);
                 } else {
+                    console.log('🚨 NO hay usuarios en Firebase - Creando usuarios por defecto');
                     testUsers = {...defaultUsers};
-                    await saveData('users', testUsers);
+                    const saveResult = await saveData('users', testUsers);
+                    console.log('📝 Resultado de guardar usuarios por defecto:', saveResult);
                     console.log('📝 Usuarios por defecto guardados en Firebase');
+                    
+                    // 🔍 Verificar que se guardaron correctamente
+                    const verification = await loadData('users');
+                    console.log('🔍 Verificación - usuarios después de guardar:', verification);
                 }
 
                 // Cargar reservas desde Firebase
@@ -1785,6 +1796,12 @@
                 // Probar escritura y lectura para confirmar que Firebase funciona
                 await testFirebaseReadWrite();
                 
+                // 🧪 Probar sincronización de usuarios
+                await testUserSync();
+                
+                // 🚨 FORZAR CREACIÓN DE TABLA USERS SI NO EXISTE
+                await forceCreateUsersTable();
+                
             } catch (error) {
                 console.error('❌ Error inicializando datos:', error);
                 // Fallback a localStorage si Firebase falla completamente
@@ -1817,6 +1834,182 @@
                 }
             } catch (e) {
                 console.error('❌ Error en prueba de Firebase:', e);
+            }
+        }
+
+        // 🧪 FUNCIÓN PARA PROBAR SINCRONIZACIÓN DE USUARIOS
+        async function testUserSync() {
+            try {
+                console.log('🧪 Probando sincronización de usuarios...');
+                
+                // Crear usuario de prueba
+                const testUser = {
+                    id: Date.now(),
+                    name: 'Usuario Test Sync',
+                    email: 'test-sync@petcare.com',
+                    password: 'test123',
+                    phone: '099 999 999',
+                    role: 'owner',
+                    avatar: '🧪'
+                };
+                
+                // Agregar a usuarios locales
+                const currentUsers = {...testUsers};
+                currentUsers[testUser.email] = testUser;
+                
+                console.log('🧪 Guardando usuario de prueba en Firebase...');
+                const saveSuccess = await saveData('users', currentUsers);
+                
+                if (saveSuccess) {
+                    console.log('✅ Usuario de prueba guardado en Firebase');
+                    
+                    // Simular carga desde otro navegador
+                    console.log('🧪 Simulando carga desde otro navegador...');
+                    const loadedUsers = await loadData('users');
+                    
+                    if (loadedUsers && loadedUsers[testUser.email]) {
+                        console.log('✅ Usuario de prueba encontrado en Firebase:', loadedUsers[testUser.email].name);
+                        
+                        // Limpiar usuario de prueba
+                        delete currentUsers[testUser.email];
+                        await saveData('users', currentUsers);
+                        console.log('🧹 Usuario de prueba eliminado');
+                    } else {
+                        console.warn('⚠️ Usuario de prueba NO encontrado en Firebase');
+                    }
+                } else {
+                    console.warn('⚠️ Error guardando usuario de prueba');
+                }
+            } catch (e) {
+                console.error('❌ Error en prueba de sincronización:', e);
+            }
+        }
+
+        // 🚨 FUNCIÓN PARA CREAR TABLA USERS INMEDIATAMENTE
+        async function createUsersTableNow() {
+            try {
+                console.log('🚨 CREANDO TABLA USERS EN FIREBASE...');
+                
+                // Crear usuarios por defecto con contraseñas
+                const usersToCreate = {
+                    'maria@petcare.com': {
+                        id: 1,
+                        name: 'María González',
+                        email: 'maria@petcare.com',
+                        password: '123456',
+                        phone: '099 123 456',
+                        role: 'owner',
+                        avatar: '👩',
+                        pets: [
+                            { 
+                                name: 'Max', 
+                                type: 'Perro', 
+                                breed: 'Golden Retriever', 
+                                age: 3,
+                                photos: [],
+                                profilePhoto: null
+                            },
+                            { 
+                                name: 'Luna', 
+                                type: 'Gato', 
+                                breed: 'Siamés', 
+                                age: 2,
+                                photos: [],
+                                profilePhoto: null
+                            }
+                        ]
+                    },
+                    'carlos@petcare.com': {
+                        id: 2,
+                        name: 'Carlos Rodríguez',
+                        email: 'carlos@petcare.com',
+                        password: '123456',
+                        phone: '098 765 432',
+                        role: 'caregiver',
+                        avatar: '👨‍⚕️',
+                        services: ['veterinary', 'grooming'],
+                        rating: 4.8,
+                        experience: '5 años de experiencia'
+                    },
+                    'ana@petcare.com': {
+                        id: 3,
+                        name: 'Ana Martínez',
+                        email: 'ana@petcare.com',
+                        password: '123456',
+                        phone: '097 555 123',
+                        role: 'caregiver',
+                        avatar: '👩‍⚕️',
+                        services: ['boarding', 'daycare'],
+                        rating: 4.9,
+                        experience: '8 años de experiencia'
+                    }
+                };
+                
+                console.log('🚨 Usuarios a crear:', Object.keys(usersToCreate));
+                
+                // Crear tabla users directamente en Firebase
+                const createResponse = await fetch(`${DATABASE_CONFIG.firebase.databaseURL}users.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data: usersToCreate,
+                        timestamp: Date.now(),
+                        version: '2.0'
+                    })
+                });
+                
+                console.log('📡 Response status:', createResponse.status);
+                
+                if (createResponse.ok) {
+                    const result = await createResponse.json();
+                    console.log('✅ TABLA USERS CREADA EXITOSAMENTE EN FIREBASE');
+                    console.log('📊 Resultado:', result);
+                    
+                    // Actualizar usuarios locales
+                    testUsers = usersToCreate;
+                    
+                    // Verificar que se creó correctamente
+                    setTimeout(async () => {
+                        const verifyResponse = await fetch(`${DATABASE_CONFIG.firebase.databaseURL}users.json`);
+                        const verifyData = await verifyResponse.json();
+                        console.log('🔍 VERIFICACIÓN - Tabla users existe:', !!verifyData);
+                        console.log('🔍 VERIFICACIÓN - Datos:', verifyData);
+                        
+                        // URL para verificar manualmente
+                        console.log('🌐 VERIFICAR MANUALMENTE EN:');
+                        console.log('🌐 https://petcare-database-1118a-default-rtdb.firebaseio.com/users.json');
+                    }, 2000);
+                    
+                } else {
+                    console.error('❌ ERROR CREANDO TABLA USERS:', createResponse.status);
+                    const errorText = await createResponse.text();
+                    console.error('❌ Error details:', errorText);
+                }
+                
+            } catch (e) {
+                console.error('❌ ERROR EN CREACIÓN DE TABLA USERS:', e);
+            }
+        }
+
+        // 🚨 FUNCIÓN PARA FORZAR CREACIÓN DE TABLA USERS
+        async function forceCreateUsersTable() {
+            try {
+                console.log('🚨 Verificando si existe tabla users en Firebase...');
+                
+                // Verificar directamente en Firebase
+                const response = await fetch(`${DATABASE_CONFIG.firebase.databaseURL}users.json`);
+                const data = await response.json();
+                
+                console.log('🔍 Respuesta de Firebase users:', data);
+                
+                if (!data || Object.keys(data).length === 0) {
+                    console.log('🚨 Tabla users NO existe - Creando ahora...');
+                    await createUsersTableNow();
+                } else {
+                    console.log('✅ Tabla users ya existe en Firebase');
+                }
+            } catch (e) {
+                console.error('❌ Error verificando/creando tabla users:', e);
             }
         }
 
@@ -2123,12 +2316,16 @@
                 
                 // 🔍 DEBUG: Información de login
                 console.log(`🔍 Intentando login con: ${email}`);
+                console.log(`🔍 Total usuarios cargados:`, Object.keys(testUsers).length);
+                console.log(`🔍 Usuarios disponibles:`, Object.keys(testUsers));
                 console.log(`🔍 Usuario existe:`, !!testUsers[email]);
                 if (testUsers[email]) {
                     console.log(`🔍 Usuario:`, testUsers[email].name);
                     console.log(`🔍 Contraseña guardada:`, testUsers[email].password);
                     console.log(`🔍 Contraseña ingresada:`, password);
                     console.log(`🔍 Contraseñas coinciden:`, testUsers[email].password === password);
+                } else {
+                    console.log(`❌ Usuario ${email} NO encontrado en la lista de usuarios`);
                 }
                 
                 // Verificar login CON VALIDACIÓN DE CONTRASEÑA
@@ -2204,7 +2401,16 @@
             };
             
             testUsers[email] = newUser;
-            await saveData('users', testUsers);
+            
+            // 🔍 DEBUG: Registro de usuario
+            console.log(`📝 Registrando nuevo usuario: ${email}`);
+            console.log(`📝 Usuario creado:`, newUser);
+            console.log(`📝 Total usuarios antes de guardar:`, Object.keys(testUsers).length);
+            
+            const saveResult = await saveData('users', testUsers);
+            console.log(`📝 Resultado de guardado en Firebase:`, saveResult);
+            console.log(`📝 Total usuarios después de guardar:`, Object.keys(testUsers).length);
+            
             currentUser = newUser;
             saveCurrentUser(currentUser); // Persistir sesión
             updateUserInterface();
@@ -4319,6 +4525,9 @@
             
             if (firebaseConnected) {
                 console.log('🎉 Firebase conectado - Inicializando datos...');
+                
+                // 🚨 CREAR TABLA USERS INMEDIATAMENTE
+                await createUsersTableNow();
             } else {
                 console.log('⚠️ Firebase no disponible - Usando localStorage como fallback');
             }
