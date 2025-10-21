@@ -1480,6 +1480,24 @@
                     console.log('👥 Usuarios sincronizados desde Firebase');
                 }
 
+                // Sincronizar reservas
+                const latestBookings = await loadFromFirebase('bookings');
+                if (latestBookings && JSON.stringify(latestBookings) !== JSON.stringify(testBookings)) {
+                    testBookings = latestBookings;
+                    console.log('📅 Reservas sincronizadas desde Firebase');
+                    // Actualizar UI si estamos en la pantalla de reservas
+                    if (currentScreen === 'bookings') {
+                        loadBookings();
+                    }
+                }
+
+                // Sincronizar reseñas
+                const latestReviews = await loadFromFirebase('reviews');
+                if (latestReviews && JSON.stringify(latestReviews) !== JSON.stringify(testReviews)) {
+                    testReviews = latestReviews;
+                    console.log('⭐ Reseñas sincronizadas desde Firebase');
+                }
+
             } catch (e) {
                 console.warn('Error sincronizando datos:', e);
             }
@@ -1538,25 +1556,46 @@
                 // Recargar datos si es más reciente
                 const lastSync = parseInt(localStorage.getItem(STORAGE_KEYS.SYNC_TIMESTAMP) || '0');
                 if (timestamp > lastSync) {
-                    reloadDataFromStorage();
+                    await reloadDataFromStorage();
                 }
             });
             
             // También escuchar cambios de storage de otras pestañas
             window.addEventListener('storage', function(event) {
                 if (event.key && event.key.startsWith('petcare_')) {
-                    setTimeout(reloadDataFromStorage, 100);
+                    setTimeout(async () => await reloadDataFromStorage(), 100);
                 }
             });
         }
 
-        function reloadDataFromStorage() {
-            // Recargar todos los datos
-            testServices = loadFromStorage(STORAGE_KEYS.SERVICES) || [...defaultServices];
-            testBookings = loadFromStorage(STORAGE_KEYS.BOOKINGS) || [...defaultBookings];
-            testUsers = loadFromStorage(STORAGE_KEYS.USERS) || {...defaultUsers};
-            testChats = loadFromStorage(STORAGE_KEYS.CHATS) || [];
-            testReviews = loadFromStorage(STORAGE_KEYS.REVIEWS) || [];
+        async function reloadDataFromStorage() {
+            // Recargar todos los datos desde Firebase
+            try {
+                const storedServices = await loadData('services');
+                if (storedServices) testServices = storedServices;
+                
+                const storedBookings = await loadData('bookings');
+                if (storedBookings) testBookings = storedBookings;
+                
+                const storedUsers = await loadData('users');
+                if (storedUsers) testUsers = storedUsers;
+                
+                const storedChats = await loadData('chats');
+                if (storedChats) testChats = storedChats;
+                
+                const storedReviews = await loadData('reviews');
+                if (storedReviews) testReviews = storedReviews;
+                
+                console.log('🔄 Datos recargados desde Firebase');
+            } catch (e) {
+                console.warn('Error recargando datos:', e);
+                // Fallback a localStorage
+                testServices = loadFromStorage(STORAGE_KEYS.SERVICES) || [...defaultServices];
+                testBookings = loadFromStorage(STORAGE_KEYS.BOOKINGS) || [...defaultBookings];
+                testUsers = loadFromStorage(STORAGE_KEYS.USERS) || {...defaultUsers};
+                testChats = loadFromStorage(STORAGE_KEYS.CHATS) || [];
+                testReviews = loadFromStorage(STORAGE_KEYS.REVIEWS) || [];
+            }
             
             // Actualizar UI si es necesario
             if (document.getElementById('servicesScreen').classList.contains('active')) {
@@ -2732,7 +2771,7 @@
             document.getElementById('totalPrice').textContent = `$${totalPrice}`;
         }
 
-        function confirmBooking() {
+        async function confirmBooking() {
             const date = document.getElementById('bookingDate').value;
             const time = document.getElementById('bookingTime').value;
             const duration = parseInt(document.getElementById('bookingDuration').value);
@@ -2767,7 +2806,7 @@
             };
             
             testBookings.push(newBooking);
-            saveToStorage('petcare_bookings', testBookings);
+            await saveData('bookings', testBookings);
             closeBookingModal();
             showMessage(`¡Reserva creada exitosamente! Total: $${totalPrice}`, 'success');
             
@@ -2836,45 +2875,45 @@
             }).join('');
         }
 
-        function acceptBooking(bookingId) {
+        async function acceptBooking(bookingId) {
             const booking = testBookings.find(b => b.id === bookingId);
             if (booking) {
                 booking.status = 'confirmed';
-                saveToStorage('petcare_bookings', testBookings);
+                await saveData('bookings', testBookings);
                 showMessage('Reserva aceptada correctamente', 'success');
                 loadBookings();
             }
         }
 
-        function rejectBooking(bookingId) {
+        async function rejectBooking(bookingId) {
             if (confirm('¿Estás seguro de que quieres rechazar esta reserva?')) {
                 const bookingIndex = testBookings.findIndex(b => b.id === bookingId);
                 if (bookingIndex !== -1) {
                     testBookings.splice(bookingIndex, 1);
-                    saveToStorage('petcare_bookings', testBookings);
+                    await saveData('bookings', testBookings);
                     showMessage('Reserva rechazada', 'success');
                     loadBookings();
                 }
             }
         }
 
-        function cancelBooking(bookingId) {
+        async function cancelBooking(bookingId) {
             if (confirm('¿Estás seguro de que quieres cancelar esta reserva?')) {
                 const bookingIndex = testBookings.findIndex(b => b.id === bookingId);
                 if (bookingIndex !== -1) {
                     testBookings.splice(bookingIndex, 1);
-                    saveToStorage('petcare_bookings', testBookings);
+                    await saveData('bookings', testBookings);
                     showMessage('Reserva cancelada correctamente', 'success');
                     loadBookings();
                 }
             }
         }
 
-        function markCompleted(bookingId) {
+        async function markCompleted(bookingId) {
             const booking = testBookings.find(b => b.id === bookingId);
             if (booking) {
                 booking.status = 'completed';
-                saveToStorage('petcare_bookings', testBookings);
+                await saveData('bookings', testBookings);
                 showMessage('Servicio marcado como completado. ¡Ahora pueden calificarse mutuamente!', 'success');
                 loadBookings();
             }
