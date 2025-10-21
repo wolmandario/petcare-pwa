@@ -1343,7 +1343,7 @@
             console.log(`🔗 URL: ${DATABASE_CONFIG.firebase.databaseURL}${path}.json`);
             console.log(`📊 Data:`, data);
             
-            // 🔧 HOTFIX: Asegurar que usuarios siempre sea objeto
+            // 🔧 HOTFIX: Asegurar que usuarios siempre sea objeto y limpiar datos
             let dataToSave = data;
             if (path === 'users' && Array.isArray(data)) {
                 console.log('🔧 Convirtiendo array de usuarios a objeto antes de guardar...');
@@ -1355,6 +1355,34 @@
                 });
                 dataToSave = usersObject;
                 console.log('🔧 Usuarios convertidos para guardar:', dataToSave);
+            }
+            
+            // 🔧 HOTFIX: Limpiar datos para evitar error 400 en Firebase
+            if (path === 'users') {
+                const cleanedUsers = {};
+                for (const userId in dataToSave) {
+                    const user = dataToSave[userId];
+                    if (user && user.id) {
+                        // Limpiar datos del usuario para Firebase
+                        cleanedUsers[userId] = {
+                            id: user.id,
+                            name: user.name || '',
+                            email: user.email || '',
+                            password: user.password || '',
+                            phone: user.phone || '',
+                            role: user.role || 'owner',
+                            avatar: user.avatar || '👤'
+                        };
+                        
+                        // Agregar campos opcionales si existen
+                        if (user.rating) cleanedUsers[userId].rating = user.rating;
+                        if (user.experience) cleanedUsers[userId].experience = user.experience;
+                        if (user.services) cleanedUsers[userId].services = user.services;
+                        if (user.pets) cleanedUsers[userId].pets = user.pets;
+                    }
+                }
+                dataToSave = cleanedUsers;
+                console.log('🔧 Datos de usuarios limpiados para Firebase');
             }
             
             try {
@@ -1923,8 +1951,8 @@
                 // HOTFIX: Deshabilitar prueba temporalmente para evitar interferencias
                 // await testFirebaseReadWrite();
                 
-                // 🧪 Probar sincronización de usuarios
-                await testUserSync();
+                // 🧪 FUNCIÓN DE PRUEBA DESHABILITADA - CAUSA INTERFERENCIAS
+                // await testUserSync();
                 
                 // 🚨 FORZAR CREACIÓN DE TABLA USERS SI NO EXISTE
                 await forceCreateUsersTable();
@@ -1964,8 +1992,12 @@
             }
         }
 
-        // 🧪 FUNCIÓN PARA PROBAR SINCRONIZACIÓN DE USUARIOS
+        // 🧪 FUNCIÓN DESHABILITADA - CAUSABA INTERFERENCIAS CON USUARIOS REGISTRADOS
         async function testUserSync() {
+            console.log('🧪 FUNCIÓN testUserSync DESHABILITADA para evitar interferencias');
+            return;
+            /*
+            // FUNCIÓN COMPLETAMENTE DESHABILITADA
             try {
                 console.log('🧪 Probando sincronización de usuarios...');
                 
@@ -2010,6 +2042,7 @@
             } catch (e) {
                 console.error('❌ Error en prueba de sincronización:', e);
             }
+            */
         }
 
         // 🚨 FUNCIÓN SIMPLE PARA CREAR TABLA USERS DIRECTAMENTE
