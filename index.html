@@ -1718,6 +1718,24 @@
                 const storedUsers = await loadData('users');
                 if (storedUsers && Object.keys(storedUsers).length > 0) {
                     testUsers = storedUsers;
+                    
+                    // 🔧 HOTFIX: Verificar si los usuarios por defecto tienen contraseñas
+                    let needsUpdate = false;
+                    const defaultEmails = ['maria@petcare.com', 'carlos@petcare.com', 'ana@petcare.com'];
+                    
+                    for (const email of defaultEmails) {
+                        if (testUsers[email] && !testUsers[email].password) {
+                            console.log(`🔧 Actualizando contraseña para ${email}`);
+                            testUsers[email].password = '123456';
+                            needsUpdate = true;
+                        }
+                    }
+                    
+                    if (needsUpdate) {
+                        await saveData('users', testUsers);
+                        console.log('🔧 Contraseñas de usuarios por defecto actualizadas');
+                    }
+                    
                     console.log(`✅ ${Object.keys(testUsers).length} usuarios cargados desde Firebase`);
                 } else {
                     testUsers = {...defaultUsers};
@@ -1756,6 +1774,13 @@
                 }
 
                 console.log('🎉 Todos los datos cargados correctamente desde Firebase');
+                
+                // 🔍 DEBUG: Mostrar usuarios cargados
+                console.log('👥 Usuarios disponibles para login:');
+                Object.keys(testUsers).forEach(email => {
+                    const user = testUsers[email];
+                    console.log(`  - ${email}: ${user.name} (password: ${user.password ? '✅' : '❌'})`);
+                });
                 
                 // Probar escritura y lectura para confirmar que Firebase funciona
                 await testFirebaseReadWrite();
@@ -2094,6 +2119,16 @@
                 const latestUsers = await loadData('users');
                 if (latestUsers) {
                     testUsers = latestUsers;
+                }
+                
+                // 🔍 DEBUG: Información de login
+                console.log(`🔍 Intentando login con: ${email}`);
+                console.log(`🔍 Usuario existe:`, !!testUsers[email]);
+                if (testUsers[email]) {
+                    console.log(`🔍 Usuario:`, testUsers[email].name);
+                    console.log(`🔍 Contraseña guardada:`, testUsers[email].password);
+                    console.log(`🔍 Contraseña ingresada:`, password);
+                    console.log(`🔍 Contraseñas coinciden:`, testUsers[email].password === password);
                 }
                 
                 // Verificar login CON VALIDACIÓN DE CONTRASEÑA
