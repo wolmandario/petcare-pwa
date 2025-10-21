@@ -1550,7 +1550,7 @@
 
         // Sincronización entre pestañas/ventanas
         function setupCrossTabSync() {
-            window.addEventListener('petcare-data-sync', function(event) {
+            window.addEventListener('petcare-data-sync', async function(event) {
                 const { key, timestamp } = event.detail;
                 
                 // Recargar datos si es más reciente
