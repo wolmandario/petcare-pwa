@@ -1358,15 +1358,21 @@
             }
             
             try {
+                // 🔍 DEBUG: Mostrar exactamente qué se va a enviar
+                const payloadToSend = {
+                    data: dataToSave,
+                    timestamp: Date.now(),
+                    version: '2.0'
+                };
+                console.log('🔍 Payload completo a enviar a Firebase:', payloadToSend);
+                console.log('🔍 Número de usuarios en payload:', Object.keys(dataToSave).length);
+                console.log('🔍 IDs de usuarios en payload:', Object.keys(dataToSave));
+                
                 // Intentar Firebase primero
                 const response = await fetch(`${DATABASE_CONFIG.firebase.databaseURL}${path}.json`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        data: dataToSave,
-                        timestamp: Date.now(),
-                        version: '2.0'
-                    })
+                    body: JSON.stringify(payloadToSend)
                 });
                 
                 console.log(`📡 Response status: ${response.status}`);
@@ -1513,6 +1519,7 @@
 
         // 🔄 SINCRONIZACIÓN EN TIEMPO REAL
         let syncInterval;
+        let pauseSync = false; // 🔧 HOTFIX: Pausar sincronización durante operaciones críticas
         
         function startRealTimeSync() {
             // Sincronizar cada 5 segundos para simular tiempo real
@@ -1535,6 +1542,12 @@
         }
 
         async function syncDataFromFirebase() {
+            // 🔧 HOTFIX: No sincronizar si está pausado
+            if (pauseSync) {
+                console.log('⏸️ Sincronización pausada temporalmente');
+                return;
+            }
+            
             try {
                 // Sincronizar servicios
                 const latestServices = await loadFromDatabase('services');
@@ -1565,11 +1578,20 @@
                     }
                 }
 
-                // Sincronizar usuarios
+                // Sincronizar usuarios (CON PROTECCIÓN CONTRA SOBRESCRITURA)
                 const latestUsers = await loadFromDatabase('users');
                 if (latestUsers && JSON.stringify(latestUsers) !== JSON.stringify(testUsers)) {
-                    testUsers = latestUsers;
-                    console.log('👥 Usuarios sincronizados desde Firebase');
+                    // 🔧 HOTFIX: No sobrescribir si tenemos más usuarios localmente (usuario recién registrado)
+                    const localUserCount = Object.keys(testUsers).length;
+                    const firebaseUserCount = Object.keys(latestUsers).length;
+                    
+                    if (firebaseUserCount >= localUserCount) {
+                        testUsers = latestUsers;
+                        console.log('👥 Usuarios sincronizados desde Firebase');
+                    } else {
+                        console.log('🔒 Sincronización de usuarios BLOQUEADA - hay usuarios más recientes localmente');
+                        console.log(`🔍 Local: ${localUserCount} usuarios, Firebase: ${firebaseUserCount} usuarios`);
+                    }
                 }
 
                 // Sincronizar reservas
@@ -2500,6 +2522,10 @@
             }
 
             try {
+                // 🔧 HOTFIX: Pausar sincronización durante registro
+                pauseSync = true;
+                console.log('⏸️ Sincronización pausada para registro');
+                
                 // Cargar usuarios más recientes desde Firebase
                 const latestUsers = await loadData('users');
                 if (latestUsers) {
@@ -2534,6 +2560,8 @@
                 }
             } catch (e) {
                 console.error('Error verificando email:', e);
+                // 🔧 HOTFIX: Reanudar sincronización en caso de error
+                pauseSync = false;
             }
             
             // Simulación de registro
@@ -2579,18 +2607,24 @@
             console.log(`📝 Resultado de guardado en Firebase:`, saveResult);
             console.log(`📝 Total usuarios después de guardar:`, Object.keys(testUsers).length);
             
-            // 🔍 VERIFICAR QUE SE GUARDÓ EN FIREBASE
+            // 🔍 VERIFICAR QUE SE GUARDÓ EN FIREBASE (DIRECTAMENTE)
             setTimeout(async () => {
-                console.log('🔍 Verificando persistencia en Firebase...');
-                const verifyUsers = await loadData('users');
-                console.log('🔍 Usuarios en Firebase después del registro:', verifyUsers);
-                
-                if (verifyUsers && verifyUsers[newUserId]) {
-                    console.log('✅ Usuario nuevo encontrado en Firebase:', verifyUsers[newUserId].email);
-                } else {
-                    console.log('❌ Usuario nuevo NO encontrado en Firebase');
+                console.log('🔍 Verificando persistencia DIRECTA en Firebase...');
+                try {
+                    const response = await fetch(`${DATABASE_CONFIG.firebase.databaseURL}users.json`);
+                    const firebaseData = await response.json();
+                    console.log('🔍 Datos DIRECTOS de Firebase:', firebaseData);
+                    
+                    if (firebaseData && firebaseData.data && firebaseData.data[newUserId]) {
+                        console.log('✅ Usuario nuevo encontrado DIRECTAMENTE en Firebase:', firebaseData.data[newUserId].email);
+                    } else {
+                        console.log('❌ Usuario nuevo NO encontrado DIRECTAMENTE en Firebase');
+                        console.log('🔍 IDs disponibles en Firebase:', firebaseData?.data ? Object.keys(firebaseData.data) : 'No data');
+                    }
+                } catch (e) {
+                    console.error('❌ Error verificando Firebase directamente:', e);
                 }
-            }, 2000);
+            }, 3000);
             
             currentUser = newUser;
             saveCurrentUser(currentUser); // Persistir sesión
@@ -2598,6 +2632,12 @@
             closeAuthModal();
             showMessage(`¡Cuenta creada exitosamente! Bienvenido ${name}`, 'success');
             clearFormData();
+            
+            // 🔧 HOTFIX: Reanudar sincronización después de 5 segundos
+            setTimeout(() => {
+                pauseSync = false;
+                console.log('▶️ Sincronización reanudada después del registro');
+            }, 5000);
             // Cargar favoritos del usuario
             loadUserFavorites();
             // Actualizar botones de favoritos
