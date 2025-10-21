@@ -1458,7 +1458,16 @@
                 testReviews = storedReviews;
             } else {
                 testReviews = [];
-                saveToStorage('petcare_reviews', testReviews);
+                saveToStorage(STORAGE_KEYS.REVIEWS, testReviews);
+            }
+
+            // Cargar chats
+            const storedChats = loadFromStorage(STORAGE_KEYS.CHATS);
+            if (storedChats && storedChats.length > 0) {
+                testChats = storedChats;
+            } else {
+                testChats = [];
+                saveToStorage(STORAGE_KEYS.CHATS, testChats);
             }
 
             // Cargar usuario actual si existe
@@ -1467,6 +1476,9 @@
                 currentUser = savedUser;
                 updateUserInterface();
             }
+            
+            // Configurar sincronización entre pestañas
+            setupCrossTabSync();
         }
 
         // Variables globales para datos
@@ -2067,6 +2079,13 @@
         function closeAddServiceModal() {
             document.getElementById('addServiceModal').style.display = 'none';
             clearServiceForm();
+            
+            // Restaurar el botón original
+            const submitBtn = document.querySelector('#addServiceModal .btn-primary');
+            if (submitBtn) {
+                submitBtn.textContent = 'Publicar Servicio';
+                submitBtn.onclick = addService;
+            }
         }
 
         function toggleCustomAddress() {
@@ -2189,6 +2208,105 @@
             // Refrescar servicios en todas las pantallas
             loadFeaturedServices();
             loadAllServices();
+        }
+
+        function editService(serviceId) {
+            const service = testServices.find(s => s.id === serviceId);
+            if (!service) return;
+            
+            // Llenar el formulario con los datos del servicio
+            document.getElementById('serviceType').value = service.category;
+            document.getElementById('serviceName').value = service.title;
+            document.getElementById('serviceDescription').value = service.description;
+            document.getElementById('servicePrice').value = service.price;
+            document.getElementById('servicePriceUnit').value = service.priceUnit;
+            
+            if (service.customAddress) {
+                document.getElementById('serviceLocation').value = 'custom';
+                document.getElementById('customAddress').value = service.customAddress;
+                toggleCustomAddress();
+            } else {
+                document.getElementById('serviceLocation').value = service.location;
+            }
+            
+            // Cambiar el botón para actualizar en lugar de crear
+            const submitBtn = document.querySelector('#addServiceModal .btn-primary');
+            submitBtn.textContent = 'Actualizar Servicio';
+            submitBtn.onclick = () => updateService(serviceId);
+            
+            showAddServiceModal();
+        }
+
+        function updateService(serviceId) {
+            const type = document.getElementById('serviceType').value;
+            const name = document.getElementById('serviceName').value;
+            const description = document.getElementById('serviceDescription').value;
+            const price = document.getElementById('servicePrice').value;
+            const priceUnit = document.getElementById('servicePriceUnit').value;
+            const location = document.getElementById('serviceLocation').value;
+            const customAddress = document.getElementById('customAddress').value;
+            
+            if (!type || !name || !description || !price || !location) {
+                showMessage('Por favor completa todos los campos', 'error');
+                return;
+            }
+            
+            if (location === 'custom' && !customAddress) {
+                showMessage('Por favor ingresa la dirección personalizada', 'error');
+                return;
+            }
+            
+            if (parseInt(price) <= 0) {
+                showMessage('El precio debe ser mayor a 0', 'error');
+                return;
+            }
+            
+            // Coordenadas por defecto según ubicación (lng, lat)
+            const defaultCoordinates = {
+                'Centro': [-56.1645, -34.9011],
+                'Pocitos': [-56.1644, -34.9089],
+                'Carrasco': [-56.0333, -34.8833],
+                'Punta Gorda': [-56.1167, -34.8667],
+                'Malvín': [-56.0833, -34.8833],
+                'Cordón': [-56.1889, -34.9056]
+            };
+            
+            // Determinar ubicación y coordenadas
+            let finalLocation = location;
+            let finalCoordinates = defaultCoordinates[location] || [-56.1645, -34.9011];
+            
+            if (location === 'custom') {
+                finalLocation = customAddress;
+                finalCoordinates = [-56.1645, -34.9011]; // Centro por defecto para direcciones personalizadas
+            }
+            
+            // Encontrar y actualizar el servicio
+            const serviceIndex = testServices.findIndex(s => s.id === serviceId);
+            if (serviceIndex !== -1) {
+                testServices[serviceIndex] = {
+                    ...testServices[serviceIndex],
+                    title: name,
+                    category: type,
+                    price: parseInt(price),
+                    priceUnit: priceUnit,
+                    description: description,
+                    location: finalLocation,
+                    coordinates: finalCoordinates,
+                    customAddress: location === 'custom' ? customAddress : null
+                };
+                
+                saveToStorage(STORAGE_KEYS.SERVICES, testServices);
+                closeAddServiceModal();
+                showMessage('¡Servicio actualizado exitosamente!', 'success');
+                loadMyServices();
+                loadFeaturedServices();
+                loadAllServices();
+                
+                // Restaurar el botón original
+                const submitBtn = document.querySelector('#addServiceModal .btn-primary');
+                submitBtn.textContent = 'Publicar Servicio';
+                submitBtn.onclick = addService;
+            }
         }
 
         function deleteService(serviceId) {
