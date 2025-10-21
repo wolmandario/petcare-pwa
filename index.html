@@ -1681,17 +1681,6 @@
             testReviews = storedReviews && storedReviews.length > 0 ? storedReviews : [];
         }
 
-            // Cargar usuario actual si existe
-            const savedUser = loadCurrentUser();
-            if (savedUser) {
-                currentUser = savedUser;
-                updateUserInterface();
-            }
-            
-            // Configurar sincronización entre pestañas
-            setupCrossTabSync();
-        }
-
         // Variables globales para datos
         let testServices = [];
         let testBookings = [];
@@ -3953,6 +3942,16 @@
             
             // Inicializar todos los datos desde Firebase
             await initializeData();
+            
+            // Cargar usuario actual si existe
+            const savedUser = loadCurrentUser();
+            if (savedUser) {
+                currentUser = savedUser;
+                updateUserInterface();
+            }
+            
+            // Configurar sincronización entre pestañas
+            setupCrossTabSync();
             
             // Iniciar sincronización en tiempo real
             startRealTimeSync();
