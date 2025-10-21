@@ -1774,11 +1774,13 @@
                 if (storedUsers && typeof storedUsers === 'object' && Object.keys(storedUsers).length > 0) {
                     testUsers = storedUsers;
                     
-                    // 🔧 HOTFIX: Verificar si los usuarios por defecto tienen contraseñas
+                    // 🔧 HOTFIX: PROCESO DE ACTUALIZACIÓN DESHABILITADO para evitar sobrescritura
+                    console.log('🔧 Proceso de actualización de contraseñas DESHABILITADO para proteger usuarios registrados');
+                    /*
+                    // PROCESO DESHABILITADO TEMPORALMENTE - PUEDE SOBRESCRIBIR USUARIOS REGISTRADOS
                     let needsUpdate = false;
                     const defaultEmails = ['maria@petcare.com', 'carlos@petcare.com', 'ana@petcare.com'];
                     
-                    // 🔧 BUSCAR POR EMAIL EN LA NUEVA ESTRUCTURA
                     for (const email of defaultEmails) {
                         for (const userId in testUsers) {
                             const user = testUsers[userId];
@@ -1794,6 +1796,7 @@
                         await saveData('users', testUsers);
                         console.log('🔧 Contraseñas de usuarios por defecto actualizadas');
                     }
+                    */
                     
                     console.log(`✅ ${Object.keys(testUsers).length} usuarios cargados desde Firebase`);
                 
@@ -1804,22 +1807,73 @@
                     console.log(`  - ID: ${userId}, Email: ${user.email}, Nombre: ${user.name}, Password: ${user.password ? '✅' : '❌'}`);
                 }
                 } else {
-                    console.log('🚨 NO hay usuarios en Firebase - Verificando antes de crear usuarios por defecto');
+                    console.log('🚨 NO hay usuarios en Firebase - VERIFICANDO DIRECTAMENTE EN FIREBASE');
                     
-                    // 🔧 HOTFIX: Verificación adicional para evitar sobrescribir usuarios recién registrados
-                    // Esperar un poco y verificar nuevamente
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    const doubleCheck = await loadData('users');
-                    
-                    if (doubleCheck && Object.keys(doubleCheck).length > 0) {
-                        console.log('✅ Usuarios encontrados en segunda verificación - NO sobrescribiendo');
-                        testUsers = doubleCheck;
-                    } else {
-                        console.log('🚨 Confirmado: NO hay usuarios - Creando usuarios por defecto');
-                        testUsers = {...defaultUsers};
-                        const saveResult = await saveData('users', testUsers);
-                        console.log('📝 Resultado de guardar usuarios por defecto:', saveResult);
-                        console.log('📝 Usuarios por defecto guardados en Firebase');
+                    // 🔧 HOTFIX DEFINITIVO: Verificar DIRECTAMENTE en Firebase antes de sobrescribir
+                    try {
+                        const directResponse = await fetch(`${DATABASE_CONFIG.firebase.databaseURL}users.json`);
+                        const directData = await directResponse.json();
+                        
+                        if (directData && directData.data && Object.keys(directData.data).length > 0) {
+                            console.log('✅ USUARIOS ENCONTRADOS DIRECTAMENTE EN FIREBASE - NO sobrescribiendo');
+                            console.log('🔍 Usuarios encontrados:', Object.keys(directData.data));
+                            testUsers = directData.data;
+                        } else {
+                            console.log('🚨 CONFIRMADO: Firebase está completamente vacío - Creando SOLO usuarios por defecto');
+                            
+                            // Crear SOLO los usuarios por defecto básicos (María, Carlos, Ana)
+                            const basicUsers = {
+                                '1': {
+                                    id: 1,
+                                    name: 'María González',
+                                    email: 'maria@petcare.com',
+                                    password: '123456',
+                                    phone: '099 123 456',
+                                    role: 'caregiver',
+                                    avatar: '👩‍⚕️',
+                                    rating: 4.8,
+                                    experience: '5 años cuidando mascotas',
+                                    services: ['Paseos', 'Cuidado en casa', 'Veterinaria']
+                                },
+                                '2': {
+                                    id: 2,
+                                    name: 'Carlos Rodríguez',
+                                    email: 'carlos@petcare.com',
+                                    password: '123456',
+                                    phone: '098 765 432',
+                                    role: 'caregiver',
+                                    avatar: '👨‍⚕️',
+                                    rating: 4.9,
+                                    experience: '3 años en cuidado de mascotas',
+                                    services: ['Entrenamiento', 'Paseos', 'Cuidado nocturno']
+                                },
+                                '3': {
+                                    id: 3,
+                                    name: 'Ana Martínez',
+                                    email: 'ana@petcare.com',
+                                    password: '123456',
+                                    phone: '097 654 321',
+                                    role: 'owner',
+                                    avatar: '👩',
+                                    pets: [
+                                        { name: 'Luna', type: 'Perro', breed: 'Golden Retriever', age: 3 }
+                                    ]
+                                }
+                            };
+                            
+                            testUsers = basicUsers;
+                            const saveResult = await saveData('users', testUsers);
+                            console.log('📝 Resultado de guardar usuarios básicos por defecto:', saveResult);
+                            console.log('📝 SOLO usuarios básicos guardados en Firebase (NO sobrescribe usuarios registrados)');
+                        }
+                    } catch (error) {
+                        console.error('❌ Error verificando Firebase directamente:', error);
+                        // En caso de error, usar usuarios básicos localmente sin guardar
+                        testUsers = {
+                            '1': { id: 1, name: 'María González', email: 'maria@petcare.com', password: '123456', phone: '099 123 456', role: 'caregiver', avatar: '👩‍⚕️' },
+                            '2': { id: 2, name: 'Carlos Rodríguez', email: 'carlos@petcare.com', password: '123456', phone: '098 765 432', role: 'caregiver', avatar: '👨‍⚕️' },
+                            '3': { id: 3, name: 'Ana Martínez', email: 'ana@petcare.com', password: '123456', phone: '097 654 321', role: 'owner', avatar: '👩' }
+                        };
                     }
                     
                     // 🔍 Verificar que se guardaron correctamente
