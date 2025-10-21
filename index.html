@@ -2045,8 +2045,12 @@
             */
         }
 
-        // 🚨 FUNCIÓN SIMPLE PARA CREAR TABLA USERS DIRECTAMENTE
+        // 🚨 FUNCIÓN DESHABILITADA - SOBRESCRIBÍA USUARIOS REGISTRADOS
         async function createUsersTableDirectly() {
+            console.log('🚨 FUNCIÓN createUsersTableDirectly DESHABILITADA para proteger usuarios registrados');
+            return;
+            /*
+            // FUNCIÓN COMPLETAMENTE DESHABILITADA
             try {
                 console.log('🚨 EJECUTANDO CREACIÓN DIRECTA DE TABLA USERS...');
                 
@@ -2116,10 +2120,15 @@
             } catch (error) {
                 console.error('❌ Error en createUsersTableDirectly:', error);
             }
+            */
         }
 
-        // 🚨 FUNCIÓN PARA CREAR TABLA USERS INMEDIATAMENTE
+        // 🚨 FUNCIÓN DESHABILITADA - SOBRESCRIBÍA USUARIOS REGISTRADOS
         async function createUsersTableNow() {
+            console.log('🚨 FUNCIÓN createUsersTableNow DESHABILITADA para proteger usuarios registrados');
+            return;
+            /*
+            // FUNCIÓN COMPLETAMENTE DESHABILITADA
             try {
                 console.log('🚨 CREANDO TABLA USERS EN FIREBASE...');
                 
@@ -2222,6 +2231,7 @@
             } catch (e) {
                 console.error('❌ ERROR EN CREACIÓN DE TABLA USERS:', e);
             }
+            */
         }
 
         // 🚨 FUNCIÓN DESHABILITADA - SOBRESCRIBÍA USUARIOS REGISTRADOS
@@ -4845,9 +4855,9 @@
         document.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 Iniciando PetCare PWA...');
             
-            // 🚨 CREAR TABLA USERS INMEDIATAMENTE - SIN VERIFICACIONES
-            console.log('🚨 CREANDO TABLA USERS DIRECTAMENTE...');
-            await createUsersTableDirectly();
+            // 🚨 FUNCIÓN DESHABILITADA - SOBRESCRIBÍA USUARIOS REGISTRADOS
+            console.log('🚨 FUNCIÓN createUsersTableDirectly DESHABILITADA para proteger usuarios registrados');
+            // await createUsersTableDirectly();
             
             // Verificar conexión con Firebase
             const firebaseConnected = await testFirebaseConnection();
