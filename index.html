@@ -1949,6 +1949,7 @@
                 id: 1,
                 name: 'María González',
                 email: 'maria@petcare.com',
+                password: '123456', // ¡AGREGAR CONTRASEÑA!
                 phone: '099 123 456',
                 role: 'owner',
                 avatar: '👩',
@@ -1975,6 +1976,7 @@
                 id: 2,
                 name: 'Carlos Rodríguez',
                 email: 'carlos@petcare.com',
+                password: '123456', // ¡AGREGAR CONTRASEÑA!
                 phone: '098 765 432',
                 role: 'caregiver',
                 avatar: '👨‍⚕️',
@@ -1986,6 +1988,7 @@
                 id: 3,
                 name: 'Ana Martínez',
                 email: 'ana@petcare.com',
+                password: '123456', // ¡AGREGAR CONTRASEÑA!
                 phone: '097 555 123',
                 role: 'caregiver',
                 avatar: '👩‍⚕️',
@@ -2093,8 +2096,8 @@
                     testUsers = latestUsers;
                 }
                 
-                // Verificar login
-                if (testUsers[email]) {
+                // Verificar login CON VALIDACIÓN DE CONTRASEÑA
+                if (testUsers[email] && testUsers[email].password === password) {
                     currentUser = testUsers[email];
                     saveCurrentUser(currentUser); // Persistir sesión
                     updateUserInterface();
@@ -2127,12 +2130,29 @@
                 showMessage('Por favor completa todos los campos y selecciona tu rol', 'error');
                 return;
             }
+
+            try {
+                // Cargar usuarios más recientes desde Firebase
+                const latestUsers = await loadData('users');
+                if (latestUsers) {
+                    testUsers = latestUsers;
+                }
+                
+                // Verificar si el email ya existe
+                if (testUsers[email]) {
+                    showMessage('Este email ya está registrado. Intenta con otro email.', 'error');
+                    return;
+                }
+            } catch (e) {
+                console.error('Error verificando email:', e);
+            }
             
             // Simulación de registro
             const newUser = {
                 id: Date.now(),
                 name,
                 email,
+                password, // ¡AGREGAR LA CONTRASEÑA!
                 phone,
                 role: selectedRole,
                 avatar: selectedRole === 'owner' ? '👤' : '👨‍⚕️',
@@ -2446,9 +2466,10 @@
                         </div>
                         <span>📍 ${service.location}</span>
                     </div>
-                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                    <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
                         <button class="btn btn-secondary" onclick="editService(${service.id})">Editar</button>
                         <button class="btn btn-danger" onclick="deleteService(${service.id})">Eliminar</button>
+                        <button class="btn btn-primary" onclick="openChatForService(${service.id})">💬 Chat con Clientes</button>
                     </div>
                 </div>
             `).join('');
@@ -2702,6 +2723,95 @@
                 loadMyServices();
                 loadFeaturedServices();
                 loadAllServices();
+            }
+        }
+
+        // Función para que el cuidador chatee con clientes de su servicio
+        async function openChatForService(serviceId) {
+            try {
+                // Cargar usuarios y reservas más recientes
+                const latestUsers = await loadData('users');
+                const latestBookings = await loadData('bookings');
+                
+                if (latestUsers) testUsers = latestUsers;
+                if (latestBookings) testBookings = latestBookings;
+                
+                // Buscar reservas para este servicio
+                const serviceBookings = testBookings.filter(booking => 
+                    booking.serviceId === serviceId && 
+                    (booking.status === 'confirmed' || booking.status === 'in_progress' || booking.status === 'completed')
+                );
+                
+                if (serviceBookings.length === 0) {
+                    showMessage('No hay reservas activas para este servicio aún.', 'info');
+                    return;
+                }
+                
+                // Si hay solo una reserva, abrir chat directamente
+                if (serviceBookings.length === 1) {
+                    const booking = serviceBookings[0];
+                    const client = Object.values(testUsers).find(u => u.id === booking.userId);
+                    
+                    if (client) {
+                        const chatId = [currentUser.id, client.id].sort().join('-');
+                        openChatModal(chatId);
+                    } else {
+                        showMessage('Cliente no encontrado. Intenta refrescar la página.', 'error');
+                    }
+                    return;
+                }
+                
+                // Si hay múltiples reservas, mostrar lista para elegir
+                const clientsList = serviceBookings.map(booking => {
+                    const client = Object.values(testUsers).find(u => u.id === booking.userId);
+                    return client ? `
+                        <div style="padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px; cursor: pointer;" 
+                             onclick="openChatWithClient(${client.id})">
+                            <strong>${client.name}</strong><br>
+                            <small>Reserva: ${booking.date} - ${booking.status}</small>
+                        </div>
+                    ` : '';
+                }).join('');
+                
+                // Mostrar modal con lista de clientes
+                const modalContent = `
+                    <div style="max-width: 400px;">
+                        <h3>Selecciona un cliente para chatear:</h3>
+                        ${clientsList}
+                        <button onclick="closeClientListModal()" style="margin-top: 15px;" class="btn btn-secondary">Cancelar</button>
+                    </div>
+                `;
+                
+                // Crear modal temporal
+                const modal = document.createElement('div');
+                modal.id = 'clientListModal';
+                modal.className = 'modal';
+                modal.style.display = 'block';
+                modal.innerHTML = `
+                    <div class="modal-content" style="margin: 10% auto; padding: 20px;">
+                        ${modalContent}
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+            } catch (e) {
+                console.error('Error abriendo chat para servicio:', e);
+                showMessage('Error al abrir el chat. Intenta nuevamente.', 'error');
+            }
+        }
+
+        // Función auxiliar para abrir chat con cliente específico
+        async function openChatWithClient(clientId) {
+            const chatId = [currentUser.id, clientId].sort().join('-');
+            closeClientListModal();
+            openChatModal(chatId);
+        }
+
+        // Función auxiliar para cerrar modal de lista de clientes
+        function closeClientListModal() {
+            const modal = document.getElementById('clientListModal');
+            if (modal) {
+                modal.remove();
             }
         }
 
