@@ -1728,11 +1728,15 @@
                     let needsUpdate = false;
                     const defaultEmails = ['maria@petcare.com', 'carlos@petcare.com', 'ana@petcare.com'];
                     
+                    // 🔧 BUSCAR POR EMAIL EN LA NUEVA ESTRUCTURA
                     for (const email of defaultEmails) {
-                        if (testUsers[email] && !testUsers[email].password) {
-                            console.log(`🔧 Actualizando contraseña para ${email}`);
-                            testUsers[email].password = '123456';
-                            needsUpdate = true;
+                        for (const userId in testUsers) {
+                            const user = testUsers[userId];
+                            if (user.email === email && !user.password) {
+                                console.log(`🔧 Actualizando contraseña para ${email}`);
+                                user.password = '123456';
+                                needsUpdate = true;
+                            }
                         }
                     }
                     
@@ -1742,6 +1746,13 @@
                     }
                     
                     console.log(`✅ ${Object.keys(testUsers).length} usuarios cargados desde Firebase`);
+                
+                // 🔍 DEBUG: Mostrar usuarios cargados
+                console.log('👥 Usuarios cargados desde Firebase:');
+                for (const userId in testUsers) {
+                    const user = testUsers[userId];
+                    console.log(`  - ID: ${userId}, Email: ${user.email}, Nombre: ${user.name}, Password: ${user.password ? '✅' : '❌'}`);
+                }
                 } else {
                     console.log('🚨 NO hay usuarios en Firebase - Creando usuarios por defecto');
                     testUsers = {...defaultUsers};
@@ -2504,6 +2515,19 @@
             const saveResult = await saveData('users', testUsers);
             console.log(`📝 Resultado de guardado en Firebase:`, saveResult);
             console.log(`📝 Total usuarios después de guardar:`, Object.keys(testUsers).length);
+            
+            // 🔍 VERIFICAR QUE SE GUARDÓ EN FIREBASE
+            setTimeout(async () => {
+                console.log('🔍 Verificando persistencia en Firebase...');
+                const verifyUsers = await loadData('users');
+                console.log('🔍 Usuarios en Firebase después del registro:', verifyUsers);
+                
+                if (verifyUsers && verifyUsers[newUserId]) {
+                    console.log('✅ Usuario nuevo encontrado en Firebase:', verifyUsers[newUserId].email);
+                } else {
+                    console.log('❌ Usuario nuevo NO encontrado en Firebase');
+                }
+            }, 2000);
             
             currentUser = newUser;
             saveCurrentUser(currentUser); // Persistir sesión
