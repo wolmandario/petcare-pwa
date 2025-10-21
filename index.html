@@ -2481,7 +2481,9 @@
                 // 🔧 VERIFICAR SI EL EMAIL YA EXISTE (buscar por email, no por clave)
                 let emailExists = false;
                 for (const userId in testUsers) {
-                    if (testUsers[userId].email === email) {
+                    const user = testUsers[userId];
+                    // 🛡️ Verificar que el usuario no sea null/undefined antes de acceder a sus propiedades
+                    if (user && user.email && user.email === email) {
                         emailExists = true;
                         break;
                     }
@@ -2523,7 +2525,16 @@
             // 🔍 DEBUG: Registro de usuario
             console.log(`📝 Registrando nuevo usuario: ${email}`);
             console.log(`📝 Usuario creado:`, newUser);
+            console.log(`📝 Nuevo ID de usuario: ${newUserId}`);
             console.log(`📝 Total usuarios antes de guardar:`, Object.keys(testUsers).length);
+            console.log(`📝 IDs de usuarios antes de guardar:`, Object.keys(testUsers));
+            console.log(`📝 ¿Nuevo usuario está en testUsers?`, !!testUsers[newUserId]);
+            
+            // 🔍 DEBUG: Verificar tipo de datos antes de guardar
+            console.log(`📝 Tipo de testUsers:`, typeof testUsers);
+            console.log(`📝 ¿Es array testUsers?`, Array.isArray(testUsers));
+            console.log(`📝 Constructor de testUsers:`, testUsers.constructor.name);
+            console.log(`📝 Contenido completo de testUsers:`, testUsers);
             
             const saveResult = await saveData('users', testUsers);
             console.log(`📝 Resultado de guardado en Firebase:`, saveResult);
