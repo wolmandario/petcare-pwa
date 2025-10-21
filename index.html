@@ -1343,13 +1343,27 @@
             console.log(`🔗 URL: ${DATABASE_CONFIG.firebase.databaseURL}${path}.json`);
             console.log(`📊 Data:`, data);
             
+            // 🔧 HOTFIX: Asegurar que usuarios siempre sea objeto
+            let dataToSave = data;
+            if (path === 'users' && Array.isArray(data)) {
+                console.log('🔧 Convirtiendo array de usuarios a objeto antes de guardar...');
+                const usersObject = {};
+                data.forEach((user, index) => {
+                    if (user && user.id) {
+                        usersObject[user.id.toString()] = user;
+                    }
+                });
+                dataToSave = usersObject;
+                console.log('🔧 Usuarios convertidos para guardar:', dataToSave);
+            }
+            
             try {
                 // Intentar Firebase primero
                 const response = await fetch(`${DATABASE_CONFIG.firebase.databaseURL}${path}.json`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        data: data,
+                        data: dataToSave,
                         timestamp: Date.now(),
                         version: '2.0'
                     })
@@ -1418,6 +1432,20 @@
                     
                     if (result && result.data) {
                         console.log(`✅ Datos cargados desde Firebase: ${path}`);
+                        
+                        // 🔧 HOTFIX: Convertir array a objeto para usuarios
+                        if (path === 'users' && Array.isArray(result.data)) {
+                            console.log('🔧 Convirtiendo array de usuarios a objeto...');
+                            const usersObject = {};
+                            result.data.forEach((user, index) => {
+                                if (user && user.id) {
+                                    usersObject[user.id.toString()] = user;
+                                }
+                            });
+                            console.log('🔧 Usuarios convertidos:', usersObject);
+                            return usersObject;
+                        }
+                        
                         return result.data;
                     } else {
                         console.log(`⚠️ No data found in Firebase for: ${path}`);
@@ -2475,7 +2503,18 @@
                 // Cargar usuarios más recientes desde Firebase
                 const latestUsers = await loadData('users');
                 if (latestUsers) {
-                    testUsers = latestUsers;
+                    // 🔧 HOTFIX: Asegurar que testUsers sea siempre un objeto
+                    if (Array.isArray(latestUsers)) {
+                        console.log('🔧 Convirtiendo array de usuarios a objeto...');
+                        testUsers = {};
+                        latestUsers.forEach((user, index) => {
+                            if (user && user.id) {
+                                testUsers[user.id.toString()] = user;
+                            }
+                        });
+                    } else {
+                        testUsers = latestUsers;
+                    }
                 }
                 
                 // 🔧 VERIFICAR SI EL EMAIL YA EXISTE (buscar por email, no por clave)
