@@ -1804,11 +1804,23 @@
                     console.log(`  - ID: ${userId}, Email: ${user.email}, Nombre: ${user.name}, Password: ${user.password ? '✅' : '❌'}`);
                 }
                 } else {
-                    console.log('🚨 NO hay usuarios en Firebase - Creando usuarios por defecto');
-                    testUsers = {...defaultUsers};
-                    const saveResult = await saveData('users', testUsers);
-                    console.log('📝 Resultado de guardar usuarios por defecto:', saveResult);
-                    console.log('📝 Usuarios por defecto guardados en Firebase');
+                    console.log('🚨 NO hay usuarios en Firebase - Verificando antes de crear usuarios por defecto');
+                    
+                    // 🔧 HOTFIX: Verificación adicional para evitar sobrescribir usuarios recién registrados
+                    // Esperar un poco y verificar nuevamente
+                    await new Promise(resolve => setTimeout(resolve, 2000));
+                    const doubleCheck = await loadData('users');
+                    
+                    if (doubleCheck && Object.keys(doubleCheck).length > 0) {
+                        console.log('✅ Usuarios encontrados en segunda verificación - NO sobrescribiendo');
+                        testUsers = doubleCheck;
+                    } else {
+                        console.log('🚨 Confirmado: NO hay usuarios - Creando usuarios por defecto');
+                        testUsers = {...defaultUsers};
+                        const saveResult = await saveData('users', testUsers);
+                        console.log('📝 Resultado de guardar usuarios por defecto:', saveResult);
+                        console.log('📝 Usuarios por defecto guardados en Firebase');
+                    }
                     
                     // 🔍 Verificar que se guardaron correctamente
                     const verification = await loadData('users');
@@ -1854,8 +1866,8 @@
                     console.log(`  - ${email}: ${user.name} (password: ${user.password ? '✅' : '❌'})`);
                 });
                 
-                // Probar escritura y lectura para confirmar que Firebase funciona
-                await testFirebaseReadWrite();
+                // HOTFIX: Deshabilitar prueba temporalmente para evitar interferencias
+                // await testFirebaseReadWrite();
                 
                 // 🧪 Probar sincronización de usuarios
                 await testUserSync();
