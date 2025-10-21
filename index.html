@@ -1890,8 +1890,9 @@
             try {
                 console.log('🚨 EJECUTANDO CREACIÓN DIRECTA DE TABLA USERS...');
                 
+                // 🔧 USAR IDs NUMÉRICOS COMO CLAVES (Firebase no permite @ en claves)
                 const usersData = {
-                    'maria@petcare.com': {
+                    '1': {
                         id: 1,
                         name: 'María González',
                         email: 'maria@petcare.com',
@@ -1900,7 +1901,7 @@
                         role: 'owner',
                         avatar: '👩'
                     },
-                    'carlos@petcare.com': {
+                    '2': {
                         id: 2,
                         name: 'Carlos Rodríguez',
                         email: 'carlos@petcare.com',
@@ -1909,7 +1910,7 @@
                         role: 'caregiver',
                         avatar: '👨‍⚕️'
                     },
-                    'ana@petcare.com': {
+                    '3': {
                         id: 3,
                         name: 'Ana Martínez',
                         email: 'ana@petcare.com',
@@ -2234,12 +2235,13 @@
             }
         ];
 
+        // 🔧 USUARIOS POR DEFECTO CON IDs NUMÉRICOS COMO CLAVES
         const defaultUsers = {
-            'maria@petcare.com': {
+            '1': {
                 id: 1,
                 name: 'María González',
                 email: 'maria@petcare.com',
-                password: '123456', // ¡AGREGAR CONTRASEÑA!
+                password: '123456',
                 phone: '099 123 456',
                 role: 'owner',
                 avatar: '👩',
@@ -2262,11 +2264,11 @@
                     }
                 ]
             },
-            'carlos@petcare.com': {
+            '2': {
                 id: 2,
                 name: 'Carlos Rodríguez',
                 email: 'carlos@petcare.com',
-                password: '123456', // ¡AGREGAR CONTRASEÑA!
+                password: '123456',
                 phone: '098 765 432',
                 role: 'caregiver',
                 avatar: '👨‍⚕️',
@@ -2274,11 +2276,11 @@
                 rating: 4.8,
                 experience: '5 años de experiencia'
             },
-            'ana@petcare.com': {
+            '3': {
                 id: 3,
                 name: 'Ana Martínez',
                 email: 'ana@petcare.com',
-                password: '123456', // ¡AGREGAR CONTRASEÑA!
+                password: '123456',
                 phone: '097 555 123',
                 role: 'caregiver',
                 avatar: '👩‍⚕️',
@@ -2390,19 +2392,29 @@
                 console.log(`🔍 Intentando login con: ${email}`);
                 console.log(`🔍 Total usuarios cargados:`, Object.keys(testUsers).length);
                 console.log(`🔍 Usuarios disponibles:`, Object.keys(testUsers));
-                console.log(`🔍 Usuario existe:`, !!testUsers[email]);
-                if (testUsers[email]) {
-                    console.log(`🔍 Usuario:`, testUsers[email].name);
-                    console.log(`🔍 Contraseña guardada:`, testUsers[email].password);
+                
+                // 🔧 BUSCAR USUARIO POR EMAIL (ya no usamos email como clave)
+                let foundUser = null;
+                for (const userId in testUsers) {
+                    if (testUsers[userId].email === email) {
+                        foundUser = testUsers[userId];
+                        break;
+                    }
+                }
+                
+                console.log(`🔍 Usuario encontrado:`, !!foundUser);
+                if (foundUser) {
+                    console.log(`🔍 Usuario:`, foundUser.name);
+                    console.log(`🔍 Contraseña guardada:`, foundUser.password);
                     console.log(`🔍 Contraseña ingresada:`, password);
-                    console.log(`🔍 Contraseñas coinciden:`, testUsers[email].password === password);
+                    console.log(`🔍 Contraseñas coinciden:`, foundUser.password === password);
                 } else {
                     console.log(`❌ Usuario ${email} NO encontrado en la lista de usuarios`);
                 }
                 
                 // Verificar login CON VALIDACIÓN DE CONTRASEÑA
-                if (testUsers[email] && testUsers[email].password === password) {
-                    currentUser = testUsers[email];
+                if (foundUser && foundUser.password === password) {
+                    currentUser = foundUser;
                     saveCurrentUser(currentUser); // Persistir sesión
                     updateUserInterface();
                     closeAuthModal();
@@ -2442,8 +2454,16 @@
                     testUsers = latestUsers;
                 }
                 
-                // Verificar si el email ya existe
-                if (testUsers[email]) {
+                // 🔧 VERIFICAR SI EL EMAIL YA EXISTE (buscar por email, no por clave)
+                let emailExists = false;
+                for (const userId in testUsers) {
+                    if (testUsers[userId].email === email) {
+                        emailExists = true;
+                        break;
+                    }
+                }
+                
+                if (emailExists) {
                     showMessage('Este email ya está registrado. Intenta con otro email.', 'error');
                     return;
                 }
@@ -2472,7 +2492,9 @@
                 ] : undefined
             };
             
-            testUsers[email] = newUser;
+            // 🔧 USAR ID NUMÉRICO COMO CLAVE (no email)
+            const newUserId = newUser.id.toString();
+            testUsers[newUserId] = newUser;
             
             // 🔍 DEBUG: Registro de usuario
             console.log(`📝 Registrando nuevo usuario: ${email}`);
