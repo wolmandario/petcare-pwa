@@ -2824,7 +2824,7 @@
                             </span>
                         </div>
                         <div class="service-actions">
-                            <button class="btn btn-primary" onclick="openChat(${booking.serviceId})">💬 Chat</button>
+                            <button class="btn btn-primary" onclick="openChatFromBookingId(${booking.id})">💬 Chat</button>
                             ${booking.status === 'pending' && !isOwner ? '<button class="btn btn-success" onclick="acceptBooking(' + booking.id + ')">✓ Aceptar</button>' : ''}
                             ${booking.status === 'pending' && !isOwner ? '<button class="btn btn-danger" onclick="rejectBooking(' + booking.id + ')">✗ Rechazar</button>' : ''}
                             ${booking.status === 'pending' && isOwner ? '<button class="btn btn-danger" onclick="cancelBooking(' + booking.id + ')">Cancelar</button>' : ''}
@@ -2887,15 +2887,32 @@
             
             const isOwner = bookingToRate.ownerId === currentUser.id;
             const otherParty = isOwner ? bookingToRate.caregiverName : bookingToRate.ownerName;
-            const ratingType = isOwner ? 'servicio' : 'cliente';
             
-            document.getElementById('ratingTitle').textContent = `Calificar ${ratingType}`;
+            // Verificar si ya calificó
+            const alreadyRated = isOwner ? bookingToRate.ownerRated : bookingToRate.caregiverRated;
+            
+            if (alreadyRated) {
+                showMessage('Ya has calificado este servicio', 'info');
+                return;
+            }
+            
+            // Título dinámico según el rol
+            let ratingTitle, ratingDescription;
+            if (isOwner) {
+                ratingTitle = 'Calificar Servicio';
+                ratingDescription = `¿Cómo fue el servicio de ${otherParty}?`;
+            } else {
+                ratingTitle = 'Calificar Cliente';
+                ratingDescription = `¿Cómo fue trabajar con ${otherParty}?`;
+            }
+            
+            document.getElementById('ratingTitle').textContent = ratingTitle;
             document.getElementById('ratingServiceInfo').innerHTML = `
                 <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                    <div style="font-size: 32px;">⭐</div>
+                    <div style="font-size: 32px;">${isOwner ? '⭐' : '👤'}</div>
                     <div>
                         <h3>${bookingToRate.serviceName}</h3>
-                        <p style="color: #666; margin: 0;">${isOwner ? 'Cuidador' : 'Cliente'}: ${otherParty}</p>
+                        <p style="color: #666; margin: 0;">${ratingDescription}</p>
                         <p style="color: #666; margin: 0;">Servicio completado el ${bookingToRate.date}</p>
                         <p style="color: #666; margin: 0;">Mascota: ${bookingToRate.petName}</p>
                     </div>
@@ -2936,7 +2953,7 @@
             });
         }
 
-        function submitRating() {
+        async function submitRating() {
             if (currentRating === 0) {
                 showMessage('Por favor selecciona una calificación', 'error');
                 return;
@@ -2978,9 +2995,10 @@
                 bookingToRate.caregiverComment = comment;
             }
             
-            // Guardar cambios
-            saveToStorage('petcare_bookings', testBookings);
-            saveToStorage('petcare_services', testServices);
+            // Guardar cambios en Firebase
+            await saveData('bookings', testBookings);
+            await saveData('services', testServices);
+            await saveData('reviews', testReviews);
             
             closeRatingModal();
             showMessage('¡Calificación enviada exitosamente!', 'success');
@@ -3115,6 +3133,40 @@
             if (!caregiver) return;
             
             const chatId = [currentUser.id, caregiver.id].sort().join('-');
+            openChatModal(chatId);
+        }
+
+        function openChatFromBookingId(bookingId) {
+            // Buscar la reserva
+            const booking = testBookings.find(b => b.id === bookingId);
+            if (!booking) {
+                showMessage('Reserva no encontrada', 'error');
+                return;
+            }
+            
+            // Determinar con quién chatear según el rol del usuario actual
+            let otherUserId;
+            
+            if (currentUser.role === 'caregiver') {
+                // Si soy cuidador, chateo con el dueño (quien hizo la reserva)
+                otherUserId = booking.userId;
+            } else {
+                // Si soy dueño, chateo con el cuidador del servicio
+                const service = testServices.find(s => s.id === booking.serviceId);
+                if (!service) {
+                    showMessage('Servicio no encontrado', 'error');
+                    return;
+                }
+                otherUserId = service.caregiverId;
+            }
+            
+            const otherUser = Object.values(testUsers).find(u => u.id === otherUserId);
+            if (!otherUser) {
+                showMessage('Usuario no encontrado', 'error');
+                return;
+            }
+            
+            const chatId = [currentUser.id, otherUserId].sort().join('-');
             openChatModal(chatId);
         }
 
@@ -3773,21 +3825,32 @@
         }
 
         // Funciones de favoritos
-        function loadUserFavorites() {
+        async function loadUserFavorites() {
             if (!currentUser) {
                 userFavorites = [];
                 return;
             }
-            
-            userFavorites = loadFromStorage('petcare_favorites_' + currentUser.id) || [];
+            try {
+                const stored = await loadData(`favorites/${currentUser.id}`, []);
+                userFavorites = Array.isArray(stored) ? stored : [];
+                console.log(`✅ ${userFavorites.length} favoritos cargados para ${currentUser.name}`);
+            } catch (e) {
+                console.warn('Error cargando favoritos:', e);
+                userFavorites = [];
+            }
         }
 
-        function saveUserFavorites() {
+        async function saveUserFavorites() {
             if (!currentUser) return;
-            saveToStorage('petcare_favorites_' + currentUser.id, userFavorites);
+            try {
+                await saveData(`favorites/${currentUser.id}`, userFavorites);
+                console.log(`💾 Favoritos guardados para ${currentUser.name}`);
+            } catch (e) {
+                console.warn('Error guardando favoritos:', e);
+            }
         }
 
-        function toggleFavorite(serviceId) {
+        async function toggleFavorite(serviceId) {
             if (!currentUser) {
                 showMessage('Inicia sesión para agregar favoritos', 'error');
                 showAuthModal();
@@ -3806,7 +3869,7 @@
                 showMessage('Quitado de favoritos 💔', 'success');
             }
             
-            saveUserFavorites();
+            await saveUserFavorites();
             updateFavoriteButtons();
             
             // Si estamos en la pantalla de favoritos, recargar
