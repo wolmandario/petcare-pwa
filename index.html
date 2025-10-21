@@ -1982,7 +1982,7 @@
             event.target.closest('.role-option').classList.add('selected');
         }
 
-        function login() {
+        async function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
@@ -1991,23 +1991,34 @@
                 return;
             }
             
-            // Simulación de login
-            if (testUsers[email]) {
-                currentUser = testUsers[email];
-                saveCurrentUser(currentUser); // Persistir sesión
-                updateUserInterface();
-                closeAuthModal();
-                showMessage(`¡Bienvenido ${currentUser.name}!`, 'success');
-                clearFormData();
-                // Cargar favoritos del usuario
-                loadUserFavorites();
-                // Refrescar servicios para mostrar botones correctos
-                loadFeaturedServices();
-                loadAllServices();
-                // Actualizar botones de favoritos
-                setTimeout(updateFavoriteButtons, 100);
-            } else {
-                showMessage('Email o contraseña incorrectos', 'error');
+            try {
+                // Cargar usuarios más recientes desde Firebase
+                const latestUsers = await loadData('users');
+                if (latestUsers) {
+                    testUsers = latestUsers;
+                }
+                
+                // Verificar login
+                if (testUsers[email]) {
+                    currentUser = testUsers[email];
+                    saveCurrentUser(currentUser); // Persistir sesión
+                    updateUserInterface();
+                    closeAuthModal();
+                    showMessage(`¡Bienvenido ${currentUser.name}!`, 'success');
+                    clearFormData();
+                    // Cargar favoritos del usuario
+                    await loadUserFavorites();
+                    // Refrescar servicios para mostrar botones correctos
+                    loadFeaturedServices();
+                    loadAllServices();
+                    // Actualizar botones de favoritos
+                    setTimeout(updateFavoriteButtons, 100);
+                } else {
+                    showMessage('Email o contraseña incorrectos', 'error');
+                }
+            } catch (e) {
+                console.error('Error en login:', e);
+                showMessage('Error al iniciar sesión. Intenta nuevamente.', 'error');
             }
         }
 
@@ -3163,50 +3174,78 @@
             return Object.values(chatGroups).sort((a, b) => b.lastActivity - a.lastActivity);
         }
 
-        function openChat(serviceId) {
-            // Buscar o crear chat con el cuidador del servicio
-            const service = testServices.find(s => s.id === serviceId);
-            if (!service) return;
-            
-            const caregiver = Object.values(testUsers).find(u => u.id === service.caregiverId);
-            if (!caregiver) return;
-            
-            const chatId = [currentUser.id, caregiver.id].sort().join('-');
-            openChatModal(chatId);
-        }
-
-        function openChatFromBookingId(bookingId) {
-            // Buscar la reserva
-            const booking = testBookings.find(b => b.id === bookingId);
-            if (!booking) {
-                showMessage('Reserva no encontrada', 'error');
-                return;
-            }
-            
-            // Determinar con quién chatear según el rol del usuario actual
-            let otherUserId;
-            
-            if (currentUser.role === 'caregiver') {
-                // Si soy cuidador, chateo con el dueño (quien hizo la reserva)
-                otherUserId = booking.userId;
-            } else {
-                // Si soy dueño, chateo con el cuidador del servicio
-                const service = testServices.find(s => s.id === booking.serviceId);
+        async function openChat(serviceId) {
+            try {
+                // Cargar usuarios más recientes desde Firebase
+                const latestUsers = await loadData('users');
+                if (latestUsers) {
+                    testUsers = latestUsers;
+                }
+                
+                // Buscar o crear chat con el cuidador del servicio
+                const service = testServices.find(s => s.id === serviceId);
                 if (!service) {
                     showMessage('Servicio no encontrado', 'error');
                     return;
                 }
-                otherUserId = service.caregiverId;
+                
+                const caregiver = Object.values(testUsers).find(u => u.id === service.caregiverId);
+                if (!caregiver) {
+                    showMessage('Cuidador no encontrado. Intenta refrescar la página.', 'error');
+                    return;
+                }
+                
+                const chatId = [currentUser.id, caregiver.id].sort().join('-');
+                openChatModal(chatId);
+            } catch (e) {
+                console.error('Error abriendo chat:', e);
+                showMessage('Error al abrir el chat. Intenta nuevamente.', 'error');
             }
-            
-            const otherUser = Object.values(testUsers).find(u => u.id === otherUserId);
-            if (!otherUser) {
-                showMessage('Usuario no encontrado', 'error');
-                return;
+        }
+
+        async function openChatFromBookingId(bookingId) {
+            try {
+                // Cargar usuarios más recientes desde Firebase
+                const latestUsers = await loadData('users');
+                if (latestUsers) {
+                    testUsers = latestUsers;
+                }
+                
+                // Buscar la reserva
+                const booking = testBookings.find(b => b.id === bookingId);
+                if (!booking) {
+                    showMessage('Reserva no encontrada', 'error');
+                    return;
+                }
+                
+                // Determinar con quién chatear según el rol del usuario actual
+                let otherUserId;
+                
+                if (currentUser.role === 'caregiver') {
+                    // Si soy cuidador, chateo con el dueño (quien hizo la reserva)
+                    otherUserId = booking.userId;
+                } else {
+                    // Si soy dueño, chateo con el cuidador del servicio
+                    const service = testServices.find(s => s.id === booking.serviceId);
+                    if (!service) {
+                        showMessage('Servicio no encontrado', 'error');
+                        return;
+                    }
+                    otherUserId = service.caregiverId;
+                }
+                
+                const otherUser = Object.values(testUsers).find(u => u.id === otherUserId);
+                if (!otherUser) {
+                    showMessage('Usuario no encontrado. Intenta refrescar la página.', 'error');
+                    return;
+                }
+                
+                const chatId = [currentUser.id, otherUserId].sort().join('-');
+                openChatModal(chatId);
+            } catch (e) {
+                console.error('Error abriendo chat desde reserva:', e);
+                showMessage('Error al abrir el chat. Intenta nuevamente.', 'error');
             }
-            
-            const chatId = [currentUser.id, otherUserId].sort().join('-');
-            openChatModal(chatId);
         }
 
         function openChatModal(chatId) {
