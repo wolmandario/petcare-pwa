@@ -2404,11 +2404,24 @@
                 console.log(`🔍 Total usuarios cargados:`, Object.keys(testUsers).length);
                 console.log(`🔍 Usuarios disponibles:`, Object.keys(testUsers));
                 
+                // 🔍 DEBUG: Mostrar contenido de cada usuario
+                console.log('🔍 DEBUG - Contenido de usuarios:');
+                for (const userId in testUsers) {
+                    const user = testUsers[userId];
+                    if (user && user.email) {
+                        console.log(`  - ID: ${userId}, Email: ${user.email}, Nombre: ${user.name || 'Sin nombre'}`);
+                    } else {
+                        console.log(`  - ID: ${userId}, Usuario CORRUPTO:`, user);
+                    }
+                }
+                
                 // 🔧 BUSCAR USUARIO POR EMAIL (ya no usamos email como clave)
                 let foundUser = null;
                 for (const userId in testUsers) {
-                    if (testUsers[userId].email === email) {
-                        foundUser = testUsers[userId];
+                    const user = testUsers[userId];
+                    // 🛡️ Verificar que el usuario no sea null/undefined antes de acceder a sus propiedades
+                    if (user && user.email && user.email === email) {
+                        foundUser = user;
                         break;
                     }
                 }
