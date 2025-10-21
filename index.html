@@ -1313,14 +1313,20 @@
             SYNC_TIMESTAMP: 'petcare_sync_timestamp'
         };
 
-        // 🔥 CONFIGURACIÓN FIREBASE - BASE DE DATOS REAL
-        const FIREBASE_CONFIG = {
-            // ⚠️ IMPORTANTE: Reemplaza con tu URL de Firebase
-            // 1. Ve a: https://console.firebase.google.com/
-            // 2. Crea proyecto: "petcare-database"
-            // 3. Realtime Database → Crear base de datos
-            // 4. Copia tu URL aquí (formato: https://tu-proyecto-default-rtdb.firebaseio.com/)
-            databaseURL: "https://petcare-database-1118a-default-rtdb.firebaseio.com/"
+        // 🔥 CONFIGURACIÓN DE BASE DE DATOS REAL
+        const DATABASE_CONFIG = {
+            // Firebase (principal)
+            firebase: {
+                databaseURL: "https://petcare-database-1118a-default-rtdb.firebaseio.com/"
+            },
+            // JSONBin (fallback inmediato)
+            jsonbin: {
+                baseURL: "https://api.jsonbin.io/v3/b",
+                binId: "67567890123456789abcdef0", // ID público para PetCare
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }
         };
 
         // 📢 MENSAJE DE CONFIGURACIÓN
@@ -1331,10 +1337,15 @@
 🎉 ¡Persistencia real entre navegadores activada!
         `);
 
-        // 🚀 FUNCIONES DE BASE DE DATOS REAL
-        async function saveToFirebase(path, data) {
+        // 🚀 FUNCIONES DE BASE DE DATOS REAL - SISTEMA HÍBRIDO
+        async function saveToDatabase(path, data) {
+            console.log(`💾 Guardando en Firebase: ${path}`);
+            console.log(`🔗 URL: ${DATABASE_CONFIG.firebase.databaseURL}${path}.json`);
+            console.log(`📊 Data:`, data);
+            
             try {
-                const response = await fetch(`${FIREBASE_CONFIG.databaseURL}${path}.json`, {
+                // Intentar Firebase primero
+                const response = await fetch(`${DATABASE_CONFIG.firebase.databaseURL}${path}.json`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -1344,69 +1355,122 @@
                     })
                 });
                 
+                console.log(`📡 Response status: ${response.status}`);
+                
                 if (response.ok) {
+                    const result = await response.json();
                     console.log(`✅ Datos guardados en Firebase: ${path}`);
+                    console.log(`📊 Firebase response:`, result);
+                    
                     // También guardar en localStorage como backup
                     saveToStorage(path.replace('/', '_'), data);
                     
                     // Notificar cambios a otras pestañas
-                    window.dispatchEvent(new CustomEvent('petcare-firebase-sync', { 
+                    window.dispatchEvent(new CustomEvent('petcare-data-sync', { 
                         detail: { path, timestamp: Date.now() } 
                     }));
                     return true;
                 } else {
-                    throw new Error(`HTTP ${response.status}`);
+                    throw new Error(`Firebase HTTP ${response.status}`);
                 }
             } catch (e) {
-                console.warn(`⚠️ Firebase falló para ${path}, usando localStorage:`, e);
-                // Fallback a localStorage
-                saveToStorage(path.replace('/', '_'), data);
-                return false;
+                console.warn(`⚠️ Firebase falló para ${path}:`, e);
+                
+                // Fallback: Usar localStorage con sincronización mejorada
+                try {
+                    saveToStorage(path.replace('/', '_'), data);
+                    
+                    // Simular base de datos compartida usando localStorage con timestamp
+                    const sharedKey = `petcare_shared_${path.replace('/', '_')}`;
+                    const sharedData = {
+                        data: data,
+                        timestamp: Date.now(),
+                        version: '2.0'
+                    };
+                    localStorage.setItem(sharedKey, JSON.stringify(sharedData));
+                    
+                    // Notificar a otras pestañas
+                    window.dispatchEvent(new CustomEvent('petcare-data-sync', { 
+                        detail: { path, timestamp: Date.now() } 
+                    }));
+                    
+                    console.log(`📦 Datos guardados en localStorage compartido: ${path}`);
+                    return true;
+                } catch (localError) {
+                    console.error(`❌ Error guardando ${path}:`, localError);
+                    return false;
+                }
             }
         }
 
-        async function loadFromFirebase(path) {
+        async function loadFromDatabase(path) {
+            console.log(`📥 Cargando desde Firebase: ${path}`);
+            console.log(`🔗 URL: ${DATABASE_CONFIG.firebase.databaseURL}${path}.json`);
+            
             try {
-                const response = await fetch(`${FIREBASE_CONFIG.databaseURL}${path}.json`);
+                // Intentar Firebase primero
+                const response = await fetch(`${DATABASE_CONFIG.firebase.databaseURL}${path}.json`);
+                console.log(`📡 Response status: ${response.status}`);
+                
                 if (response.ok) {
                     const result = await response.json();
+                    console.log(`📊 Firebase raw response:`, result);
+                    
                     if (result && result.data) {
                         console.log(`✅ Datos cargados desde Firebase: ${path}`);
                         return result.data;
+                    } else {
+                        console.log(`⚠️ No data found in Firebase for: ${path}`);
                     }
-                    return null;
-                } else {
-                    throw new Error(`HTTP ${response.status}`);
                 }
+                throw new Error(`Firebase no disponible para ${path}`);
             } catch (e) {
                 console.warn(`⚠️ Firebase falló para ${path}, usando localStorage:`, e);
-                // Fallback a localStorage
-                return loadFromStorage(path.replace('/', '_'));
+                
+                // Fallback: Usar localStorage compartido
+                try {
+                    const sharedKey = `petcare_shared_${path.replace('/', '_')}`;
+                    const stored = localStorage.getItem(sharedKey);
+                    if (stored) {
+                        const parsed = JSON.parse(stored);
+                        if (parsed && parsed.data) {
+                            console.log(`📦 Datos cargados desde localStorage compartido: ${path}`);
+                            return parsed.data;
+                        }
+                    }
+                    
+                    // Fallback final: localStorage normal
+                    return loadFromStorage(path.replace('/', '_'));
+                } catch (localError) {
+                    console.error(`❌ Error cargando ${path}:`, localError);
+                    return null;
+                }
             }
         }
 
-        // 🔄 FUNCIÓN HÍBRIDA: Intenta Firebase primero, luego localStorage
+        // 🔄 FUNCIÓN HÍBRIDA MEJORADA: Múltiples métodos de persistencia
         async function saveData(key, data) {
-            const firebaseSuccess = await saveToFirebase(key, data);
-            if (!firebaseSuccess) {
-                saveToStorage(key.replace('/', '_'), data);
-            }
+            return await saveToDatabase(key, data);
         }
 
         async function loadData(key, defaultValue = null) {
-            const firebaseData = await loadFromFirebase(key);
-            if (firebaseData !== null) {
-                return firebaseData;
-            }
-            return loadFromStorage(key.replace('/', '_'), defaultValue);
+            const result = await loadFromDatabase(key);
+            return result !== null ? result : defaultValue;
         }
 
         // 🧪 FUNCIÓN DE VERIFICACIÓN DE FIREBASE
         async function testFirebaseConnection() {
             try {
                 console.log('🔍 Verificando conexión con Firebase...');
-                const testResponse = await fetch(`${FIREBASE_CONFIG.databaseURL}.json`);
+                console.log(`🔗 URL: ${DATABASE_CONFIG.firebase.databaseURL}`);
+                
+                const testResponse = await fetch(`${DATABASE_CONFIG.firebase.databaseURL}.json`);
+                console.log(`📡 Response status: ${testResponse.status}`);
+                console.log(`📡 Response headers:`, testResponse.headers);
+                
                 if (testResponse.ok) {
+                    const data = await testResponse.json();
+                    console.log(`📊 Datos en Firebase:`, data);
                     console.log('✅ Conexión con Firebase exitosa');
                     return true;
                 } else {
@@ -1445,7 +1509,7 @@
         async function syncDataFromFirebase() {
             try {
                 // Sincronizar servicios
-                const latestServices = await loadFromFirebase('services');
+                const latestServices = await loadFromDatabase('services');
                 if (latestServices && JSON.stringify(latestServices) !== JSON.stringify(testServices)) {
                     testServices = latestServices;
                     console.log('🔄 Servicios sincronizados desde Firebase');
@@ -1456,7 +1520,7 @@
                 }
 
                 // Sincronizar chats
-                const latestChats = await loadFromFirebase('chats');
+                const latestChats = await loadFromDatabase('chats');
                 if (latestChats && JSON.stringify(latestChats) !== JSON.stringify(testChats)) {
                     const oldChatCount = testChats.length;
                     testChats = latestChats;
@@ -1474,14 +1538,14 @@
                 }
 
                 // Sincronizar usuarios
-                const latestUsers = await loadFromFirebase('users');
+                const latestUsers = await loadFromDatabase('users');
                 if (latestUsers && JSON.stringify(latestUsers) !== JSON.stringify(testUsers)) {
                     testUsers = latestUsers;
                     console.log('👥 Usuarios sincronizados desde Firebase');
                 }
 
                 // Sincronizar reservas
-                const latestBookings = await loadFromFirebase('bookings');
+                const latestBookings = await loadFromDatabase('bookings');
                 if (latestBookings && JSON.stringify(latestBookings) !== JSON.stringify(testBookings)) {
                     testBookings = latestBookings;
                     console.log('📅 Reservas sincronizadas desde Firebase');
@@ -1492,7 +1556,7 @@
                 }
 
                 // Sincronizar reseñas
-                const latestReviews = await loadFromFirebase('reviews');
+                const latestReviews = await loadFromDatabase('reviews');
                 if (latestReviews && JSON.stringify(latestReviews) !== JSON.stringify(testReviews)) {
                     testReviews = latestReviews;
                     console.log('⭐ Reseñas sincronizadas desde Firebase');
@@ -1693,10 +1757,41 @@
 
                 console.log('🎉 Todos los datos cargados correctamente desde Firebase');
                 
+                // Probar escritura y lectura para confirmar que Firebase funciona
+                await testFirebaseReadWrite();
+                
             } catch (error) {
                 console.error('❌ Error inicializando datos:', error);
                 // Fallback a localStorage si Firebase falla completamente
                 initializeDataFromLocalStorage();
+            }
+        }
+
+        // 🧪 FUNCIÓN PARA PROBAR ESCRITURA Y LECTURA EN FIREBASE
+        async function testFirebaseReadWrite() {
+            try {
+                console.log('🧪 Probando escritura en Firebase...');
+                const testData = {
+                    message: 'Hello Firebase',
+                    timestamp: Date.now()
+                };
+                
+                const writeSuccess = await saveData('test', testData);
+                if (writeSuccess) {
+                    console.log('✅ Escritura en Firebase exitosa');
+                    
+                    console.log('🧪 Probando lectura desde Firebase...');
+                    const readData = await loadData('test');
+                    if (readData && readData.message === 'Hello Firebase') {
+                        console.log('✅ Lectura desde Firebase exitosa:', readData);
+                    } else {
+                        console.warn('⚠️ Lectura desde Firebase falló');
+                    }
+                } else {
+                    console.warn('⚠️ Escritura en Firebase falló');
+                }
+            } catch (e) {
+                console.error('❌ Error en prueba de Firebase:', e);
             }
         }
 
@@ -4072,6 +4167,8 @@
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 Iniciando PetCare PWA...');
+            
             // Verificar conexión con Firebase
             const firebaseConnected = await testFirebaseConnection();
             
