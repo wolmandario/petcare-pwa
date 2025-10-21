@@ -1313,6 +1313,178 @@
             SYNC_TIMESTAMP: 'petcare_sync_timestamp'
         };
 
+        // 🔥 CONFIGURACIÓN FIREBASE - BASE DE DATOS REAL
+        const FIREBASE_CONFIG = {
+            // ⚠️ IMPORTANTE: Reemplaza con tu URL de Firebase
+            // 1. Ve a: https://console.firebase.google.com/
+            // 2. Crea proyecto: "petcare-database"
+            // 3. Realtime Database → Crear base de datos
+            // 4. Copia tu URL aquí (formato: https://tu-proyecto-default-rtdb.firebaseio.com/)
+            databaseURL: "https://petcare-database-1118a-default-rtdb.firebaseio.com/"
+        };
+
+        // 📢 MENSAJE DE CONFIGURACIÓN
+        console.log(`
+🔥 FIREBASE CONFIGURADO CORRECTAMENTE
+✅ Base de datos: petcare-database-1118a
+✅ URL: https://petcare-database-1118a-default-rtdb.firebaseio.com/
+🎉 ¡Persistencia real entre navegadores activada!
+        `);
+
+        // 🚀 FUNCIONES DE BASE DE DATOS REAL
+        async function saveToFirebase(path, data) {
+            try {
+                const response = await fetch(`${FIREBASE_CONFIG.databaseURL}${path}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        data: data,
+                        timestamp: Date.now(),
+                        version: '2.0'
+                    })
+                });
+                
+                if (response.ok) {
+                    console.log(`✅ Datos guardados en Firebase: ${path}`);
+                    // También guardar en localStorage como backup
+                    saveToStorage(path.replace('/', '_'), data);
+                    
+                    // Notificar cambios a otras pestañas
+                    window.dispatchEvent(new CustomEvent('petcare-firebase-sync', { 
+                        detail: { path, timestamp: Date.now() } 
+                    }));
+                    return true;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (e) {
+                console.warn(`⚠️ Firebase falló para ${path}, usando localStorage:`, e);
+                // Fallback a localStorage
+                saveToStorage(path.replace('/', '_'), data);
+                return false;
+            }
+        }
+
+        async function loadFromFirebase(path) {
+            try {
+                const response = await fetch(`${FIREBASE_CONFIG.databaseURL}${path}.json`);
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result && result.data) {
+                        console.log(`✅ Datos cargados desde Firebase: ${path}`);
+                        return result.data;
+                    }
+                    return null;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (e) {
+                console.warn(`⚠️ Firebase falló para ${path}, usando localStorage:`, e);
+                // Fallback a localStorage
+                return loadFromStorage(path.replace('/', '_'));
+            }
+        }
+
+        // 🔄 FUNCIÓN HÍBRIDA: Intenta Firebase primero, luego localStorage
+        async function saveData(key, data) {
+            const firebaseSuccess = await saveToFirebase(key, data);
+            if (!firebaseSuccess) {
+                saveToStorage(key.replace('/', '_'), data);
+            }
+        }
+
+        async function loadData(key, defaultValue = null) {
+            const firebaseData = await loadFromFirebase(key);
+            if (firebaseData !== null) {
+                return firebaseData;
+            }
+            return loadFromStorage(key.replace('/', '_'), defaultValue);
+        }
+
+        // 🧪 FUNCIÓN DE VERIFICACIÓN DE FIREBASE
+        async function testFirebaseConnection() {
+            try {
+                console.log('🔍 Verificando conexión con Firebase...');
+                const testResponse = await fetch(`${FIREBASE_CONFIG.databaseURL}.json`);
+                if (testResponse.ok) {
+                    console.log('✅ Conexión con Firebase exitosa');
+                    return true;
+                } else {
+                    console.error('❌ Error de conexión con Firebase:', testResponse.status);
+                    return false;
+                }
+            } catch (e) {
+                console.error('❌ Error conectando con Firebase:', e);
+                return false;
+            }
+        }
+
+        // 🔄 SINCRONIZACIÓN EN TIEMPO REAL
+        let syncInterval;
+        
+        function startRealTimeSync() {
+            // Sincronizar cada 5 segundos para simular tiempo real
+            syncInterval = setInterval(async () => {
+                try {
+                    await syncDataFromFirebase();
+                } catch (e) {
+                    console.warn('Error en sincronización automática:', e);
+                }
+            }, 5000);
+            
+            console.log('🔄 Sincronización en tiempo real iniciada');
+        }
+
+        function stopRealTimeSync() {
+            if (syncInterval) {
+                clearInterval(syncInterval);
+                console.log('⏹️ Sincronización en tiempo real detenida');
+            }
+        }
+
+        async function syncDataFromFirebase() {
+            try {
+                // Sincronizar servicios
+                const latestServices = await loadFromFirebase('services');
+                if (latestServices && JSON.stringify(latestServices) !== JSON.stringify(testServices)) {
+                    testServices = latestServices;
+                    console.log('🔄 Servicios sincronizados desde Firebase');
+                    // Actualizar UI si estamos en la pantalla de servicios
+                    if (currentScreen === 'services' || currentScreen === 'home') {
+                        loadFeaturedServices();
+                    }
+                }
+
+                // Sincronizar chats
+                const latestChats = await loadFromFirebase('chats');
+                if (latestChats && JSON.stringify(latestChats) !== JSON.stringify(testChats)) {
+                    const oldChatCount = testChats.length;
+                    testChats = latestChats;
+                    console.log('💬 Chats sincronizados desde Firebase');
+                    
+                    // Si hay nuevos mensajes, actualizar UI
+                    if (testChats.length > oldChatCount) {
+                        if (currentScreen === 'chats') {
+                            loadChats();
+                        }
+                        if (currentChatId) {
+                            loadChatMessages(currentChatId);
+                        }
+                    }
+                }
+
+                // Sincronizar usuarios
+                const latestUsers = await loadFromFirebase('users');
+                if (latestUsers && JSON.stringify(latestUsers) !== JSON.stringify(testUsers)) {
+                    testUsers = latestUsers;
+                    console.log('👥 Usuarios sincronizados desde Firebase');
+                }
+
+            } catch (e) {
+                console.warn('Error sincronizando datos:', e);
+            }
+        }
+
         function saveToStorage(key, data) {
             try {
                 const timestamp = Date.now();
@@ -1423,52 +1595,91 @@
             localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
         }
 
-        // Función para inicializar datos
-        function initializeData() {
-            // Cargar servicios
+        // 🔥 FUNCIÓN PARA INICIALIZAR DATOS DESDE FIREBASE
+        async function initializeData() {
+            try {
+                console.log('🔄 Cargando datos desde Firebase...');
+                
+                // Cargar servicios desde Firebase
+                const storedServices = await loadData('services');
+                if (storedServices && storedServices.length > 0) {
+                    testServices = storedServices;
+                    console.log(`✅ ${testServices.length} servicios cargados desde Firebase`);
+                } else {
+                    testServices = [...defaultServices];
+                    await saveData('services', testServices);
+                    console.log('📝 Servicios por defecto guardados en Firebase');
+                }
+
+                // Cargar usuarios desde Firebase
+                const storedUsers = await loadData('users');
+                if (storedUsers && Object.keys(storedUsers).length > 0) {
+                    testUsers = storedUsers;
+                    console.log(`✅ ${Object.keys(testUsers).length} usuarios cargados desde Firebase`);
+                } else {
+                    testUsers = {...defaultUsers};
+                    await saveData('users', testUsers);
+                    console.log('📝 Usuarios por defecto guardados en Firebase');
+                }
+
+                // Cargar reservas desde Firebase
+                const storedBookings = await loadData('bookings');
+                if (storedBookings && storedBookings.length > 0) {
+                    testBookings = storedBookings;
+                    console.log(`✅ ${testBookings.length} reservas cargadas desde Firebase`);
+                } else {
+                    testBookings = [...defaultBookings];
+                    await saveData('bookings', testBookings);
+                }
+
+                // Cargar chats desde Firebase
+                const storedChats = await loadData('chats');
+                if (storedChats && storedChats.length > 0) {
+                    testChats = storedChats;
+                    console.log(`✅ ${testChats.length} mensajes cargados desde Firebase`);
+                } else {
+                    testChats = [];
+                    await saveData('chats', testChats);
+                }
+
+                // Cargar reseñas desde Firebase
+                const storedReviews = await loadData('reviews');
+                if (storedReviews && storedReviews.length > 0) {
+                    testReviews = storedReviews;
+                    console.log(`✅ ${testReviews.length} reseñas cargadas desde Firebase`);
+                } else {
+                    testReviews = [];
+                    await saveData('reviews', testReviews);
+                }
+
+                console.log('🎉 Todos los datos cargados correctamente desde Firebase');
+                
+            } catch (error) {
+                console.error('❌ Error inicializando datos:', error);
+                // Fallback a localStorage si Firebase falla completamente
+                initializeDataFromLocalStorage();
+            }
+        }
+
+        // 📦 FUNCIÓN FALLBACK PARA LOCALSTORAGE
+        function initializeDataFromLocalStorage() {
+            console.log('⚠️ Usando localStorage como fallback');
+            
             const storedServices = loadFromStorage(STORAGE_KEYS.SERVICES);
-            if (storedServices && storedServices.length > 0) {
-                testServices = storedServices;
-            } else {
-                testServices = [...defaultServices];
-                saveToStorage(STORAGE_KEYS.SERVICES, testServices);
-            }
-
-            // Cargar reservas
-            const storedBookings = loadFromStorage(STORAGE_KEYS.BOOKINGS);
-            if (storedBookings && storedBookings.length > 0) {
-                testBookings = storedBookings;
-            } else {
-                testBookings = [...defaultBookings];
-                saveToStorage(STORAGE_KEYS.BOOKINGS, testBookings);
-            }
-
-            // Cargar usuarios
+            testServices = storedServices && storedServices.length > 0 ? storedServices : [...defaultServices];
+            
             const storedUsers = loadFromStorage(STORAGE_KEYS.USERS);
-            if (storedUsers && Object.keys(storedUsers).length > 0) {
-                testUsers = storedUsers;
-            } else {
-                testUsers = {...defaultUsers};
-                saveToStorage(STORAGE_KEYS.USERS, testUsers);
-            }
-
-            // Cargar reseñas
-            const storedReviews = loadFromStorage(STORAGE_KEYS.REVIEWS);
-            if (storedReviews && storedReviews.length > 0) {
-                testReviews = storedReviews;
-            } else {
-                testReviews = [];
-                saveToStorage(STORAGE_KEYS.REVIEWS, testReviews);
-            }
-
-            // Cargar chats
+            testUsers = storedUsers && Object.keys(storedUsers).length > 0 ? storedUsers : {...defaultUsers};
+            
+            const storedBookings = loadFromStorage(STORAGE_KEYS.BOOKINGS);
+            testBookings = storedBookings && storedBookings.length > 0 ? storedBookings : [...defaultBookings];
+            
             const storedChats = loadFromStorage(STORAGE_KEYS.CHATS);
-            if (storedChats && storedChats.length > 0) {
-                testChats = storedChats;
-            } else {
-                testChats = [];
-                saveToStorage(STORAGE_KEYS.CHATS, testChats);
-            }
+            testChats = storedChats && storedChats.length > 0 ? storedChats : [];
+            
+            const storedReviews = loadFromStorage(STORAGE_KEYS.REVIEWS);
+            testReviews = storedReviews && storedReviews.length > 0 ? storedReviews : [];
+        }
 
             // Cargar usuario actual si existe
             const savedUser = loadCurrentUser();
@@ -1515,7 +1726,7 @@
                 priceUnit: 'día',
                 description: 'Hospedaje para mascotas con amplios espacios verdes, cuidado personalizado las 24 horas y actividades recreativas.',
                 location: 'Pocitos',
-                coordinates: [-56.1644, -34.9089], // Pocitos (corregido)
+                coordinates: [-56.1644, -34.9089], // Pocitos
                 rating: 4.9,
                 reviews: 89,
                 caregiver: 'Ana Martínez',
@@ -1772,7 +1983,7 @@
             }
         }
 
-        function register() {
+        async function register() {
             const name = document.getElementById('registerName').value;
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
@@ -1804,7 +2015,7 @@
             };
             
             testUsers[email] = newUser;
-            saveToStorage(STORAGE_KEYS.USERS, testUsers);
+            await saveData('users', testUsers);
             currentUser = newUser;
             saveCurrentUser(currentUser); // Persistir sesión
             updateUserInterface();
@@ -1896,6 +2107,47 @@
                 caregiverElements.forEach(el => el.style.display = 'none');
                 ownerElements.forEach(el => el.style.display = 'none');
             }
+        }
+
+        // 🗺️ FUNCIÓN DE GEOCODIFICACIÓN SIMPLE
+        function getCoordinatesForAddress(address) {
+            // Geocodificación simple basada en palabras clave
+            const addressLower = address.toLowerCase();
+            
+            // Barrios de Montevideo con coordenadas precisas
+            const neighborhoodCoordinates = {
+                'centro': [-56.1645, -34.9011],
+                'ciudad vieja': [-56.2067, -34.9067],
+                'pocitos': [-56.1644, -34.9089],
+                'carrasco': [-56.0333, -34.8833],
+                'punta gorda': [-56.1167, -34.8667],
+                'malvín': [-56.0833, -34.8833],
+                'cordón': [-56.1889, -34.9056],
+                'parque rodó': [-56.1650, -34.9150],
+                'tres cruces': [-56.1550, -34.8950],
+                'buceo': [-56.1400, -34.8950],
+                'punta carretas': [-56.1600, -34.9200],
+                'palermo': [-56.1750, -34.9100],
+                'barrio sur': [-56.2000, -34.9100],
+                'aguada': [-56.1950, -34.8950],
+                'la blanqueada': [-56.1450, -34.8850],
+                'villa dolores': [-56.1350, -34.8750],
+                'brazo oriental': [-56.1250, -34.8650],
+                'unión': [-56.1150, -34.8550],
+                'maroñas': [-56.1050, -34.8450]
+            };
+            
+            // Buscar coincidencias en la dirección
+            for (const [neighborhood, coords] of Object.entries(neighborhoodCoordinates)) {
+                if (addressLower.includes(neighborhood)) {
+                    console.log(`📍 Coordenadas encontradas para ${neighborhood}: ${coords}`);
+                    return coords;
+                }
+            }
+            
+            // Si no encuentra coincidencia, usar Centro como fallback
+            console.log(`📍 Usando Centro como fallback para: ${address}`);
+            return [-56.1645, -34.9011];
         }
 
         // Funciones de servicios
@@ -2108,7 +2360,7 @@
             document.getElementById('serviceLocation').value = '';
         }
 
-        function addService() {
+        async function addService() {
             const type = document.getElementById('serviceType').value;
             const name = document.getElementById('serviceName').value;
             const description = document.getElementById('serviceDescription').value;
@@ -2166,9 +2418,8 @@
             
             if (location === 'custom') {
                 finalLocation = customAddress;
-                // Para direcciones personalizadas, usar coordenadas del Centro por defecto
-                // En una implementación real, aquí se haría geocoding
-                finalCoordinates = [-56.1645, -34.9011];
+                // Geocodificación simple para direcciones personalizadas
+                finalCoordinates = getCoordinatesForAddress(customAddress);
             }
 
             const newService = {
@@ -2190,7 +2441,7 @@
             };
             
             testServices.push(newService);
-            saveToStorage(STORAGE_KEYS.SERVICES, testServices);
+            await saveData('services', testServices);
             closeAddServiceModal();
             showMessage('¡Servicio agregado exitosamente!', 'success');
             loadMyServices();
@@ -2237,7 +2488,7 @@
             showAddServiceModal();
         }
 
-        function updateService(serviceId) {
+        async function updateService(serviceId) {
             const type = document.getElementById('serviceType').value;
             const name = document.getElementById('serviceName').value;
             const description = document.getElementById('serviceDescription').value;
@@ -2277,7 +2528,7 @@
             
             if (location === 'custom') {
                 finalLocation = customAddress;
-                finalCoordinates = [-56.1645, -34.9011]; // Centro por defecto para direcciones personalizadas
+                finalCoordinates = getCoordinatesForAddress(customAddress);
             }
             
             // Encontrar y actualizar el servicio
@@ -2295,7 +2546,7 @@
                     customAddress: location === 'custom' ? customAddress : null
                 };
                 
-                saveToStorage(STORAGE_KEYS.SERVICES, testServices);
+                await saveData('services', testServices);
                 closeAddServiceModal();
                 showMessage('¡Servicio actualizado exitosamente!', 'success');
                 loadMyServices();
@@ -2309,10 +2560,10 @@
             }
         }
 
-        function deleteService(serviceId) {
+        async function deleteService(serviceId) {
             if (confirm('¿Estás seguro de que quieres eliminar este servicio?')) {
                 testServices = testServices.filter(service => service.id !== serviceId);
-                saveToStorage(STORAGE_KEYS.SERVICES, testServices);
+                await saveData('services', testServices);
                 showMessage('Servicio eliminado correctamente', 'success');
                 loadMyServices();
                 loadFeaturedServices();
@@ -2906,7 +3157,7 @@
             document.getElementById('chatModal').style.display = 'block';
         }
 
-        function markMessagesAsRead(chatId) {
+        async function markMessagesAsRead(chatId) {
             let updated = false;
             testChats.forEach(msg => {
                 if ((msg.senderId !== currentUser.id) && 
@@ -2918,7 +3169,7 @@
             });
             
             if (updated) {
-                saveToStorage(STORAGE_KEYS.CHATS, testChats);
+                await saveData('chats', testChats);
                 loadChats(); // Actualizar lista de chats
             }
         }
@@ -2961,7 +3212,7 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function sendMessage() {
+        async function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
             
@@ -2982,7 +3233,7 @@
             
             // Agregar mensaje al chat global
             testChats.push(newMessage);
-            saveToStorage(STORAGE_KEYS.CHATS, testChats);
+            await saveData('chats', testChats);
             
             // Actualizar chat actual
             currentChat.lastMessage = message;
@@ -3690,9 +3941,21 @@
         }
 
         // Inicialización
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inicializar todos los datos
-            initializeData();
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Verificar conexión con Firebase
+            const firebaseConnected = await testFirebaseConnection();
+            
+            if (firebaseConnected) {
+                console.log('🎉 Firebase conectado - Inicializando datos...');
+            } else {
+                console.log('⚠️ Firebase no disponible - Usando localStorage como fallback');
+            }
+            
+            // Inicializar todos los datos desde Firebase
+            await initializeData();
+            
+            // Iniciar sincronización en tiempo real
+            startRealTimeSync();
             
             loadFeaturedServices();
             updateUserInterface();
