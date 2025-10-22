@@ -752,6 +752,125 @@
         /* Touch improvements */
         .nav-tabs::-webkit-scrollbar { display: none; }
         .nav-tabs { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Pet Management System Styles */
+        .pet-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .pet-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .pet-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .pet-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #667eea;
+        }
+        .pet-avatar-placeholder {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+        }
+        .pet-info h3 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+            font-size: 18px;
+        }
+        .pet-details {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+        .pet-special-needs {
+            background: #fff3cd;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .pet-special-needs strong {
+            color: #856404;
+        }
+        .pet-special-needs p {
+            margin: 5px 0 0 0;
+            color: #856404;
+            font-size: 14px;
+        }
+        .pet-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        .pet-actions .btn {
+            padding: 8px 16px;
+            font-size: 14px;
+        }
+        .empty-pets {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        .empty-pets .pet-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        /* FIX 1: Favorites Visual Persistence */
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 5px;
+            border-radius: 50%;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+        }
+        
+        .favorite-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .favorite-btn.favorited {
+            color: #ff6b6b;
+            animation: heartBeat 0.6s ease-in-out;
+        }
+        
+        .favorite-btn.not-favorited {
+            color: #ccc;
+        }
+        
+        @keyframes heartBeat {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+            100% { transform: scale(1); }
+        }
     </style>
 </head>
 <body>
@@ -776,6 +895,7 @@
             <button class="nav-tab" onclick="showScreen('services')">🔍 Servicios</button>
             <button class="nav-tab" onclick="showScreen('map')">🗺️ Mapa</button>
             <button class="nav-tab owner-only" onclick="showScreen('favorites')">❤️ Favoritos</button>
+            <button class="nav-tab owner-only" onclick="showScreen('pets')" style="display: none;">🐾 Mis Mascotas</button>
             <button class="nav-tab caregiver-only" onclick="showScreen('myservices')">📋 Mis Servicios</button>
             <button class="nav-tab" onclick="showScreen('bookings')">📅 Reservas</button>
             <button class="nav-tab" onclick="showScreen('chats')">💬 Chats</button>
@@ -835,6 +955,19 @@
                 
                 <div id="favoritesList">
                     <!-- Los favoritos aparecen aquí -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Pets Screen (Owner Only) -->
+        <div id="petsScreen" class="screen">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>🐾 Mis Mascotas</h2>
+                    <button class="btn btn-primary" onclick="showAddPetModal()">+ Agregar Mascota</button>
+                </div>
+                <div id="petsList">
+                    <p>Cargando mascotas...</p>
                 </div>
             </div>
         </div>
@@ -1034,6 +1167,61 @@
                         ¿Ya tienes cuenta? 
                         <a href="#" onclick="showLoginForm()" style="color: #667eea;">Inicia sesión aquí</a>
                     </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pet Management Modal -->
+    <div id="petModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="petModalTitle">Agregar Mascota</h2>
+                <button class="modal-close" onclick="closePetModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Nombre *</label>
+                    <input type="text" id="petName" class="form-input" placeholder="Ej: Max, Luna, Toby" maxlength="50">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Edad (años) *</label>
+                        <input type="number" id="petAge" class="form-input" placeholder="3" min="0" max="30">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Animal *</label>
+                        <select id="petAnimalType" class="form-input">
+                            <option value="">Selecciona tipo</option>
+                            <option value="Perro">🐕 Perro</option>
+                            <option value="Gato">🐱 Gato</option>
+                            <option value="Otro">🐾 Otro</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Raza (opcional)</label>
+                    <input type="text" id="petBreed" class="form-input" placeholder="Ej: Labrador, Siamés, Mestizo" maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Peso (opcional)</label>
+                    <input type="text" id="petWeight" class="form-input" placeholder="Ej: 25kg, 3.5kg" maxlength="20">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Necesidades Especiales (opcional)</label>
+                    <textarea id="petSpecialNeeds" class="form-input" rows="3" placeholder="Ej: Medicación diaria, nervioso con extraños, alergias..." maxlength="500"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Foto (opcional)</label>
+                    <input type="file" id="petPhoto" class="form-input" accept="image/*" onchange="previewPetPhoto(event)">
+                    <div id="petPhotoPreview" style="margin-top: 10px; display: none;">
+                        <img id="petPhotoImg" style="max-width: 200px; max-height: 200px; border-radius: 8px; object-fit: cover;">
+                        <button type="button" class="btn btn-secondary" onclick="removePetPhoto()" style="margin-left: 10px; padding: 5px 10px;">Eliminar</button>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-primary" onclick="savePet()" style="flex: 1;">Guardar Mascota</button>
+                    <button class="btn btn-secondary" onclick="closePetModal()">Cancelar</button>
                 </div>
             </div>
         </div>
@@ -1300,7 +1488,103 @@
         // Variables para favoritos
         let userFavorites = [];
 
-
+        // Pet Management System
+        let editingPet = null;
+        
+        function createPetDataModel(petData) {
+            return {
+                id: petData.id || generatePetId(),
+                ownerId: petData.ownerId || (currentUser ? currentUser.id : null),
+                name: petData.name || '',
+                age: petData.age || 0,
+                animalType: petData.animalType || 'Perro',
+                breed: petData.breed || '',
+                weight: petData.weight || '',
+                specialNeeds: petData.specialNeeds || '',
+                photoUrl: petData.photoUrl || '',
+                createdAt: petData.createdAt || new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+        }
+        
+        function generatePetId() {
+            return 'pet_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+        
+        function validatePetData(petData) {
+            const errors = [];
+            if (!petData.name || petData.name.trim().length === 0) {
+                errors.push('El nombre de la mascota es obligatorio');
+            }
+            if (!petData.age || petData.age < 0 || petData.age > 30) {
+                errors.push('La edad debe ser un número entre 0 y 30 años');
+            }
+            if (!petData.animalType || !['Perro', 'Gato', 'Otro'].includes(petData.animalType)) {
+                errors.push('Debe seleccionar un tipo de animal válido');
+            }
+            if (petData.name && petData.name.length > 50) {
+                errors.push('El nombre no puede tener más de 50 caracteres');
+            }
+            if (petData.breed && petData.breed.length > 50) {
+                errors.push('La raza no puede tener más de 50 caracteres');
+            }
+            if (petData.weight && petData.weight.length > 20) {
+                errors.push('El peso no puede tener más de 20 caracteres');
+            }
+            if (petData.specialNeeds && petData.specialNeeds.length > 500) {
+                errors.push('Las necesidades especiales no pueden tener más de 500 caracteres');
+            }
+            return errors;
+        }
+        
+        function savePetToUser(petData) {
+            if (!currentUser) {
+                throw new Error('Usuario no autenticado');
+            }
+            if (!currentUser.pets) {
+                currentUser.pets = [];
+            }
+            const pet = createPetDataModel(petData);
+            pet.ownerId = currentUser.id;
+            const existingIndex = currentUser.pets.findIndex(p => p.id === pet.id);
+            if (existingIndex >= 0) {
+                currentUser.pets[existingIndex] = pet;
+            } else {
+                currentUser.pets.push(pet);
+            }
+            // Save to storage
+            saveCurrentUser(currentUser);
+            return pet;
+        }
+        
+        function deletePetFromUser(petId) {
+            if (!currentUser || !currentUser.pets) {
+                return false;
+            }
+            const initialLength = currentUser.pets.length;
+            currentUser.pets = currentUser.pets.filter(pet => pet.id !== petId);
+            if (currentUser.pets.length < initialLength) {
+                saveCurrentUser(currentUser);
+                return true;
+            }
+            return false;
+        }
+        
+        function getUserPets(userId) {
+            if (!currentUser || !currentUser.pets) {
+                return [];
+            }
+            return currentUser.pets.filter(pet => pet.ownerId === userId || !pet.ownerId);
+        }
+        
+        function getAnimalEmoji(animalType) {
+            const emojis = {
+                'Perro': '🐕',
+                'Gato': '🐱',
+                'Otro': '🐾'
+            };
+            return emojis[animalType] || '🐾';
+        }
 
         // Sistema de persistencia mejorado con sincronización
         const STORAGE_KEYS = {
@@ -2514,6 +2798,8 @@
                 }, 100);
             } else if (screenName === 'favorites') {
                 loadFavorites();
+            } else if (screenName === 'pets') {
+                loadPets();
             } else if (screenName === 'myservices') {
                 loadMyServices();
             } else if (screenName === 'bookings') {
@@ -3536,9 +3822,16 @@
             petSelect.innerHTML = '<option value="">Selecciona tu mascota</option>';
             
             if (currentUser && currentUser.pets) {
-                currentUser.pets.forEach(pet => {
-                    petSelect.innerHTML += `<option value="${pet.name}">${pet.name} (${pet.type} - ${pet.breed})</option>`;
+                const userPets = getUserPets(currentUser.id);
+                userPets.forEach(pet => {
+                    const breedText = pet.breed ? ` - ${pet.breed}` : '';
+                    petSelect.innerHTML += `<option value="${pet.name}">${pet.name} (${pet.animalType}${breedText})</option>`;
                 });
+                
+                // Si no hay mascotas, mostrar opción para agregar
+                if (userPets.length === 0 && currentUser.role === 'owner') {
+                    petSelect.innerHTML += `<option value="" disabled>No tienes mascotas registradas</option>`;
+                }
             }
         }
 
@@ -4833,6 +5126,194 @@
                     </div>
                 `).join('')}
             `;
+        }
+
+        // Pet Management UI Functions
+        function loadPets() {
+            const container = document.getElementById('petsList');
+            if (!currentUser) {
+                container.innerHTML = '<p>Inicia sesión para ver tus mascotas.</p>';
+                return;
+            }
+            if (currentUser.role !== 'owner') {
+                container.innerHTML = '<p>Solo los dueños de mascotas pueden gestionar mascotas.</p>';
+                return;
+            }
+            const userPets = getUserPets(currentUser.id);
+            if (userPets.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-pets">
+                        <div class="pet-icon">🐾</div>
+                        <h3>No tienes mascotas registradas</h3>
+                        <p>Agrega tu primera mascota para comenzar a usar los servicios de PetCare</p>
+                        <button class="btn btn-primary" onclick="showAddPetModal()" style="margin-top: 15px;">+ Agregar Primera Mascota</button>
+                    </div>
+                `;
+                return;
+            }
+            container.innerHTML = userPets.map(pet => `
+                <div class="pet-card">
+                    <div class="pet-header">
+                        <div>
+                            ${pet.photoUrl ? 
+                                `<img src="${pet.photoUrl}" class="pet-avatar" alt="${pet.name}">` :
+                                `<div class="pet-avatar-placeholder">${getAnimalEmoji(pet.animalType)}</div>`
+                            }
+                        </div>
+                        <div class="pet-info">
+                            <h3>${pet.name}</h3>
+                            <p class="pet-details">
+                                ${pet.animalType}${pet.breed ? ` • ${pet.breed}` : ''} • ${pet.age} año${pet.age !== 1 ? 's' : ''}
+                                ${pet.weight ? ` • ${pet.weight}` : ''}
+                            </p>
+                        </div>
+                    </div>
+                    ${pet.specialNeeds ? `
+                        <div class="pet-special-needs">
+                            <strong>⚠️ Necesidades especiales:</strong>
+                            <p>${pet.specialNeeds}</p>
+                        </div>
+                    ` : ''}
+                    <div class="pet-actions">
+                        <button class="btn btn-secondary" onclick="editPet('${pet.id}')">✏️ Editar</button>
+                        <button class="btn btn-danger" onclick="deletePet('${pet.id}')">🗑️ Eliminar</button>
+                        ${!pet.photoUrl ? `<button class="btn btn-secondary" onclick="addPetPhoto('${pet.id}')">📷 Agregar Foto</button>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function showAddPetModal() {
+            if (!currentUser || currentUser.role !== 'owner') {
+                showMessage('Solo los dueños de mascotas pueden agregar mascotas', 'error');
+                return;
+            }
+            editingPet = null;
+            document.getElementById('petModalTitle').textContent = 'Agregar Mascota';
+            clearPetForm();
+            document.getElementById('petModal').style.display = 'block';
+        }
+        
+        function editPet(petId) {
+            const pet = getUserPets(currentUser.id).find(p => p.id === petId);
+            if (!pet) {
+                showMessage('Mascota no encontrada', 'error');
+                return;
+            }
+            editingPet = pet;
+            document.getElementById('petModalTitle').textContent = 'Editar Mascota';
+            // Fill form with pet data
+            document.getElementById('petName').value = pet.name || '';
+            document.getElementById('petAge').value = pet.age || '';
+            document.getElementById('petAnimalType').value = pet.animalType || '';
+            document.getElementById('petBreed').value = pet.breed || '';
+            document.getElementById('petWeight').value = pet.weight || '';
+            document.getElementById('petSpecialNeeds').value = pet.specialNeeds || '';
+            // Show photo if exists
+            if (pet.photoUrl) {
+                document.getElementById('petPhotoImg').src = pet.photoUrl;
+                document.getElementById('petPhotoPreview').style.display = 'block';
+            }
+            document.getElementById('petModal').style.display = 'block';
+        }
+        
+        function deletePet(petId) {
+            const pet = getUserPets(currentUser.id).find(p => p.id === petId);
+            if (!pet) {
+                showMessage('Mascota no encontrada', 'error');
+                return;
+            }
+            if (confirm(`¿Estás seguro de que quieres eliminar a ${pet.name}? Esta acción no se puede deshacer.`)) {
+                if (deletePetFromUser(petId)) {
+                    showMessage(`${pet.name} ha sido eliminado correctamente`, 'success');
+                    loadPets();
+                } else {
+                    showMessage('Error al eliminar la mascota', 'error');
+                }
+            }
+        }
+        
+        function closePetModal() {
+            document.getElementById('petModal').style.display = 'none';
+            editingPet = null;
+            clearPetForm();
+        }
+        
+        function clearPetForm() {
+            document.getElementById('petName').value = '';
+            document.getElementById('petAge').value = '';
+            document.getElementById('petAnimalType').value = '';
+            document.getElementById('petBreed').value = '';
+            document.getElementById('petWeight').value = '';
+            document.getElementById('petSpecialNeeds').value = '';
+            document.getElementById('petPhoto').value = '';
+            document.getElementById('petPhotoPreview').style.display = 'none';
+            document.getElementById('petPhotoImg').src = '';
+        }
+        
+        function savePet() {
+            const petData = {
+                name: document.getElementById('petName').value.trim(),
+                age: parseInt(document.getElementById('petAge').value) || 0,
+                animalType: document.getElementById('petAnimalType').value,
+                breed: document.getElementById('petBreed').value.trim(),
+                weight: document.getElementById('petWeight').value.trim(),
+                specialNeeds: document.getElementById('petSpecialNeeds').value.trim(),
+                photoUrl: document.getElementById('petPhotoImg').src || ''
+            };
+            // If editing, maintain ID and creation date
+            if (editingPet) {
+                petData.id = editingPet.id;
+                petData.createdAt = editingPet.createdAt;
+            }
+            // Validate data
+            const errors = validatePetData(petData);
+            if (errors.length > 0) {
+                showMessage(errors.join('. '), 'error');
+                return;
+            }
+            try {
+                const savedPet = savePetToUser(petData);
+                const action = editingPet ? 'actualizado' : 'agregado';
+                showMessage(`${savedPet.name} ha sido ${action} correctamente`, 'success');
+                closePetModal();
+                loadPets();
+            } catch (error) {
+                showMessage('Error al guardar la mascota: ' + error.message, 'error');
+            }
+        }
+        
+        function previewPetPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showMessage('Por favor selecciona un archivo de imagen válido', 'error');
+                event.target.value = '';
+                return;
+            }
+            // Validate file size (5MB max)
+            if (file.size > 5 * 1024 * 1024) {
+                showMessage('La imagen es muy grande. Por favor selecciona una imagen menor a 5MB', 'error');
+                event.target.value = '';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('petPhotoImg').src = e.target.result;
+                document.getElementById('petPhotoPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        function removePetPhoto() {
+            document.getElementById('petPhoto').value = '';
+            document.getElementById('petPhotoImg').src = '';
+            document.getElementById('petPhotoPreview').style.display = 'none';
+        }
+        
+        function addPetPhoto(petId) {
+            editPet(petId);
         }
 
         // Función para mostrar mensajes
