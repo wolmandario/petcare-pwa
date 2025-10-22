@@ -4468,20 +4468,31 @@
                 
                 if (currentUser.role === 'caregiver') {
                     // Si soy cuidador, chateo con el dueño (quien hizo la reserva)
-                    otherUserId = booking.userId;
+                    otherUserId = booking.ownerId;
+                    console.log(`💬 Cuidador ${currentUser.name} quiere chatear con dueño ID: ${otherUserId}`);
                 } else {
                     // Si soy dueño, chateo con el cuidador del servicio
-                    const service = testServices.find(s => s.id === booking.serviceId);
-                    if (!service) {
-                        showMessage('Servicio no encontrado', 'error');
-                        return;
-                    }
-                    otherUserId = service.caregiverId;
+                    otherUserId = booking.caregiverId;
+                    console.log(`💬 Dueño ${currentUser.name} quiere chatear con cuidador ID: ${otherUserId}`);
                 }
                 
-                const otherUser = Object.values(testUsers).find(u => u.id === otherUserId);
+                // Buscar el usuario de múltiples formas para mayor robustez
+                let otherUser = Object.values(testUsers).find(u => u.id === otherUserId || u.id === otherUserId.toString());
+                
+                // Si no se encuentra, también buscar por email si está disponible
+                if (!otherUser && booking.ownerName && currentUser.role === 'caregiver') {
+                    otherUser = Object.values(testUsers).find(u => u.name === booking.ownerName);
+                } else if (!otherUser && booking.caregiverName && currentUser.role === 'owner') {
+                    otherUser = Object.values(testUsers).find(u => u.name === booking.caregiverName);
+                }
+                
+                console.log(`💬 Buscando usuario ID: ${otherUserId}, Encontrado:`, otherUser);
+                console.log(`💬 Usuarios disponibles:`, Object.keys(testUsers).length, Object.keys(testUsers));
+                
                 if (!otherUser) {
-                    showMessage('Usuario no encontrado. Intenta refrescar la página.', 'error');
+                    showMessage(`Usuario no encontrado (ID: ${otherUserId}). Verifica que el usuario exista.`, 'error');
+                    console.error('💬 Usuario no encontrado. Datos de reserva:', booking);
+                    console.error('💬 Usuarios disponibles:', testUsers);
                     return;
                 }
                 
@@ -4499,10 +4510,16 @@
             
             if (!currentChat) {
                 // Crear nuevo chat si no existe
-                const otherUserId = chatId.split('-').find(id => parseInt(id) !== currentUser.id);
-                const otherUser = Object.values(testUsers).find(u => u.id === parseInt(otherUserId));
+                const otherUserId = chatId.split('-').find(id => id != currentUser.id.toString());
+                const otherUser = Object.values(testUsers).find(u => u.id == otherUserId || u.id.toString() === otherUserId);
                 
-                if (!otherUser) return;
+                console.log(`💬 Creando nuevo chat. ChatId: ${chatId}, OtherUserId: ${otherUserId}, Usuario encontrado:`, otherUser);
+                
+                if (!otherUser) {
+                    console.error(`💬 No se pudo encontrar usuario para chat. ChatId: ${chatId}, OtherUserId: ${otherUserId}`);
+                    showMessage('Error: No se pudo encontrar el usuario para el chat', 'error');
+                    return;
+                }
                 
                 currentChat = {
                     id: chatId,
