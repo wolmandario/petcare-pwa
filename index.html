@@ -1537,44 +1537,113 @@
             return errors;
         }
         
-        function savePetToUser(petData) {
+        async function savePetToUser(petData) {
             if (!currentUser) {
                 throw new Error('Usuario no autenticado');
             }
-            if (!currentUser.pets) {
-                currentUser.pets = [];
+            if (currentUser.role !== 'owner') {
+                throw new Error('Solo los dueños de mascotas pueden agregar mascotas');
             }
+            
             const pet = createPetDataModel(petData);
             pet.ownerId = currentUser.id;
-            const existingIndex = currentUser.pets.findIndex(p => p.id === pet.id);
-            if (existingIndex >= 0) {
-                currentUser.pets[existingIndex] = pet;
-            } else {
-                currentUser.pets.push(pet);
+            
+            try {
+                // Cargar mascotas existentes desde Firebase
+                let allPets = await loadData('pets') || {};
+                
+                // Agregar o actualizar la mascota
+                allPets[pet.id] = pet;
+                
+                // Guardar en Firebase
+                const saveSuccess = await saveData('pets', allPets);
+                if (!saveSuccess) {
+                    throw new Error('Error guardando en Firebase');
+                }
+                
+                // También mantener copia local en el usuario para compatibilidad
+                if (!currentUser.pets) {
+                    currentUser.pets = [];
+                }
+                const existingIndex = currentUser.pets.findIndex(p => p.id === pet.id);
+                if (existingIndex >= 0) {
+                    currentUser.pets[existingIndex] = pet;
+                } else {
+                    currentUser.pets.push(pet);
+                }
+                saveCurrentUser(currentUser);
+                
+                console.log(`🐾 Mascota ${pet.name} guardada en Firebase con ID: ${pet.id}`);
+                return pet;
+            } catch (error) {
+                console.error('Error guardando mascota:', error);
+                throw error;
             }
-            // Save to storage
-            saveCurrentUser(currentUser);
-            return pet;
         }
         
-        function deletePetFromUser(petId) {
-            if (!currentUser || !currentUser.pets) {
+        async function deletePetFromUser(petId) {
+            if (!currentUser || currentUser.role !== 'owner') {
                 return false;
             }
-            const initialLength = currentUser.pets.length;
-            currentUser.pets = currentUser.pets.filter(pet => pet.id !== petId);
-            if (currentUser.pets.length < initialLength) {
-                saveCurrentUser(currentUser);
+            
+            try {
+                // Cargar mascotas desde Firebase
+                let allPets = await loadData('pets') || {};
+                
+                // Verificar que la mascota pertenece al usuario actual
+                if (!allPets[petId] || allPets[petId].ownerId !== currentUser.id) {
+                    return false;
+                }
+                
+                // Eliminar de Firebase
+                delete allPets[petId];
+                const saveSuccess = await saveData('pets', allPets);
+                if (!saveSuccess) {
+                    throw new Error('Error eliminando de Firebase');
+                }
+                
+                // También eliminar de la copia local
+                if (currentUser.pets) {
+                    const initialLength = currentUser.pets.length;
+                    currentUser.pets = currentUser.pets.filter(pet => pet.id !== petId);
+                    if (currentUser.pets.length < initialLength) {
+                        saveCurrentUser(currentUser);
+                    }
+                }
+                
+                console.log(`🗑️ Mascota eliminada de Firebase con ID: ${petId}`);
                 return true;
+            } catch (error) {
+                console.error('Error eliminando mascota:', error);
+                return false;
             }
-            return false;
         }
         
-        function getUserPets(userId) {
-            if (!currentUser || !currentUser.pets) {
+        async function getUserPets(userId) {
+            try {
+                // Cargar mascotas desde Firebase
+                const allPets = await loadData('pets') || {};
+                
+                // Filtrar mascotas del usuario actual
+                const userPets = Object.values(allPets).filter(pet => 
+                    pet.ownerId === userId || pet.ownerId === userId.toString()
+                );
+                
+                // También sincronizar con copia local para compatibilidad
+                if (currentUser && currentUser.id === userId) {
+                    currentUser.pets = userPets;
+                    saveCurrentUser(currentUser);
+                }
+                
+                return userPets;
+            } catch (error) {
+                console.error('Error cargando mascotas:', error);
+                // Fallback a copia local
+                if (currentUser && currentUser.pets) {
+                    return currentUser.pets.filter(pet => pet.ownerId === userId || !pet.ownerId);
+                }
                 return [];
             }
-            return currentUser.pets.filter(pet => pet.ownerId === userId || !pet.ownerId);
         }
         
         function getAnimalEmoji(animalType) {
@@ -2191,6 +2260,24 @@
                     // 🔍 Verificar que se guardaron correctamente
                     const verification = await loadData('users');
                     console.log('🔍 Verificación - usuarios después de guardar:', verification);
+                }
+
+                // Cargar mascotas desde Firebase
+                const storedPets = await loadData('pets');
+                if (storedPets && typeof storedPets === 'object' && Object.keys(storedPets).length > 0) {
+                    console.log(`✅ ${Object.keys(storedPets).length} mascotas cargadas desde Firebase`);
+                    console.log('🐾 Mascotas por usuario:');
+                    const petsByOwner = {};
+                    Object.values(storedPets).forEach(pet => {
+                        if (!petsByOwner[pet.ownerId]) petsByOwner[pet.ownerId] = [];
+                        petsByOwner[pet.ownerId].push(pet.name);
+                    });
+                    Object.keys(petsByOwner).forEach(ownerId => {
+                        console.log(`  - Usuario ${ownerId}: ${petsByOwner[ownerId].join(', ')}`);
+                    });
+                } else {
+                    console.log('📝 No hay mascotas en Firebase - Tabla inicializada vacía');
+                    await saveData('pets', {});
                 }
 
                 // Cargar reservas desde Firebase
@@ -3817,20 +3904,25 @@
             selectedService = null;
         }
 
-        function loadUserPets() {
+        async function loadUserPets() {
             const petSelect = document.getElementById('bookingPet');
             petSelect.innerHTML = '<option value="">Selecciona tu mascota</option>';
             
-            if (currentUser && currentUser.pets) {
-                const userPets = getUserPets(currentUser.id);
-                userPets.forEach(pet => {
-                    const breedText = pet.breed ? ` - ${pet.breed}` : '';
-                    petSelect.innerHTML += `<option value="${pet.name}">${pet.name} (${pet.animalType}${breedText})</option>`;
-                });
-                
-                // Si no hay mascotas, mostrar opción para agregar
-                if (userPets.length === 0 && currentUser.role === 'owner') {
-                    petSelect.innerHTML += `<option value="" disabled>No tienes mascotas registradas</option>`;
+            if (currentUser) {
+                try {
+                    const userPets = await getUserPets(currentUser.id);
+                    userPets.forEach(pet => {
+                        const breedText = pet.breed ? ` - ${pet.breed}` : '';
+                        petSelect.innerHTML += `<option value="${pet.id}" data-pet-name="${pet.name}">${pet.name} (${pet.animalType}${breedText})</option>`;
+                    });
+                    
+                    // Si no hay mascotas, mostrar opción para agregar
+                    if (userPets.length === 0 && currentUser.role === 'owner') {
+                        petSelect.innerHTML += `<option value="" disabled>No tienes mascotas registradas - Ve a "Mis Mascotas" para agregar una</option>`;
+                    }
+                } catch (error) {
+                    console.error('Error cargando mascotas para reserva:', error);
+                    petSelect.innerHTML += `<option value="" disabled>Error cargando mascotas</option>`;
                 }
             }
         }
@@ -3860,45 +3952,73 @@
             const date = document.getElementById('bookingDate').value;
             const time = document.getElementById('bookingTime').value;
             const duration = parseInt(document.getElementById('bookingDuration').value);
-            const pet = document.getElementById('bookingPet').value;
+            const petId = document.getElementById('bookingPet').value;
             const notes = document.getElementById('bookingNotes').value;
             
-            if (!date || !time || !pet) {
+            if (!date || !time || !petId) {
                 showMessage('Por favor completa todos los campos obligatorios', 'error');
                 return;
             }
             
-            const totalPrice = parseInt(document.getElementById('totalPrice').textContent.replace('$', ''));
-            
-            const newBooking = {
-                id: Date.now(),
-                serviceId: selectedService.id,
-                serviceName: selectedService.title,
-                date: date,
-                time: time,
-                duration: duration,
-                status: 'pending',
-                price: totalPrice,
-                petName: pet,
-                caregiverId: selectedService.caregiverId,
-                ownerId: currentUser.id,
-                ownerName: currentUser.name,
-                caregiverName: selectedService.caregiver,
-                notes: notes,
-                canRate: false,
-                ownerRated: false,
-                caregiverRated: false
-            };
-            
-            testBookings.push(newBooking);
-            await saveData('bookings', testBookings);
-            closeBookingModal();
-            showMessage(`¡Reserva creada exitosamente! Total: $${totalPrice}`, 'success');
-            
-            // Simular notificación al cuidador
-            setTimeout(() => {
-                showMessage('El cuidador ha sido notificado de tu solicitud', 'success');
-            }, 2000);
+            try {
+                // Obtener información completa de la mascota desde Firebase
+                const userPets = await getUserPets(currentUser.id);
+                const selectedPet = userPets.find(p => p.id === petId);
+                
+                if (!selectedPet) {
+                    showMessage('Mascota no encontrada', 'error');
+                    return;
+                }
+                
+                const totalPrice = parseInt(document.getElementById('totalPrice').textContent.replace('$', ''));
+                
+                const newBooking = {
+                    id: Date.now(),
+                    serviceId: selectedService.id,
+                    serviceName: selectedService.title,
+                    date: date,
+                    time: time,
+                    duration: duration,
+                    status: 'pending',
+                    price: totalPrice,
+                    // Información completa de la mascota
+                    pet: {
+                        id: selectedPet.id,
+                        name: selectedPet.name,
+                        animalType: selectedPet.animalType,
+                        breed: selectedPet.breed,
+                        age: selectedPet.age,
+                        weight: selectedPet.weight,
+                        specialNeeds: selectedPet.specialNeeds,
+                        photoUrl: selectedPet.photoUrl
+                    },
+                    petName: selectedPet.name, // Mantener por compatibilidad
+                    caregiverId: selectedService.caregiverId,
+                    ownerId: currentUser.id,
+                    ownerName: currentUser.name,
+                    caregiverName: selectedService.caregiver,
+                    notes: notes,
+                    canRate: false,
+                    ownerRated: false,
+                    caregiverRated: false,
+                    createdAt: new Date().toISOString()
+                };
+                
+                testBookings.push(newBooking);
+                await saveData('bookings', testBookings);
+                closeBookingModal();
+                showMessage(`¡Reserva creada exitosamente para ${selectedPet.name}! Total: $${totalPrice}`, 'success');
+                
+                console.log(`📅 Reserva creada con mascota completa:`, newBooking.pet);
+                
+                // Simular notificación al cuidador
+                setTimeout(() => {
+                    showMessage('El cuidador ha sido notificado de tu solicitud', 'success');
+                }, 2000);
+            } catch (error) {
+                console.error('Error creando reserva:', error);
+                showMessage('Error al crear la reserva', 'error');
+            }
         }
 
         // Funciones de reservas
@@ -5010,15 +5130,32 @@
             }
             
             const index = userFavorites.indexOf(serviceId);
+            const btn = document.querySelector(`[data-service-id="${serviceId}"]`);
             
             if (index === -1) {
                 // Agregar a favoritos
                 userFavorites.push(serviceId);
                 showMessage('Agregado a favoritos ❤️', 'success');
+                
+                // Actualizar botón inmediatamente con animación
+                if (btn) {
+                    btn.classList.remove('not-favorited');
+                    btn.classList.add('favorited');
+                    btn.innerHTML = '❤️';
+                    btn.title = 'Quitar de favoritos';
+                }
             } else {
                 // Quitar de favoritos
                 userFavorites.splice(index, 1);
                 showMessage('Quitado de favoritos 💔', 'success');
+                
+                // Actualizar botón inmediatamente
+                if (btn) {
+                    btn.classList.remove('favorited');
+                    btn.classList.add('not-favorited');
+                    btn.innerHTML = '🤍';
+                    btn.title = 'Agregar a favoritos';
+                }
             }
             
             await saveUserFavorites();
@@ -5038,13 +5175,13 @@
             document.querySelectorAll('.favorite-btn').forEach(btn => {
                 const serviceId = parseInt(btn.dataset.serviceId);
                 if (isFavorite(serviceId)) {
-                    btn.classList.add('active');
-                    btn.classList.remove('inactive');
+                    btn.classList.remove('not-favorited');
+                    btn.classList.add('favorited');
                     btn.innerHTML = '❤️';
                     btn.title = 'Quitar de favoritos';
                 } else {
-                    btn.classList.remove('active');
-                    btn.classList.add('inactive');
+                    btn.classList.remove('favorited');
+                    btn.classList.add('not-favorited');
                     btn.innerHTML = '🤍';
                     btn.title = 'Agregar a favoritos';
                 }
@@ -5129,7 +5266,7 @@
         }
 
         // Pet Management UI Functions
-        function loadPets() {
+        async function loadPets() {
             const container = document.getElementById('petsList');
             if (!currentUser) {
                 container.innerHTML = '<p>Inicia sesión para ver tus mascotas.</p>';
@@ -5139,7 +5276,12 @@
                 container.innerHTML = '<p>Solo los dueños de mascotas pueden gestionar mascotas.</p>';
                 return;
             }
-            const userPets = getUserPets(currentUser.id);
+            
+            // Mostrar loading
+            container.innerHTML = '<p>Cargando mascotas...</p>';
+            
+            try {
+                const userPets = await getUserPets(currentUser.id);
             if (userPets.length === 0) {
                 container.innerHTML = `
                     <div class="empty-pets">
@@ -5181,6 +5323,17 @@
                     </div>
                 </div>
             `).join('');
+            } catch (error) {
+                console.error('Error cargando mascotas:', error);
+                container.innerHTML = `
+                    <div class="empty-pets">
+                        <div class="pet-icon">❌</div>
+                        <h3>Error cargando mascotas</h3>
+                        <p>Hubo un problema al cargar tus mascotas. Intenta nuevamente.</p>
+                        <button class="btn btn-primary" onclick="loadPets()" style="margin-top: 15px;">🔄 Reintentar</button>
+                    </div>
+                `;
+            }
         }
         
         function showAddPetModal() {
@@ -5217,19 +5370,26 @@
             document.getElementById('petModal').style.display = 'block';
         }
         
-        function deletePet(petId) {
-            const pet = getUserPets(currentUser.id).find(p => p.id === petId);
-            if (!pet) {
-                showMessage('Mascota no encontrada', 'error');
-                return;
-            }
-            if (confirm(`¿Estás seguro de que quieres eliminar a ${pet.name}? Esta acción no se puede deshacer.`)) {
-                if (deletePetFromUser(petId)) {
-                    showMessage(`${pet.name} ha sido eliminado correctamente`, 'success');
-                    loadPets();
-                } else {
-                    showMessage('Error al eliminar la mascota', 'error');
+        async function deletePet(petId) {
+            try {
+                const userPets = await getUserPets(currentUser.id);
+                const pet = userPets.find(p => p.id === petId);
+                if (!pet) {
+                    showMessage('Mascota no encontrada', 'error');
+                    return;
                 }
+                if (confirm(`¿Estás seguro de que quieres eliminar a ${pet.name}? Esta acción no se puede deshacer.`)) {
+                    const success = await deletePetFromUser(petId);
+                    if (success) {
+                        showMessage(`${pet.name} ha sido eliminado correctamente`, 'success');
+                        await loadPets();
+                    } else {
+                        showMessage('Error al eliminar la mascota', 'error');
+                    }
+                }
+            } catch (error) {
+                console.error('Error eliminando mascota:', error);
+                showMessage('Error al eliminar la mascota', 'error');
             }
         }
         
@@ -5251,7 +5411,7 @@
             document.getElementById('petPhotoImg').src = '';
         }
         
-        function savePet() {
+        async function savePet() {
             const petData = {
                 name: document.getElementById('petName').value.trim(),
                 age: parseInt(document.getElementById('petAge').value) || 0,
@@ -5273,12 +5433,13 @@
                 return;
             }
             try {
-                const savedPet = savePetToUser(petData);
+                const savedPet = await savePetToUser(petData);
                 const action = editingPet ? 'actualizado' : 'agregado';
                 showMessage(`${savedPet.name} ha sido ${action} correctamente`, 'success');
                 closePetModal();
-                loadPets();
+                await loadPets();
             } catch (error) {
+                console.error('Error guardando mascota:', error);
                 showMessage('Error al guardar la mascota: ' + error.message, 'error');
             }
         }
