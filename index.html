@@ -13,7 +13,7 @@
     <meta name="description" content="Encuentra el mejor cuidado para tu mascota en Uruguay">
     
     <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="pwa-manifest.json">
     
     <!-- Apple Touch Icons -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐾%3C/text%3E%3C/svg%3E">
@@ -279,169 +279,124 @@
         .role-option.selected { border-color: #667eea; background: #f0f4ff; }
         .role-icon { font-size: 32px; margin-bottom: 10px; }
         
-        /* Favorites Visual Persistence - FIX 1 */
-        .favorite-btn {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.3s;
-            padding: 5px;
-            border-radius: 50%;
+        /* Chat Styles */
+        .chat-container {
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
         }
         
-        .favorite-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background: #f8f9fa;
         }
         
-        .favorite-btn.favorited {
-            color: #ff6b6b;
-            animation: heartBeat 0.6s ease-in-out;
+        .chat-message {
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 70%;
         }
         
-        .favorite-btn.not-favorited {
-            color: #ccc;
-        }
-        
-        @keyframes heartBeat {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.3); }
-            100% { transform: scale(1); }
-        }
-        
-        .favorites-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(255, 107, 107, 0.9);
+        .chat-message.sent {
+            background: #667eea;
             color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
+            margin-left: auto;
+        }
+        
+        .chat-message.received {
+            background: white;
+            border: 1px solid #ddd;
+        }
+        
+        .chat-input-container {
+            padding: 15px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+        }
+        
+        /* Chat List */
+        .chat-list-item {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .chat-list-item:hover { background: #f8f9fa; }
+        .chat-list-item.active { background: #e3f2fd; border-left: 4px solid #667eea; }
+        
+        /* Booking Styles */
+        .booking-card { border-left: 4px solid #667eea; margin-bottom: 15px; }
+        .booking-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
             font-size: 12px;
             font-weight: 600;
         }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-confirmed { background: #d4edda; color: #155724; }
+        .status-completed { background: #d1ecf1; color: #0c5460; }
         
-        /* Payment Calculation System - FIX 2 */
-        .price-calculator {
+        /* Role-specific visibility */
+        .caregiver-only { display: none; }
+        .owner-only { display: none; }
+        
+        /* Rating Stars */
+        .rating-stars .star {
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.2s;
+            margin: 0 2px;
+        }
+        
+        .rating-stars .star:hover,
+        .rating-stars .star.active {
+            color: #ffd700;
+        }
+        
+        /* Booking Summary */
+        .booking-summary {
             background: #f8f9fa;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             margin: 20px 0;
-            border: 2px solid #e9ecef;
         }
         
-        .price-row {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-            padding: 5px 0;
-        }
-        
-        .price-row.total {
-            border-top: 2px solid #667eea;
-            padding-top: 15px;
-            margin-top: 15px;
-            font-weight: bold;
-            font-size: 18px;
-            color: #27ae60;
-        }
-        
-        .price-breakdown {
-            font-size: 14px;
-            color: #666;
-            font-style: italic;
-        }
-        
-        .price-error {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 10px;
-            padding: 10px;
-            background: #f8d7da;
-            border-radius: 4px;
-        }
-        
-        /* Pet Management System - FIX 3 */
-        .pet-card {
-            background: white;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border-left: 4px solid #667eea;
-        }
-        
-        .pet-header {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .pet-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid #667eea;
-        }
-        
-        .pet-avatar-placeholder {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            color: white;
-        }
-        
-        .pet-info h3 {
-            margin: 0 0 5px 0;
-            color: #2c3e50;
-        }
-        
-        .pet-details {
-            color: #666;
-            font-size: 14px;
-            margin: 0;
-        }
-        
-        .pet-special-needs {
-            background: #fff3cd;
-            padding: 10px;
-            border-radius: 6px;
-            margin: 10px 0;
-            border-left: 4px solid #ffc107;
-        }
-        
-        .pet-special-needs strong {
-            color: #856404;
-        }
-        
-        .pet-special-needs p {
-            margin: 5px 0 0 0;
-            color: #856404;
-            font-size: 14px;
-        }
-        
-        .pet-actions {
+        /* Service Actions */
+        .service-actions {
             display: flex;
             gap: 10px;
             margin-top: 15px;
             flex-wrap: wrap;
         }
         
+        /* Completed Booking Badge */
+        .completed-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
         /* Hidden by default */
         .screen { display: none; }
         .screen.active { display: block; }
-        
-        /* Role-specific visibility */
-        .caregiver-only { display: none; }
-        .owner-only { display: none; }
         
         /* Responsive */
         @media (max-width: 768px) {
@@ -451,8 +406,6 @@
             .service-meta { flex-direction: column; align-items: flex-start; gap: 5px; }
             .modal-content { margin: 10% auto; width: 95%; }
             .user-info { justify-content: center; }
-            .pet-header { flex-direction: column; text-align: center; }
-            .pet-actions { justify-content: center; }
         }
         
         /* Loading Spinner */
@@ -501,7 +454,6 @@
             <button class="nav-tab" onclick="showScreen('bookings')">📅 Reservas</button>
             <button class="nav-tab" onclick="showScreen('chats')">💬 Chats</button>
             <button class="nav-tab" onclick="showScreen('profile')">👤 Perfil</button>
-            <button class="nav-tab" onclick="window.open('test-runner.html', '_blank')">🧪 Tests</button>
         </div>
 
         <!-- Messages -->
@@ -600,7 +552,50 @@
             </div>
         </div>
 
-        <!-- Pets Screen (Owner Only) - FIX 3: COMPLETE PET MANAGEMENT -->
+        <!-- My Services Screen (Caregiver Only) -->
+        <div id="myservicesScreen" class="screen">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>📋 Mis Servicios</h2>
+                    <button class="btn btn-primary" onclick="showAddServiceModal()">+ Agregar Servicio</button>
+                </div>
+                <div id="myServicesList">
+                    <p>No tienes servicios publicados aún.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bookings Screen -->
+        <div id="bookingsScreen" class="screen">
+            <div class="card">
+                <h2>📅 Mis Reservas</h2>
+                <div id="bookingsList">
+                    <p>Inicia sesión para ver tus reservas.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chats Screen -->
+        <div id="chatsScreen" class="screen">
+            <div class="card">
+                <h2>💬 Mis Conversaciones</h2>
+                <div id="chatsList">
+                    <p>Inicia sesión para ver tus conversaciones.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Screen -->
+        <div id="profileScreen" class="screen">
+            <div class="card">
+                <h2>👤 Mi Perfil</h2>
+                <div id="profileContent">
+                    <p>Inicia sesión para ver tu perfil.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pets Screen (Owner Only) -->
         <div id="petsScreen" class="screen">
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -612,12 +607,282 @@
                 </div>
             </div>
         </div>
+    </div> 
+   <!-- Auth Modal -->
+    <div id="authModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="authTitle">Iniciar Sesión</h2>
+                <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Login Form -->
+                <div id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="loginEmail" class="form-input" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" id="loginPassword" class="form-input" placeholder="Tu contraseña">
+                    </div>
+                    <button class="btn btn-primary" onclick="login()" style="width: 100%; margin-bottom: 15px;">Iniciar Sesión</button>
+                    <p style="text-align: center;">
+                        ¿No tienes cuenta? 
+                        <a href="#" onclick="showRegisterForm()" style="color: #667eea;">Regístrate aquí</a>
+                    </p>
+                </div>
 
-        <!-- Other screens would continue here... -->
-        <!-- For brevity, I'm including the key modals and JavaScript -->
+                <!-- Register Form -->
+                <div id="registerForm" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Nombre completo</label>
+                        <input type="text" id="registerName" class="form-input" placeholder="Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="registerEmail" class="form-input" placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" id="registerPassword" class="form-input" placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Teléfono</label>
+                        <input type="tel" id="registerPhone" class="form-input" placeholder="099 123 456">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">¿Cómo quieres usar PetCare?</label>
+                        <div class="role-selector">
+                            <div class="role-option" onclick="selectRole('owner')">
+                                <div class="role-icon">🐕</div>
+                                <h4>Dueño de Mascota</h4>
+                                <p>Busco servicios para mi mascota</p>
+                            </div>
+                            <div class="role-option" onclick="selectRole('caregiver')">
+                                <div class="role-icon">👨‍⚕️</div>
+                                <h4>Cuidador</h4>
+                                <p>Ofrezco servicios de cuidado</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary" onclick="register()" style="width: 100%; margin-bottom: 15px;">Crear Cuenta</button>
+                    <p style="text-align: center;">
+                        ¿Ya tienes cuenta? 
+                        <a href="#" onclick="showLoginForm()" style="color: #667eea;">Inicia sesión aquí</a>
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Pet Management Modal - FIX 3 -->
+    <!-- Add Service Modal (Caregiver Only) -->
+    <div id="addServiceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Agregar Nuevo Servicio</h2>
+                <button class="modal-close" onclick="closeAddServiceModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Tipo de Servicio</label>
+                    <select id="serviceType" class="form-input">
+                        <option value="">Selecciona el tipo</option>
+                        <option value="veterinary">🏥 Veterinaria</option>
+                        <option value="boarding">🏠 Hospedaje</option>
+                        <option value="daycare">🎾 Guardería</option>
+                        <option value="grooming">✂️ Peluquería</option>
+                        <option value="walking">🚶 Paseo</option>
+                        <option value="training">🎓 Entrenamiento</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nombre del Servicio</label>
+                    <input type="text" id="serviceName" class="form-input" placeholder="Ej: Veterinaria San Martín">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Descripción</label>
+                    <textarea id="serviceDescription" class="form-input" rows="3" placeholder="Describe tu servicio..."></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Precio</label>
+                        <input type="number" id="servicePrice" class="form-input" placeholder="800">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Unidad</label>
+                        <select id="servicePriceUnit" class="form-input">
+                            <option value="consulta">por consulta</option>
+                            <option value="día">por día</option>
+                            <option value="hora">por hora</option>
+                            <option value="sesión">por sesión</option>
+                            <option value="paseo">por paseo</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Ubicación</label>
+                    <select id="serviceLocation" class="form-input">
+                        <option value="">Selecciona ubicación</option>
+                        <option value="Centro">Centro</option>
+                        <option value="Pocitos">Pocitos</option>
+                        <option value="Carrasco">Carrasco</option>
+                        <option value="Punta Gorda">Punta Gorda</option>
+                        <option value="Malvín">Malvín</option>
+                        <option value="Cordón">Cordón</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-primary" onclick="addService()" style="width: 100%;">Publicar Servicio</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="bookingTitle">Reservar Servicio</h2>
+                <button class="modal-close" onclick="closeBookingModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="bookingServiceInfo" style="margin-bottom: 20px;">
+                    <!-- Info del servicio seleccionado -->
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Fecha del Servicio</label>
+                    <input type="date" id="bookingDate" class="form-input" min="">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Hora de Inicio</label>
+                    <input type="time" id="bookingTime" class="form-input">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Duración (horas)</label>
+                    <select id="bookingDuration" class="form-input">
+                        <option value="1">1 hora</option>
+                        <option value="2">2 horas</option>
+                        <option value="3">3 horas</option>
+                        <option value="4">4 horas</option>
+                        <option value="6">6 horas</option>
+                        <option value="8">8 horas (día completo)</option>
+                        <option value="24">24 horas (hospedaje)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Mascota</label>
+                    <select id="bookingPet" class="form-input">
+                        <option value="">Selecciona tu mascota</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Notas Especiales (opcional)</label>
+                    <textarea id="bookingNotes" class="form-input" rows="3" placeholder="Información adicional sobre tu mascota o el servicio..."></textarea>
+                </div>
+                
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                    <h4>💰 Resumen de Precio</h4>
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                        <span>Precio base:</span>
+                        <span id="basePrice">$0</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                        <span>Duración:</span>
+                        <span id="durationText">1 hora</span>
+                    </div>
+                    <div id="calculationBreakdown" style="display: flex; justify-content: space-between; margin: 10px 0; color: #666; font-size: 14px;">
+                        <span>Cálculo:</span>
+                        <span id="calculationFormula">$0 × 1 hora</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0; font-weight: bold; border-top: 1px solid #ddd; padding-top: 10px; font-size: 18px; color: #27ae60;">
+                        <span>Total a pagar:</span>
+                        <span id="totalPrice">$0</span>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="confirmBooking()" style="width: 100%;">Confirmar Reserva</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rating Modal -->
+    <div id="ratingModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="ratingTitle">Calificar Servicio</h2>
+                <button class="modal-close" onclick="closeRatingModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="ratingServiceInfo" style="margin-bottom: 20px;">
+                    <!-- Info del servicio a calificar -->
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Calificación General</label>
+                    <div class="rating-stars" style="font-size: 32px; margin: 10px 0;">
+                        <span class="star" data-rating="1" onclick="setRating(1)">☆</span>
+                        <span class="star" data-rating="2" onclick="setRating(2)">☆</span>
+                        <span class="star" data-rating="3" onclick="setRating(3)">☆</span>
+                        <span class="star" data-rating="4" onclick="setRating(4)">☆</span>
+                        <span class="star" data-rating="5" onclick="setRating(5)">☆</span>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Comentario (opcional)</label>
+                    <textarea id="ratingComment" class="form-input" rows="4" placeholder="Comparte tu experiencia con otros usuarios..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">¿Recomendarías este servicio?</label>
+                    <div style="display: flex; gap: 15px; margin-top: 10px;">
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="recommend" value="yes"> Sí, lo recomiendo
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="recommend" value="no"> No lo recomiendo
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="submitRating()" style="width: 100%;">Enviar Calificación</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chatModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="chatTitle">Chat</h2>
+                <button class="modal-close" onclick="closeChatModal()">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0;">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Los mensajes aparecen aquí -->
+                    </div>
+                    <div class="chat-input-container">
+                        <input type="text" class="chat-input" id="messageInput" placeholder="Escribe un mensaje..." onkeypress="handleMessageKeyPress(event)">
+                        <button class="btn btn-primary" onclick="sendMessage()">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pet Management Modal -->
     <div id="petModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -678,164 +943,1523 @@
         </div>
     </div>
 
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script>
         // Variables globales
         let deferredPrompt;
         let currentUser = null;
         let selectedRole = null;
+        let currentChat = null;
+        let selectedService = null;
+        let currentRating = 0;
+        let bookingToRate = null;
         let selectedPet = null;
         let editingPet = null;
         
-        // FIX 1: Favorites System with Visual Persistence
-        let userFavorites = JSON.parse(localStorage.getItem('petcare_favorites') || '[]');
-        
-        function toggleFavorite(serviceId) {
-            const index = userFavorites.indexOf(serviceId);
-            const favoriteBtn = document.querySelector(`[data-service-id="${serviceId}"] .favorite-btn`);
-            
-            if (index > -1) {
-                // Remove from favorites
-                userFavorites.splice(index, 1);
-                favoriteBtn.classList.remove('favorited');
-                favoriteBtn.classList.add('not-favorited');
-                favoriteBtn.innerHTML = '🤍';
-                showMessage('Eliminado de favoritos', 'success');
-            } else {
-                // Add to favorites
-                userFavorites.push(serviceId);
-                favoriteBtn.classList.remove('not-favorited');
-                favoriteBtn.classList.add('favorited');
-                favoriteBtn.innerHTML = '❤️';
-                showMessage('Agregado a favoritos', 'success');
+        // Datos de prueba expandidos
+        const testUsers = {
+            'maria@petcare.com': {
+                id: 1,
+                name: 'María González',
+                email: 'maria@petcare.com',
+                phone: '099 123 456',
+                role: 'owner',
+                avatar: '👩',
+                pets: [
+                    { name: 'Max', type: 'Perro', breed: 'Golden Retriever', age: 3 },
+                    { name: 'Luna', type: 'Gato', breed: 'Siamés', age: 2 }
+                ]
+            },
+            'carlos@petcare.com': {
+                id: 2,
+                name: 'Carlos Rodríguez',
+                email: 'carlos@petcare.com',
+                phone: '098 765 432',
+                role: 'caregiver',
+                avatar: '👨‍⚕️',
+                services: ['veterinary', 'grooming'],
+                rating: 4.8,
+                experience: '5 años de experiencia'
+            },
+            'ana@petcare.com': {
+                id: 3,
+                name: 'Ana Martínez',
+                email: 'ana@petcare.com',
+                phone: '097 555 123',
+                role: 'caregiver',
+                avatar: '👩‍⚕️',
+                services: ['boarding', 'daycare'],
+                rating: 4.9,
+                experience: '8 años de experiencia'
             }
-            
-            // Save to localStorage
-            localStorage.setItem('petcare_favorites', JSON.stringify(userFavorites));
-            updateFavoritesDisplay();
+        };
+
+        let testServices = [
+            {
+                id: 1,
+                title: 'Veterinaria San Martín',
+                category: 'veterinary',
+                icon: '🏥',
+                price: 800,
+                priceUnit: 'consulta',
+                description: 'Atención veterinaria completa con más de 20 años de experiencia. Consultas, vacunación, cirugías menores y emergencias.',
+                location: 'Centro',
+                rating: 4.8,
+                reviews: 127,
+                caregiver: 'Dr. Carlos Rodríguez',
+                caregiverId: 2,
+                features: ['Emergencias 24h', 'Cirugías', 'Vacunación', 'Análisis clínicos']
+            },
+            {
+                id: 2,
+                title: 'Hotel Canino Pocitos',
+                category: 'boarding',
+                icon: '🏠',
+                price: 600,
+                priceUnit: 'día',
+                description: 'Hospedaje para mascotas con amplios espacios verdes, cuidado personalizado las 24 horas y actividades recreativas.',
+                location: 'Pocitos',
+                rating: 4.9,
+                reviews: 89,
+                caregiver: 'Ana Martínez',
+                caregiverId: 3,
+                features: ['Espacios verdes', 'Cuidado 24h', 'Actividades', 'Cámaras de seguridad']
+            },
+            {
+                id: 3,
+                title: 'Peluquería Canina Bella',
+                category: 'grooming',
+                icon: '✂️',
+                price: 450,
+                priceUnit: 'sesión',
+                description: 'Corte, baño, uñas y limpieza de oídos. Productos premium para el cuidado de tu mascota.',
+                location: 'Carrasco',
+                rating: 4.7,
+                reviews: 156,
+                caregiver: 'Laura Fernández',
+                caregiverId: 4,
+                features: ['Productos premium', 'Corte especializado', 'Spa para mascotas']
+            },
+            {
+                id: 4,
+                title: 'Guardería Divertida',
+                category: 'daycare',
+                icon: '🎾',
+                price: 400,
+                priceUnit: 'día',
+                description: 'Guardería diurna con actividades, socialización y cuidado profesional mientras trabajas.',
+                location: 'Punta Gorda',
+                rating: 4.6,
+                reviews: 203,
+                caregiver: 'Roberto Silva',
+                caregiverId: 5,
+                features: ['Socialización', 'Actividades', 'Monitoreo', 'Alimentación incluida']
+            },
+            {
+                id: 5,
+                title: 'Paseos Profesionales',
+                category: 'walking',
+                icon: '🚶',
+                price: 250,
+                priceUnit: 'paseo',
+                description: 'Paseos individuales o grupales con cuidadores certificados. Reportes con fotos incluidos.',
+                location: 'Malvín',
+                rating: 4.5,
+                reviews: 78,
+                caregiver: 'Diego López',
+                caregiverId: 6,
+                features: ['Reportes con fotos', 'GPS tracking', 'Paseos personalizados']
+            },
+            {
+                id: 6,
+                title: 'Entrenamiento Canino Pro',
+                category: 'training',
+                icon: '🎓',
+                price: 1200,
+                priceUnit: 'sesión',
+                description: 'Entrenamiento profesional para obediencia básica, problemas de comportamiento y trucos.',
+                location: 'Cordón',
+                rating: 4.9,
+                reviews: 45,
+                caregiver: 'Patricia Vega',
+                caregiverId: 7,
+                features: ['Entrenador certificado', 'Métodos positivos', 'Seguimiento personalizado']
+            }
+        ];
+
+        let testBookings = [
+            {
+                id: 1,
+                serviceId: 1,
+                serviceName: 'Veterinaria San Martín',
+                date: '2024-01-15',
+                time: '14:00',
+                duration: 1,
+                status: 'completed',
+                price: 800,
+                petName: 'Max',
+                caregiverId: 2,
+                ownerId: 1,
+                canRate: true,
+                ownerRated: false,
+                caregiverRated: false
+            },
+            {
+                id: 2,
+                serviceId: 2,
+                serviceName: 'Hotel Canino Pocitos',
+                date: '2024-01-20',
+                time: '09:00',
+                duration: 24,
+                status: 'confirmed',
+                price: 1800,
+                petName: 'Luna',
+                caregiverId: 3,
+                ownerId: 1,
+                canRate: false,
+                ownerRated: false,
+                caregiverRated: false
+            },
+            {
+                id: 3,
+                serviceId: 3,
+                serviceName: 'Peluquería Canina Bella',
+                date: '2024-01-10',
+                time: '10:00',
+                duration: 2,
+                status: 'completed',
+                price: 900,
+                petName: 'Max',
+                caregiverId: 4,
+                ownerId: 1,
+                canRate: true,
+                ownerRated: true,
+                caregiverRated: true,
+                ownerRating: 5,
+                caregiverRating: 4
+            }
+        ];
+
+        let testChats = [
+            {
+                id: 1,
+                participantName: 'Dr. Carlos Rodríguez',
+                participantAvatar: '👨‍⚕️',
+                lastMessage: 'Perfecto, nos vemos mañana a las 2 PM',
+                lastMessageTime: '10:30',
+                unreadCount: 0,
+                messages: [
+                    { sender: 'other', text: 'Hola María, ¿cómo está Max?', time: '09:15' },
+                    { sender: 'me', text: 'Hola Doctor, está bien pero quería consultar sobre su vacuna', time: '09:20' },
+                    { sender: 'other', text: 'Claro, ¿podemos agendar para mañana?', time: '09:25' },
+                    { sender: 'me', text: 'Perfecto, ¿a las 2 PM está bien?', time: '09:30' },
+                    { sender: 'other', text: 'Perfecto, nos vemos mañana a las 2 PM', time: '10:30' }
+                ]
+            },
+            {
+                id: 2,
+                participantName: 'Ana Martínez',
+                participantAvatar: '👩‍⚕️',
+                lastMessage: 'Luna se está adaptando muy bien al hotel',
+                lastMessageTime: '15:45',
+                unreadCount: 2,
+                messages: [
+                    { sender: 'other', text: 'Hola María, Luna llegó bien al hotel', time: '09:00' },
+                    { sender: 'me', text: '¡Qué bueno! ¿Cómo se está portando?', time: '09:05' },
+                    { sender: 'other', text: 'Muy bien, ya hizo amigos con otros gatitos', time: '15:40' },
+                    { sender: 'other', text: 'Luna se está adaptando muy bien al hotel', time: '15:45' }
+                ]
+            }
+        ];
+
+        // PWA Install
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('installBtn').style.display = 'block';
+        });
+
+        document.getElementById('installBtn').addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    showMessage('¡App instalada correctamente!', 'success');
+                }
+                deferredPrompt = null;
+                document.getElementById('installBtn').style.display = 'none';
+            }
+        });
+
+        // Registrar Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('pwa-serviceworker.js');
         }
-        
-        function updateFavoritesDisplay() {
-            // Update all favorite buttons
-            document.querySelectorAll('.favorite-btn').forEach(btn => {
-                const serviceId = parseInt(btn.closest('[data-service-id]').dataset.serviceId);
-                const isFavorited = userFavorites.includes(serviceId);
-                
-                btn.classList.toggle('favorited', isFavorited);
-                btn.classList.toggle('not-favorited', !isFavorited);
-                btn.innerHTML = isFavorited ? '❤️' : '🤍';
+
+        // Función para mostrar pantallas
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
             });
             
-            // Update favorites counter
-            const favoritesCount = userFavorites.length;
-            const favoritesIndicator = document.getElementById('favoritesIndicator');
-            if (favoritesIndicator) {
-                favoritesIndicator.textContent = favoritesCount;
-                favoritesIndicator.style.display = favoritesCount > 0 ? 'block' : 'none';
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(screenName + 'Screen').classList.add('active');
+            event.target.classList.add('active');
+            
+            // Cargar contenido específico de la pantalla
+            if (screenName === 'services') {
+                loadAllServices();
+            } else if (screenName === 'myservices') {
+                loadMyServices();
+            } else if (screenName === 'pets') {
+                loadPets();
+            } else if (screenName === 'bookings') {
+                loadBookings();
+            } else if (screenName === 'chats') {
+                loadChats();
+            } else if (screenName === 'profile') {
+                loadProfile();
             }
         }
-        
-        // FIX 2: Enhanced Payment Calculation System
-        function calculateBookingPrice() {
+
+        // Funciones de autenticación
+        function showAuthModal() {
+            document.getElementById('authModal').style.display = 'block';
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
+
+        function showLoginForm() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('authTitle').textContent = 'Iniciar Sesión';
+        }
+
+        function showRegisterForm() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('authTitle').textContent = 'Crear Cuenta';
+        }
+
+        function selectRole(role) {
+            selectedRole = role;
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            event.target.closest('.role-option').classList.add('selected');
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showMessage('Por favor completa todos los campos', 'error');
+                return;
+            }
+            
+            // Simulación de login
+            if (testUsers[email]) {
+                currentUser = testUsers[email];
+                updateUserInterface();
+                closeAuthModal();
+                showMessage(`¡Bienvenido ${currentUser.name}!`, 'success');
+                clearFormData();
+            } else {
+                showMessage('Email o contraseña incorrectos', 'error');
+            }
+        }
+
+        function register() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const phone = document.getElementById('registerPhone').value;
+            
+            if (!name || !email || !password || !phone || !selectedRole) {
+                showMessage('Por favor completa todos los campos y selecciona tu rol', 'error');
+                return;
+            }
+            
+            // Simulación de registro
+            const newUser = {
+                id: Date.now(),
+                name,
+                email,
+                phone,
+                role: selectedRole,
+                avatar: selectedRole === 'owner' ? '👤' : '👨‍⚕️'
+            };
+            
+            testUsers[email] = newUser;
+            currentUser = newUser;
+            updateUserInterface();
+            closeAuthModal();
+            showMessage(`¡Cuenta creada exitosamente! Bienvenido ${name}`, 'success');
+            clearFormData();
+        }
+
+        function logout() {
+            currentUser = null;
+            selectedRole = null;
+            updateUserInterface();
+            clearAllData();
+            showMessage('Sesión cerrada correctamente', 'success');
+            showScreen('home');
+        }
+
+        function clearFormData() {
+            // Limpiar formularios de login
+            document.getElementById('loginEmail').value = '';
+            document.getElementById('loginPassword').value = '';
+            
+            // Limpiar formularios de registro
+            document.getElementById('registerName').value = '';
+            document.getElementById('registerEmail').value = '';
+            document.getElementById('registerPassword').value = '';
+            document.getElementById('registerPhone').value = '';
+            
+            // Limpiar selección de rol
+            document.querySelectorAll('.role-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+        }
+
+        function clearAllData() {
+            // Limpiar todas las pantallas
+            document.getElementById('bookingsList').innerHTML = '<p>Inicia sesión para ver tus reservas.</p>';
+            document.getElementById('chatsList').innerHTML = '<p>Inicia sesión para ver tus conversaciones.</p>';
+            document.getElementById('profileContent').innerHTML = '<p>Inicia sesión para ver tu perfil.</p>';
+            document.getElementById('myServicesList').innerHTML = '<p>No tienes servicios publicados aún.</p>';
+            
+            clearFormData();
+        }
+
+        function updateUserInterface() {
+            const userGreeting = document.getElementById('userGreeting');
+            const userRole = document.getElementById('userRole');
+            const authBtn = document.getElementById('authBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            // Elementos específicos por rol
+            const caregiverElements = document.querySelectorAll('.caregiver-only');
+            const ownerElements = document.querySelectorAll('.owner-only');
+            
+            if (currentUser) {
+                userGreeting.textContent = `Hola, ${currentUser.name}`;
+                userRole.textContent = currentUser.role === 'owner' ? 'Dueño' : 'Cuidador';
+                userRole.style.display = 'inline-block';
+                authBtn.style.display = 'none';
+                logoutBtn.style.display = 'inline-block';
+                
+                // Mostrar/ocultar elementos según el rol
+                if (currentUser.role === 'caregiver') {
+                    caregiverElements.forEach(el => el.style.display = 'block');
+                    ownerElements.forEach(el => el.style.display = 'none');
+                } else {
+                    caregiverElements.forEach(el => el.style.display = 'none');
+                    ownerElements.forEach(el => el.style.display = 'block');
+                }
+            } else {
+                userGreeting.textContent = 'Bienvenido';
+                userRole.style.display = 'none';
+                authBtn.style.display = 'inline-block';
+                logoutBtn.style.display = 'none';
+                
+                // Ocultar todos los elementos específicos por rol
+                caregiverElements.forEach(el => el.style.display = 'none');
+                ownerElements.forEach(el => el.style.display = 'none');
+            }
+        }
+
+        // Funciones de servicios
+        function loadFeaturedServices() {
+            const container = document.getElementById('featuredServices');
+            const featured = testServices.slice(0, 3);
+            
+            container.innerHTML = featured.map(service => `
+                <div class="service-card" onclick="selectService(${service.id})">
+                    <div class="service-header">
+                        <div class="service-icon">${service.icon}</div>
+                        <div class="service-info">
+                            <h3>${service.title}</h3>
+                            <div class="service-price">$${service.price}/${service.priceUnit}</div>
+                        </div>
+                    </div>
+                    <div class="service-description">${service.description}</div>
+                    <div class="service-meta">
+                        <div class="rating">
+                            <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                            <span>${service.rating} (${service.reviews} reseñas)</span>
+                        </div>
+                        <span>📍 ${service.location}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadAllServices() {
+            const container = document.getElementById('servicesList');
+            
+            container.innerHTML = testServices.map(service => `
+                <div class="service-card" onclick="selectService(${service.id})">
+                    <div class="service-header">
+                        <div class="service-icon">${service.icon}</div>
+                        <div class="service-info">
+                            <h3>${service.title}</h3>
+                            <div class="service-price">$${service.price}/${service.priceUnit}</div>
+                        </div>
+                    </div>
+                    <div class="service-description">${service.description}</div>
+                    <div style="margin: 10px 0;">
+                        <strong>Características:</strong>
+                        <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;">
+                            ${service.features.map(feature => `<span style="background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${feature}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="service-meta">
+                        <div class="rating">
+                            <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                            <span>${service.rating} (${service.reviews} reseñas)</span>
+                        </div>
+                        <span>📍 ${service.location}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Funciones específicas para cuidadores
+        function loadMyServices() {
+            const container = document.getElementById('myServicesList');
+            
+            if (!currentUser || currentUser.role !== 'caregiver') {
+                container.innerHTML = '<p>Solo los cuidadores pueden gestionar servicios.</p>';
+                return;
+            }
+            
+            // Filtrar servicios del usuario actual
+            const myServices = testServices.filter(service => service.caregiverId === currentUser.id);
+            
+            if (myServices.length === 0) {
+                container.innerHTML = '<p>No tienes servicios publicados aún. ¡Agrega tu primer servicio!</p>';
+                return;
+            }
+            
+            container.innerHTML = myServices.map(service => `
+                <div class="service-card">
+                    <div class="service-header">
+                        <div class="service-icon">${service.icon}</div>
+                        <div class="service-info">
+                            <h3>${service.title}</h3>
+                            <div class="service-price">$${service.price}/${service.priceUnit}</div>
+                        </div>
+                    </div>
+                    <div class="service-description">${service.description}</div>
+                    <div class="service-meta">
+                        <div class="rating">
+                            <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                            <span>${service.rating} (${service.reviews} reseñas)</span>
+                        </div>
+                        <span>📍 ${service.location}</span>
+                    </div>
+                    <div style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button class="btn btn-secondary" onclick="editService(${service.id})">Editar</button>
+                        <button class="btn btn-danger" onclick="deleteService(${service.id})">Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showAddServiceModal() {
+            if (!currentUser || currentUser.role !== 'caregiver') {
+                showMessage('Solo los cuidadores pueden agregar servicios', 'error');
+                return;
+            }
+            document.getElementById('addServiceModal').style.display = 'block';
+        }
+
+        function closeAddServiceModal() {
+            document.getElementById('addServiceModal').style.display = 'none';
+            clearServiceForm();
+        }
+
+        function clearServiceForm() {
+            document.getElementById('serviceType').value = '';
+            document.getElementById('serviceName').value = '';
+            document.getElementById('serviceDescription').value = '';
+            document.getElementById('servicePrice').value = '';
+            document.getElementById('servicePriceUnit').value = 'consulta';
+            document.getElementById('serviceLocation').value = '';
+        }
+
+        function addService() {
+            const type = document.getElementById('serviceType').value;
+            const name = document.getElementById('serviceName').value;
+            const description = document.getElementById('serviceDescription').value;
+            const price = document.getElementById('servicePrice').value;
+            const priceUnit = document.getElementById('servicePriceUnit').value;
+            const location = document.getElementById('serviceLocation').value;
+            
+            if (!type || !name || !description || !price || !location) {
+                showMessage('Por favor completa todos los campos', 'error');
+                return;
+            }
+            
+            if (parseInt(price) <= 0) {
+                showMessage('El precio debe ser mayor a 0', 'error');
+                return;
+            }
+            
+            const icons = {
+                'veterinary': '🏥',
+                'boarding': '🏠',
+                'daycare': '🎾',
+                'grooming': '✂️',
+                'walking': '🚶',
+                'training': '🎓'
+            };
+            
+            const defaultFeatures = {
+                'veterinary': ['Consultas generales', 'Vacunación', 'Atención profesional'],
+                'boarding': ['Cuidado 24h', 'Espacios amplios', 'Alimentación incluida'],
+                'daycare': ['Socialización', 'Actividades', 'Supervisión constante'],
+                'grooming': ['Baño completo', 'Corte profesional', 'Productos de calidad'],
+                'walking': ['Paseos seguros', 'Ejercicio adecuado', 'Cuidador responsable'],
+                'training': ['Métodos positivos', 'Entrenador certificado', 'Seguimiento personalizado']
+            };
+            
+            const newService = {
+                id: Date.now(),
+                title: name,
+                category: type,
+                icon: icons[type],
+                price: parseInt(price),
+                priceUnit: priceUnit,
+                description: description,
+                location: location,
+                rating: 5.0,
+                reviews: 0,
+                caregiver: currentUser.name,
+                caregiverId: currentUser.id,
+                features: defaultFeatures[type] || ['Servicio de calidad', 'Atención personalizada']
+            };
+            
+            testServices.push(newService);
+            closeAddServiceModal();
+            showMessage('¡Servicio agregado exitosamente!', 'success');
+            loadMyServices();
+            
+            // Actualizar servicios del usuario
+            if (!currentUser.services) {
+                currentUser.services = [];
+            }
+            if (!currentUser.services.includes(type)) {
+                currentUser.services.push(type);
+            }
+        }
+
+        function editService(serviceId) {
+            showMessage('Función de edición en desarrollo', 'error');
+        }
+
+        function deleteService(serviceId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este servicio?')) {
+                testServices = testServices.filter(service => service.id !== serviceId);
+                showMessage('Servicio eliminado correctamente', 'success');
+                loadMyServices();
+            }
+        }
+
+        function searchServices() {
+            const category = document.getElementById('quickCategory').value;
+            const location = document.getElementById('quickLocation').value;
+            
+            let message = 'Buscando servicios';
+            if (category) message += ` de ${getCategoryName(category)}`;
+            if (location) message += ` en ${location}`;
+            message += '...';
+            
+            showMessage(message);
+            showScreen('services');
+        }
+
+        function applyFilters() {
+            const category = document.getElementById('filterCategory').value;
+            const location = document.getElementById('filterLocation').value;
+            const price = document.getElementById('filterPrice').value;
+            const rating = document.getElementById('filterRating').value;
+            
+            let filtered = testServices;
+            
+            if (category) {
+                filtered = filtered.filter(service => service.category === category);
+            }
+            
+            if (location) {
+                filtered = filtered.filter(service => service.location === location);
+            }
+            
+            if (price) {
+                const [min, max] = price.includes('+') ? [parseInt(price), Infinity] : price.split('-').map(p => parseInt(p));
+                filtered = filtered.filter(service => service.price >= min && service.price <= max);
+            }
+            
+            if (rating) {
+                filtered = filtered.filter(service => service.rating >= parseFloat(rating));
+            }
+            
+            const container = document.getElementById('servicesList');
+            if (filtered.length === 0) {
+                container.innerHTML = '<p>No se encontraron servicios con los filtros seleccionados.</p>';
+            } else {
+                container.innerHTML = filtered.map(service => `
+                    <div class="service-card" onclick="selectService(${service.id})">
+                        <div class="service-header">
+                            <div class="service-icon">${service.icon}</div>
+                            <div class="service-info">
+                                <h3>${service.title}</h3>
+                                <div class="service-price">$${service.price}/${service.priceUnit}</div>
+                            </div>
+                        </div>
+                        <div class="service-description">${service.description}</div>
+                        <div class="service-meta">
+                            <div class="rating">
+                                <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                                <span>${service.rating} (${service.reviews} reseñas)</span>
+                            </div>
+                            <span>📍 ${service.location}</span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            showMessage(`Se encontraron ${filtered.length} servicios`, 'success');
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'veterinary': 'Veterinarias',
+                'boarding': 'Hospedaje',
+                'daycare': 'Guardería',
+                'grooming': 'Peluquería',
+                'walking': 'Paseo',
+                'training': 'Entrenamiento'
+            };
+            return categories[category] || category;
+        }
+
+        function selectService(serviceId) {
+            const service = testServices.find(s => s.id === serviceId);
+            if (!currentUser) {
+                showMessage('Inicia sesión para reservar servicios', 'error');
+                showAuthModal();
+                return;
+            }
+            
+            if (currentUser.role === 'caregiver') {
+                showMessage('Los cuidadores no pueden reservar servicios. Solo pueden ofrecerlos.', 'error');
+                return;
+            }
+            
+            selectedService = service;
+            showBookingModal();
+        }
+
+        // Funciones de reserva
+        function showBookingModal() {
             if (!selectedService) return;
             
-            const duration = parseInt(document.getElementById('bookingDuration').value) || 1;
+            // Configurar información del servicio
+            document.getElementById('bookingServiceInfo').innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <div style="font-size: 32px;">${selectedService.icon}</div>
+                    <div>
+                        <h3>${selectedService.title}</h3>
+                        <p style="color: #666; margin: 0;">$${selectedService.price}/${selectedService.priceUnit} - ${selectedService.location}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Configurar fecha mínima (hoy)
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('bookingDate').min = today;
+            document.getElementById('bookingDate').value = today;
+            
+            // Configurar hora por defecto
+            document.getElementById('bookingTime').value = '09:00';
+            
+            // Cargar mascotas del usuario
+            loadUserPets();
+            
+            // Calcular precio inicial
+            calculatePrice();
+            
+            // Set up real-time calculation updates
+            const durationSelect = document.getElementById('bookingDuration');
+            durationSelect.removeEventListener('change', debouncedCalculatePrice);
+            durationSelect.addEventListener('change', debouncedCalculatePrice);
+            
+            document.getElementById('bookingModal').style.display = 'block';
+        }
+
+        function closeBookingModal() {
+            document.getElementById('bookingModal').style.display = 'none';
+            selectedService = null;
+        }
+
+        function loadUserPets() {
+            const petSelect = document.getElementById('bookingPet');
+            petSelect.innerHTML = '<option value="">Selecciona tu mascota</option>';
+            
+            if (currentUser && currentUser.pets) {
+                currentUser.pets.forEach(pet => {
+                    petSelect.innerHTML += `<option value="${pet.name}">${pet.name} (${pet.type} - ${pet.breed})</option>`;
+                });
+            }
+        }
+
+        function calculatePrice() {
+            if (!selectedService) return;
+            
+            const duration = parseInt(document.getElementById('bookingDuration').value);
             const basePrice = selectedService.price;
             let totalPrice = basePrice;
-            let calculationSteps = [];
-            let hasError = false;
-            let errorMessage = '';
+            
+            // Validate inputs
+            if (isNaN(duration) || duration <= 0) {
+                showMessage('Duración inválida', 'error');
+                return;
+            }
+            
+            // Calcular precio según el tipo de servicio
+            if (selectedService.priceUnit === 'hora') {
+                totalPrice = basePrice * duration;
+            } else if (selectedService.priceUnit === 'día') {
+                // For daily services, calculate based on days needed
+                const days = Math.ceil(duration / 24);
+                totalPrice = basePrice * days;
+            } else if (selectedService.priceUnit === 'sesión') {
+                totalPrice = basePrice; // Precio fijo por sesión
+            } else if (selectedService.priceUnit === 'consulta') {
+                totalPrice = basePrice; // Precio fijo por consulta
+            } else if (selectedService.priceUnit === 'paseo') {
+                totalPrice = basePrice; // Precio fijo por paseo
+            }
+            
+            document.getElementById('basePrice').textContent = `$${basePrice}`;
+            document.getElementById('durationText').textContent = `${duration} hora${duration > 1 ? 's' : ''}`;
+            document.getElementById('totalPrice').textContent = `$${totalPrice}`;
+            
+            // Update calculation breakdown
+            let calculationText = '';
+            if (selectedService.priceUnit === 'hora') {
+                calculationText = `$${basePrice} × ${duration} hora${duration > 1 ? 's' : ''}`;
+            } else if (selectedService.priceUnit === 'día') {
+                const days = Math.ceil(duration / 24);
+                calculationText = `$${basePrice} × ${days} día${days > 1 ? 's' : ''}`;
+            } else {
+                calculationText = `$${basePrice} (precio fijo)`;
+            }
+            document.getElementById('calculationFormula').textContent = calculationText;
+        }
+
+        // Debounce timer for real-time calculation updates
+        let calculationTimer = null;
+        
+        // Debounced version for real-time updates
+        function debouncedCalculatePrice() {
+            clearTimeout(calculationTimer);
+            calculationTimer = setTimeout(calculatePrice, 300);
+        }
+
+        function confirmBooking() {
+            const date = document.getElementById('bookingDate').value;
+            const time = document.getElementById('bookingTime').value;
+            const duration = parseInt(document.getElementById('bookingDuration').value);
+            const pet = document.getElementById('bookingPet').value;
+            const notes = document.getElementById('bookingNotes').value;
+            
+            if (!date || !time || !pet) {
+                showMessage('Por favor completa todos los campos obligatorios', 'error');
+                return;
+            }
+            
+            // Recalculate total to ensure accuracy
+            calculatePrice();
+            const totalPrice = parseInt(document.getElementById('totalPrice').textContent.replace('$', ''));
+            
+            // Validate calculated total
+            if (isNaN(totalPrice) || totalPrice <= 0) {
+                showMessage('Error en el cálculo del precio. Por favor intenta nuevamente.', 'error');
+                return;
+            }
+            
+            const newBooking = {
+                id: Date.now(),
+                serviceId: selectedService.id,
+                serviceName: selectedService.title,
+                date: date,
+                time: time,
+                duration: duration,
+                status: 'pending',
+                price: totalPrice,
+                petName: pet,
+                caregiverId: selectedService.caregiverId,
+                ownerId: currentUser.id,
+                notes: notes,
+                canRate: false,
+                ownerRated: false,
+                caregiverRated: false
+            };
+            
+            testBookings.push(newBooking);
+            closeBookingModal();
+            showMessage(`¡Reserva creada exitosamente! Total: $${totalPrice}`, 'success');
+            
+            // Simular notificación al cuidador
+            setTimeout(() => {
+                showMessage('El cuidador ha sido notificado de tu solicitud', 'success');
+            }, 2000);
+        }
+
+        // Funciones de reservas
+        function loadBookings() {
+            const container = document.getElementById('bookingsList');
+            
+            if (!currentUser) {
+                container.innerHTML = '<p>Inicia sesión para ver tus reservas.</p>';
+                return;
+            }
+            
+            // Filtrar reservas del usuario actual
+            const userBookings = testBookings.filter(booking => 
+                booking.ownerId === currentUser.id || booking.caregiverId === currentUser.id
+            );
+            
+            if (userBookings.length === 0) {
+                container.innerHTML = '<p>No tienes reservas aún.</p>';
+                return;
+            }
+            
+            container.innerHTML = userBookings.map(booking => {
+                const isOwner = booking.ownerId === currentUser.id;
+                const canRate = booking.status === 'completed' && booking.canRate;
+                const hasRated = isOwner ? booking.ownerRated : booking.caregiverRated;
+                
+                return `
+                    <div class="card booking-card">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                            <div>
+                                <h3>${booking.serviceName} ${booking.status === 'completed' ? '<span class="completed-badge">Completado</span>' : ''}</h3>
+                                <p><strong>Mascota:</strong> ${booking.petName}</p>
+                                <p><strong>Fecha:</strong> ${booking.date} a las ${booking.time}</p>
+                                <p><strong>Duración:</strong> ${booking.duration} hora${booking.duration > 1 ? 's' : ''}</p>
+                                <p><strong>Precio:</strong> $${booking.price}</p>
+                                ${booking.notes ? `<p><strong>Notas:</strong> ${booking.notes}</p>` : ''}
+                                ${hasRated ? `<p style="color: #28a745;"><strong>✓ Ya calificaste este servicio</strong></p>` : ''}
+                            </div>
+                            <span class="booking-status status-${booking.status}">
+                                ${booking.status === 'confirmed' ? 'Confirmada' : 
+                                  booking.status === 'pending' ? 'Pendiente' : 'Completada'}
+                            </span>
+                        </div>
+                        <div class="service-actions">
+                            <button class="btn btn-primary" onclick="openChat(${booking.serviceId})">💬 Chat</button>
+                            ${booking.status === 'pending' ? '<button class="btn btn-danger" onclick="cancelBooking(' + booking.id + ')">Cancelar</button>' : ''}
+                            ${canRate && !hasRated ? '<button class="btn btn-success" onclick="showRatingModal(' + booking.id + ')">⭐ Calificar</button>' : ''}
+                            ${booking.status === 'confirmed' && isOwner ? '<button class="btn btn-secondary" onclick="markCompleted(' + booking.id + ')">Marcar Completado</button>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function cancelBooking(bookingId) {
+            if (confirm('¿Estás seguro de que quieres cancelar esta reserva?')) {
+                const bookingIndex = testBookings.findIndex(b => b.id === bookingId);
+                if (bookingIndex !== -1) {
+                    testBookings.splice(bookingIndex, 1);
+                    showMessage('Reserva cancelada correctamente', 'success');
+                    loadBookings();
+                }
+            }
+        }
+
+        function markCompleted(bookingId) {
+            const booking = testBookings.find(b => b.id === bookingId);
+            if (booking) {
+                booking.status = 'completed';
+                booking.canRate = true;
+                showMessage('Servicio marcado como completado. ¡Ahora puedes calificarlo!', 'success');
+                loadBookings();
+            }
+        }
+
+        // Funciones de chat
+        function loadChats() {
+            const container = document.getElementById('chatsList');
+            
+            if (!currentUser) {
+                container.innerHTML = '<p>Inicia sesión para ver tus conversaciones.</p>';
+                return;
+            }
+            
+            if (testChats.length === 0) {
+                container.innerHTML = '<p>No tienes conversaciones aún.</p>';
+                return;
+            }
+            
+            container.innerHTML = testChats.map(chat => `
+                <div class="chat-list-item" onclick="openChatModal(${chat.id})">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="font-size: 32px;">${chat.participantAvatar}</div>
+                            <div>
+                                <h4>${chat.participantName}</h4>
+                                <p style="color: #666; margin: 0;">${chat.lastMessage}</p>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 12px; color: #888;">${chat.lastMessageTime}</div>
+                            ${chat.unreadCount > 0 ? `<div style="background: #667eea; color: white; border-radius: 50%; width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 12px; margin-top: 5px;">${chat.unreadCount}</div>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function openChat(serviceId) {
+            const chat = testChats.find(c => c.id === serviceId) || testChats[0];
+            openChatModal(chat.id);
+        }
+
+        function openChatModal(chatId) {
+            currentChat = testChats.find(c => c.id === chatId);
+            if (!currentChat) return;
+            
+            document.getElementById('chatTitle').textContent = currentChat.participantName;
+            loadChatMessages();
+            document.getElementById('chatModal').style.display = 'block';
+        }
+
+        function closeChatModal() {
+            document.getElementById('chatModal').style.display = 'none';
+            currentChat = null;
+        }
+
+        function loadChatMessages() {
+            if (!currentChat) return;
+            
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = currentChat.messages.map(message => `
+                <div class="chat-message ${message.sender === 'me' ? 'sent' : 'received'}">
+                    <div>${message.text}</div>
+                    <div style="font-size: 12px; opacity: 0.7; margin-top: 5px;">${message.time}</div>
+                </div>
+            `).join('');
+            
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message || !currentChat) return;
+            
+            const newMessage = {
+                sender: 'me',
+                text: message,
+                time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            currentChat.messages.push(newMessage);
+            currentChat.lastMessage = message;
+            currentChat.lastMessageTime = newMessage.time;
+            
+            loadChatMessages();
+            input.value = '';
+            
+            // Simular respuesta automática
+            setTimeout(() => {
+                const responses = [
+                    'Perfecto, gracias por la información',
+                    'Entendido, estaremos atentos',
+                    'Excelente, nos mantenemos en contacto',
+                    'Muchas gracias por avisar'
+                ];
+                
+                const autoResponse = {
+                    sender: 'other',
+                    text: responses[Math.floor(Math.random() * responses.length)],
+                    time: new Date().toLocaleTimeString('es-UY', { hour: '2-digit', minute: '2-digit' })
+                };
+                
+                currentChat.messages.push(autoResponse);
+                currentChat.lastMessage = autoResponse.text;
+                currentChat.lastMessageTime = autoResponse.time;
+                
+                loadChatMessages();
+            }, 2000);
+        }
+
+        function handleMessageKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Función de perfil
+        function loadProfile() {
+            const container = document.getElementById('profileContent');
+            
+            if (!currentUser) {
+                container.innerHTML = '<p>Inicia sesión para ver tu perfil.</p>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <div style="font-size: 64px; margin-bottom: 15px;">${currentUser.avatar}</div>
+                    <h2>${currentUser.name}</h2>
+                    <p style="color: #666;">${currentUser.role === 'owner' ? 'Dueño de Mascota' : 'Cuidador Profesional'}</p>
+                </div>
+                
+                <div class="card">
+                    <h3>Información Personal</h3>
+                    <p><strong>Email:</strong> ${currentUser.email}</p>
+                    <p><strong>Teléfono:</strong> ${currentUser.phone}</p>
+                    ${currentUser.role === 'caregiver' && currentUser.experience ? `<p><strong>Experiencia:</strong> ${currentUser.experience}</p>` : ''}
+                    ${currentUser.role === 'caregiver' && currentUser.rating ? `<p><strong>Calificación:</strong> ${currentUser.rating} ⭐</p>` : ''}
+                </div>
+                
+                ${currentUser.role === 'owner' ? `
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3>Mis Mascotas</h3>
+                            <button class="btn btn-secondary" onclick="showScreen('pets')">🐾 Gestionar Mascotas</button>
+                        </div>
+                        ${currentUser.pets && currentUser.pets.length > 0 ? 
+                            currentUser.pets.slice(0, 3).map(pet => `
+                                <div style="padding: 10px; background: #f8f9fa; border-radius: 8px; margin-bottom: 10px;">
+                                    <h4>${pet.name}</h4>
+                                    <p>${pet.animalType}${pet.breed ? ` - ${pet.breed}` : ''} - ${pet.age} año${pet.age !== 1 ? 's' : ''}</p>
+                                </div>
+                            `).join('') + 
+                            (currentUser.pets.length > 3 ? `<p style="color: #666; font-size: 14px;">Y ${currentUser.pets.length - 3} mascota${currentUser.pets.length - 3 !== 1 ? 's' : ''} más...</p>` : '')
+                            : '<p style="color: #666;">No tienes mascotas registradas. <a href="#" onclick="showScreen(\'pets\')" style="color: #667eea;">Agrega tu primera mascota</a></p>'
+                        }
+                    </div>
+                ` : ''}
+                
+                ${currentUser.services ? `
+                    <div class="card">
+                        <h3>Mis Servicios</h3>
+                        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                            ${currentUser.services.map(service => `
+                                <span style="background: #e3f2fd; padding: 8px 16px; border-radius: 20px;">
+                                    ${getCategoryName(service)}
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        // Pet Management Functions
+        function loadPets() {
+            const container = document.getElementById('petsList');
+            
+            if (!currentUser) {
+                container.innerHTML = '<p>Inicia sesión para ver tus mascotas.</p>';
+                return;
+            }
+            
+            if (currentUser.role !== 'owner') {
+                container.innerHTML = '<p>Solo los dueños de mascotas pueden gestionar mascotas.</p>';
+                return;
+            }
+            
+            const userPets = getUserPets(currentUser.id);
+            
+            if (userPets.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">🐾</div>
+                        <h3>No tienes mascotas registradas</h3>
+                        <p>Agrega tu primera mascota para comenzar a usar los servicios de PetCare</p>
+                        <button class="btn btn-primary" onclick="showAddPetModal()" style="margin-top: 15px;">+ Agregar Primera Mascota</button>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = userPets.map(pet => `
+                <div class="card" style="margin-bottom: 15px;">
+                    <div style="display: flex; align-items: start; gap: 15px;">
+                        <div style="flex-shrink: 0;">
+                            ${pet.photoUrl ? 
+                                `<img src="${pet.photoUrl}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #667eea;">` :
+                                `<div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 32px; color: white;">${getAnimalEmoji(pet.animalType)}</div>`
+                            }
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 10px;">
+                                <div>
+                                    <h3 style="margin: 0 0 5px 0;">${pet.name}</h3>
+                                    <p style="margin: 0; color: #666; font-size: 14px;">
+                                        ${pet.animalType}${pet.breed ? ` • ${pet.breed}` : ''} • ${pet.age} año${pet.age !== 1 ? 's' : ''}
+                                        ${pet.weight ? ` • ${pet.weight}` : ''}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            ${pet.specialNeeds ? `
+                                <div style="background: #fff3cd; padding: 8px 12px; border-radius: 6px; margin: 10px 0; border-left: 4px solid #ffc107;">
+                                    <strong style="color: #856404;">Necesidades especiales:</strong>
+                                    <p style="margin: 5px 0 0 0; color: #856404; font-size: 14px;">${pet.specialNeeds}</p>
+                                </div>
+                            ` : ''}
+                            
+                            <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                                <button class="btn btn-secondary" onclick="editPet('${pet.id}')">✏️ Editar</button>
+                                <button class="btn btn-danger" onclick="deletePet('${pet.id}')">🗑️ Eliminar</button>
+                                ${pet.photoUrl ? '' : '<button class="btn btn-secondary" onclick="addPetPhoto(\'' + pet.id + '\')">📷 Agregar Foto</button>'}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getAnimalEmoji(animalType) {
+            const emojis = {
+                'Perro': '🐕',
+                'Gato': '🐱',
+                'Otro': '🐾'
+            };
+            return emojis[animalType] || '🐾';
+        }
+
+        function showAddPetModal() {
+            if (!currentUser || currentUser.role !== 'owner') {
+                showMessage('Solo los dueños de mascotas pueden agregar mascotas', 'error');
+                return;
+            }
+            
+            editingPet = null;
+            document.getElementById('petModalTitle').textContent = 'Agregar Mascota';
+            clearPetForm();
+            document.getElementById('petModal').style.display = 'block';
+        }
+
+        function editPet(petId) {
+            const pet = getUserPets(currentUser.id).find(p => p.id === petId);
+            if (!pet) {
+                showMessage('Mascota no encontrada', 'error');
+                return;
+            }
+            
+            editingPet = pet;
+            document.getElementById('petModalTitle').textContent = 'Editar Mascota';
+            
+            // Llenar el formulario con los datos de la mascota
+            document.getElementById('petName').value = pet.name || '';
+            document.getElementById('petAge').value = pet.age || '';
+            document.getElementById('petAnimalType').value = pet.animalType || '';
+            document.getElementById('petBreed').value = pet.breed || '';
+            document.getElementById('petWeight').value = pet.weight || '';
+            document.getElementById('petSpecialNeeds').value = pet.specialNeeds || '';
+            
+            // Mostrar foto si existe
+            if (pet.photoUrl) {
+                document.getElementById('petPhotoImg').src = pet.photoUrl;
+                document.getElementById('petPhotoPreview').style.display = 'block';
+            }
+            
+            document.getElementById('petModal').style.display = 'block';
+        }
+
+        function deletePet(petId) {
+            const pet = getUserPets(currentUser.id).find(p => p.id === petId);
+            if (!pet) {
+                showMessage('Mascota no encontrada', 'error');
+                return;
+            }
+            
+            if (confirm(`¿Estás seguro de que quieres eliminar a ${pet.name}? Esta acción no se puede deshacer.`)) {
+                if (deletePetFromUser(petId)) {
+                    showMessage(`${pet.name} ha sido eliminado correctamente`, 'success');
+                    loadPets();
+                    saveToStorage();
+                } else {
+                    showMessage('Error al eliminar la mascota', 'error');
+                }
+            }
+        }
+
+        function closePetModal() {
+            document.getElementById('petModal').style.display = 'none';
+            editingPet = null;
+            clearPetForm();
+        }
+
+        function clearPetForm() {
+            document.getElementById('petName').value = '';
+            document.getElementById('petAge').value = '';
+            document.getElementById('petAnimalType').value = '';
+            document.getElementById('petBreed').value = '';
+            document.getElementById('petWeight').value = '';
+            document.getElementById('petSpecialNeeds').value = '';
+            document.getElementById('petPhoto').value = '';
+            document.getElementById('petPhotoPreview').style.display = 'none';
+            document.getElementById('petPhotoImg').src = '';
+        }
+
+        function savePet() {
+            const petData = {
+                name: document.getElementById('petName').value.trim(),
+                age: parseInt(document.getElementById('petAge').value) || 0,
+                animalType: document.getElementById('petAnimalType').value,
+                breed: document.getElementById('petBreed').value.trim(),
+                weight: document.getElementById('petWeight').value.trim(),
+                specialNeeds: document.getElementById('petSpecialNeeds').value.trim(),
+                photoUrl: document.getElementById('petPhotoImg').src || ''
+            };
+            
+            // Si estamos editando, mantener el ID y datos de creación
+            if (editingPet) {
+                petData.id = editingPet.id;
+                petData.createdAt = editingPet.createdAt;
+            }
+            
+            // Validar datos
+            const errors = validatePetData(petData);
+            if (errors.length > 0) {
+                showMessage(errors.join('. '), 'error');
+                return;
+            }
             
             try {
-                // Validate inputs
-                if (isNaN(duration) || duration <= 0) {
-                    throw new Error('Duración inválida');
-                }
+                const savedPet = savePetToUser(petData);
+                const action = editingPet ? 'actualizado' : 'agregado';
+                showMessage(`${savedPet.name} ha sido ${action} correctamente`, 'success');
                 
-                if (isNaN(basePrice) || basePrice <= 0) {
-                    throw new Error('Precio base inválido');
-                }
+                closePetModal();
+                loadPets();
+                saveToStorage();
                 
-                // Calculate based on service type
-                switch (selectedService.priceUnit) {
-                    case 'hora':
-                        totalPrice = basePrice * duration;
-                        calculationSteps.push(`Precio base: $${basePrice} por hora`);
-                        calculationSteps.push(`Duración: ${duration} hora${duration > 1 ? 's' : ''}`);
-                        calculationSteps.push(`Cálculo: $${basePrice} × ${duration} = $${totalPrice}`);
-                        break;
-                        
-                    case 'día':
-                        const days = Math.ceil(duration / 24);
-                        totalPrice = basePrice * days;
-                        calculationSteps.push(`Precio base: $${basePrice} por día`);
-                        calculationSteps.push(`Duración: ${duration} horas = ${days} día${days > 1 ? 's' : ''}`);
-                        calculationSteps.push(`Cálculo: $${basePrice} × ${days} = $${totalPrice}`);
-                        break;
-                        
-                    case 'sesión':
-                    case 'consulta':
-                    case 'paseo':
-                        totalPrice = basePrice;
-                        calculationSteps.push(`Precio fijo: $${basePrice} por ${selectedService.priceUnit}`);
-                        calculationSteps.push(`Total: $${totalPrice}`);
-                        break;
-                        
-                    default:
-                        throw new Error('Tipo de precio no reconocido');
+                // Actualizar la lista de mascotas en el selector de reservas si está abierto
+                if (document.getElementById('bookingModal').style.display === 'block') {
+                    loadUserPets();
                 }
-                
-                // Apply discounts or surcharges if needed
-                if (duration >= 8 && selectedService.priceUnit === 'hora') {
-                    const discount = Math.floor(totalPrice * 0.1);
-                    totalPrice -= discount;
-                    calculationSteps.push(`Descuento por 8+ horas: -$${discount}`);
-                    calculationSteps.push(`Total con descuento: $${totalPrice}`);
-                }
-                
             } catch (error) {
-                hasError = true;
-                errorMessage = error.message;
-                totalPrice = 0;
+                showMessage('Error al guardar la mascota: ' + error.message, 'error');
+            }
+        }
+
+        function previewPetPhoto(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Validar tipo de archivo
+            if (!file.type.startsWith('image/')) {
+                showMessage('Por favor selecciona un archivo de imagen válido', 'error');
+                event.target.value = '';
+                return;
             }
             
-            // Update UI
-            updatePriceDisplay(basePrice, duration, totalPrice, calculationSteps, hasError, errorMessage);
+            // Validar tamaño (máximo 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showMessage('La imagen es muy grande. Por favor selecciona una imagen menor a 5MB', 'error');
+                event.target.value = '';
+                return;
+            }
             
-            return { totalPrice, hasError, errorMessage };
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('petPhotoImg').src = e.target.result;
+                document.getElementById('petPhotoPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
         }
-        
-        function updatePriceDisplay(basePrice, duration, totalPrice, steps, hasError, errorMessage) {
-            const priceContainer = document.getElementById('priceCalculator');
-            if (!priceContainer) return;
+
+        function removePetPhoto() {
+            document.getElementById('petPhoto').value = '';
+            document.getElementById('petPhotoImg').src = '';
+            document.getElementById('petPhotoPreview').style.display = 'none';
+        }
+
+        function addPetPhoto(petId) {
+            // Esta función se puede expandir para permitir agregar fotos a mascotas existentes
+            editPet(petId);
+        }
+
+        // Funciones de calificación
+        function showRatingModal(bookingId) {
+            bookingToRate = testBookings.find(b => b.id === bookingId);
+            if (!bookingToRate) return;
             
-            let html = '<div class="price-calculator">';
-            html += '<h4>💰 Cálculo de Precio</h4>';
+            const isOwner = bookingToRate.ownerId === currentUser.id;
+            const otherParty = isOwner ? 'cuidador' : 'dueño de mascota';
             
-            if (hasError) {
-                html += `<div class="price-error">❌ Error: ${errorMessage}</div>`;
+            document.getElementById('ratingTitle').textContent = `Calificar ${otherParty}`;
+            document.getElementById('ratingServiceInfo').innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                    <div style="font-size: 32px;">⭐</div>
+                    <div>
+                        <h3>${bookingToRate.serviceName}</h3>
+                        <p style="color: #666; margin: 0;">Servicio completado el ${bookingToRate.date}</p>
+                        <p style="color: #666; margin: 0;">Mascota: ${bookingToRate.petName}</p>
+                    </div>
+                </div>
+            `;
+            
+            // Reset rating
+            currentRating = 0;
+            updateStars();
+            document.getElementById('ratingComment').value = '';
+            document.querySelector('input[name="recommend"]').checked = false;
+            
+            document.getElementById('ratingModal').style.display = 'block';
+        }
+
+        function closeRatingModal() {
+            document.getElementById('ratingModal').style.display = 'none';
+            bookingToRate = null;
+            currentRating = 0;
+        }
+
+        function setRating(rating) {
+            currentRating = rating;
+            updateStars();
+        }
+
+        function updateStars() {
+            const stars = document.querySelectorAll('.rating-stars .star');
+            stars.forEach((star, index) => {
+                if (index < currentRating) {
+                    star.textContent = '★';
+                    star.classList.add('active');
+                } else {
+                    star.textContent = '☆';
+                    star.classList.remove('active');
+                }
+            });
+        }
+
+        function submitRating() {
+            if (currentRating === 0) {
+                showMessage('Por favor selecciona una calificación', 'error');
+                return;
+            }
+            
+            const comment = document.getElementById('ratingComment').value;
+            const recommend = document.querySelector('input[name="recommend"]:checked')?.value;
+            
+            const isOwner = bookingToRate.ownerId === currentUser.id;
+            
+            // Actualizar la reserva con la calificación
+            if (isOwner) {
+                bookingToRate.ownerRated = true;
+                bookingToRate.ownerRating = currentRating;
+                bookingToRate.ownerComment = comment;
             } else {
-                steps.forEach(step => {
-                    html += `<div class="price-breakdown">${step}</div>`;
-                });
-                
-                html += `<div class="price-row total">`;
-                html += `<span>Total a pagar:</span>`;
-                html += `<span>$${totalPrice}</span>`;
-                html += `</div>`;
+                bookingToRate.caregiverRated = true;
+                bookingToRate.caregiverRating = currentRating;
+                bookingToRate.caregiverComment = comment;
             }
             
-            html += '</div>';
-            priceContainer.innerHTML = html;
+            // Actualizar calificación promedio del cuidador
+            updateCaregiverRating(bookingToRate.caregiverId, currentRating);
+            
+            closeRatingModal();
+            showMessage('¡Calificación enviada exitosamente!', 'success');
+            loadBookings();
         }
-        
-        // FIX 3: Complete Pet Management System
+
+        function updateCaregiverRating(caregiverId, newRating) {
+            // Encontrar el servicio del cuidador y actualizar su rating
+            const caregiverServices = testServices.filter(s => s.caregiverId === caregiverId);
+            caregiverServices.forEach(service => {
+                // Calcular nuevo promedio (simplificado)
+                const currentRating = service.rating;
+                const currentReviews = service.reviews;
+                const newAverage = ((currentRating * currentReviews) + newRating) / (currentReviews + 1);
+                
+                service.rating = Math.round(newAverage * 10) / 10; // Redondear a 1 decimal
+                service.reviews += 1;
+            });
+            
+            // Actualizar rating del usuario cuidador
+            const caregiver = Object.values(testUsers).find(u => u.id === caregiverId);
+            if (caregiver) {
+                const allRatings = testBookings
+                    .filter(b => b.caregiverId === caregiverId && b.ownerRated)
+                    .map(b => b.ownerRating);
+                
+                if (allRatings.length > 0) {
+                    const avgRating = allRatings.reduce((a, b) => a + b, 0) / allRatings.length;
+                    caregiver.rating = Math.round(avgRating * 10) / 10;
+                }
+            }
+        }
+
+        // Función para mostrar mensajes
+        function showMessage(message, type = 'success') {
+            const messagesContainer = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
+            messageDiv.textContent = message;
+            
+            messagesContainer.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.parentNode.removeChild(messageDiv);
+                }
+            }, 5000);
+        }
+
+        // Funciones de persistencia
+        function saveToStorage() {
+            localStorage.setItem('petcare_services', JSON.stringify(testServices));
+            localStorage.setItem('petcare_bookings', JSON.stringify(testBookings));
+            localStorage.setItem('petcare_chats', JSON.stringify(testChats));
+            localStorage.setItem('petcare_users', JSON.stringify(testUsers));
+            localStorage.setItem('petcare_reviews', JSON.stringify(testReviews));
+        }
+
+        function loadFromStorage() {
+            const services = localStorage.getItem('petcare_services');
+            const bookings = localStorage.getItem('petcare_bookings');
+            const chats = localStorage.getItem('petcare_chats');
+            const users = localStorage.getItem('petcare_users');
+            const reviews = localStorage.getItem('petcare_reviews');
+            
+            if (services) testServices = JSON.parse(services);
+            if (bookings) testBookings = JSON.parse(bookings);
+            if (chats) testChats = JSON.parse(chats);
+            if (users) Object.assign(testUsers, JSON.parse(users));
+            if (reviews) testReviews = JSON.parse(reviews);
+        }
+
+        // Pet Management System - Data Model and Validation
         function createPetDataModel(petData) {
             return {
                 id: petData.id || generatePetId(),
                 ownerId: petData.ownerId || (currentUser ? currentUser.id : null),
                 name: petData.name || '',
                 age: petData.age || 0,
-                animalType: petData.animalType || 'Perro',
+                animalType: petData.animalType || 'Perro', // Perro, Gato, Otro
                 breed: petData.breed || '',
                 weight: petData.weight || '',
                 specialNeeds: petData.specialNeeds || '',
@@ -844,11 +2468,11 @@
                 updatedAt: new Date().toISOString()
             };
         }
-        
+
         function generatePetId() {
             return 'pet_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         }
-        
+
         function validatePetData(petData) {
             const errors = [];
             
@@ -882,7 +2506,14 @@
             
             return errors;
         }
-        
+
+        function getUserPets(userId) {
+            if (!currentUser || !currentUser.pets) {
+                return [];
+            }
+            return currentUser.pets.filter(pet => pet.ownerId === userId || !pet.ownerId);
+        }
+
         function savePetToUser(petData) {
             if (!currentUser) {
                 throw new Error('Usuario no autenticado');
@@ -902,12 +2533,12 @@
                 currentUser.pets.push(pet);
             }
             
-            // Save to localStorage
-            saveToStorage();
+            // Update user in testUsers
+            testUsers[currentUser.email] = currentUser;
             
             return pet;
         }
-        
+
         function deletePetFromUser(petId) {
             if (!currentUser || !currentUser.pets) {
                 return false;
@@ -916,348 +2547,197 @@
             const initialLength = currentUser.pets.length;
             currentUser.pets = currentUser.pets.filter(pet => pet.id !== petId);
             
-            if (currentUser.pets.length < initialLength) {
-                saveToStorage();
-                return true;
-            }
+            // Update user in testUsers
+            testUsers[currentUser.email] = currentUser;
             
-            return false;
+            return currentUser.pets.length < initialLength;
         }
-        
-        function getUserPets(userId) {
-            if (!currentUser || !currentUser.pets) {
-                return [];
+
+        // Sistema de opiniones/reviews
+        let testReviews = [
+            {
+                id: 1,
+                serviceId: 1,
+                userId: 1,
+                userName: 'María González',
+                userAvatar: '👩',
+                rating: 5,
+                comment: 'Excelente atención veterinaria. El Dr. Carlos es muy profesional y cuidadoso con Max.',
+                date: '2024-01-10',
+                helpful: 12,
+                recommend: true
+            },
+            {
+                id: 2,
+                serviceId: 1,
+                userId: 8,
+                userName: 'Pedro Martín',
+                userAvatar: '👨',
+                rating: 4,
+                comment: 'Muy buen servicio, aunque tuve que esperar un poco. Pero la atención fue excelente.',
+                date: '2024-01-08',
+                helpful: 8,
+                recommend: true
+            },
+            {
+                id: 3,
+                serviceId: 2,
+                userId: 9,
+                userName: 'Laura Sánchez',
+                userAvatar: '👩',
+                rating: 5,
+                comment: 'Mi perro se sintió como en casa. Ana es increíble cuidando mascotas.',
+                date: '2024-01-05',
+                helpful: 15,
+                recommend: true
             }
-            return currentUser.pets.filter(pet => pet.ownerId === userId || !pet.ownerId);
-        }
-        
-        function loadPets() {
-            const container = document.getElementById('petsList');
+        ];
+
+        function showServiceReviews(serviceId) {
+            const service = testServices.find(s => s.id === serviceId);
+            const reviews = testReviews.filter(r => r.serviceId === serviceId);
             
-            if (!currentUser) {
-                container.innerHTML = '<p>Inicia sesión para ver tus mascotas.</p>';
-                return;
-            }
+            if (!service) return;
             
-            if (currentUser.role !== 'owner') {
-                container.innerHTML = '<p>Solo los dueños de mascotas pueden gestionar mascotas.</p>';
-                return;
-            }
-            
-            const userPets = getUserPets(currentUser.id);
-            
-            if (userPets.length === 0) {
-                container.innerHTML = `
-                    <div style="text-align: center; padding: 40px; color: #666;">
-                        <div style="font-size: 64px; margin-bottom: 20px;">🐾</div>
-                        <h3>No tienes mascotas registradas</h3>
-                        <p>Agrega tu primera mascota para comenzar a usar los servicios de PetCare</p>
-                        <button class="btn btn-primary" onclick="showAddPetModal()" style="margin-top: 15px;">+ Agregar Primera Mascota</button>
-                    </div>
-                `;
-                return;
-            }
-            
-            container.innerHTML = userPets.map(pet => `
-                <div class="pet-card">
-                    <div class="pet-header">
+            const reviewsHtml = reviews.length > 0 ? reviews.map(review => `
+                <div style="border-bottom: 1px solid #eee; padding: 15px 0;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <span style="font-size: 24px;">${review.userAvatar}</span>
                         <div>
-                            ${pet.photoUrl ? 
-                                `<img src="${pet.photoUrl}" class="pet-avatar" alt="${pet.name}">` :
-                                `<div class="pet-avatar-placeholder">${getAnimalEmoji(pet.animalType)}</div>`
-                            }
-                        </div>
-                        <div class="pet-info">
-                            <h3>${pet.name}</h3>
-                            <p class="pet-details">
-                                ${pet.animalType}${pet.breed ? ` • ${pet.breed}` : ''} • ${pet.age} año${pet.age !== 1 ? 's' : ''}
-                                ${pet.weight ? ` • ${pet.weight}` : ''}
-                            </p>
+                            <h4 style="margin: 0;">${review.userName}</h4>
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <span>${'⭐'.repeat(review.rating)}</span>
+                                <span style="color: #666; font-size: 14px;">${review.date}</span>
+                            </div>
                         </div>
                     </div>
-                    
-                    ${pet.specialNeeds ? `
-                        <div class="pet-special-needs">
-                            <strong>Necesidades especiales:</strong>
-                            <p>${pet.specialNeeds}</p>
-                        </div>
-                    ` : ''}
-                    
-                    <div class="pet-actions">
-                        <button class="btn btn-secondary" onclick="editPet('${pet.id}')">✏️ Editar</button>
-                        <button class="btn btn-danger" onclick="deletePet('${pet.id}')">🗑️ Eliminar</button>
-                        ${!pet.photoUrl ? `<button class="btn btn-secondary" onclick="addPetPhoto('${pet.id}')">📷 Agregar Foto</button>` : ''}
+                    <p style="margin: 10px 0; line-height: 1.5;">${review.comment}</p>
+                    <div style="display: flex; align-items: center; gap: 15px; font-size: 14px; color: #666;">
+                        <span>${review.recommend ? '👍 Recomendado' : '👎 No recomendado'}</span>
+                        <span>👍 ${review.helpful} personas encontraron esto útil</span>
                     </div>
                 </div>
-            `).join('');
+            `).join('') : '<p>No hay opiniones aún. ¡Sé el primero en opinar!</p>';
+            
+            showMessage(`
+                <div style="max-height: 400px; overflow-y: auto;">
+                    <h3>${service.title} - Opiniones</h3>
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 24px;">${'⭐'.repeat(Math.floor(service.rating))}</span>
+                            <span><strong>${service.rating}</strong> (${service.reviews} opiniones)</span>
+                        </div>
+                    </div>
+                    ${reviewsHtml}
+                </div>
+            `, 'success');
         }
-        
-        function getAnimalEmoji(animalType) {
-            const emojis = {
-                'Perro': '🐕',
-                'Gato': '🐱',
-                'Otro': '🐾'
-            };
-            return emojis[animalType] || '🐾';
+
+        // Actualizar función selectService para mostrar más opciones
+        function selectServiceAdvanced(serviceId) {
+            const service = testServices.find(s => s.id === serviceId);
+            if (!service) return;
+            
+            const actionsHtml = `
+                <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                    ${currentUser && currentUser.role === 'owner' ? 
+                        '<button class="btn btn-primary" onclick="selectService(' + serviceId + ')">📅 Reservar</button>' : ''}
+                    <button class="btn btn-secondary" onclick="showServiceReviews(' + serviceId + ')">⭐ Ver Opiniones</button>
+                    <button class="btn btn-secondary" onclick="openChat(' + serviceId + ')">💬 Contactar</button>
+                </div>
+            `;
+            
+            showMessage(`
+                <div>
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
+                        <span style="font-size: 48px;">${service.icon}</span>
+                        <div>
+                            <h3>${service.title}</h3>
+                            <p style="color: #27ae60; font-weight: bold; font-size: 18px;">$${service.price}/${service.priceUnit}</p>
+                            <p style="color: #666;">📍 ${service.location}</p>
+                        </div>
+                    </div>
+                    <p style="margin: 15px 0; line-height: 1.5;">${service.description}</p>
+                    <div style="margin: 15px 0;">
+                        <strong>Características:</strong>
+                        <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;">
+                            ${service.features.map(feature => `<span style="background: #e3f2fd; padding: 4px 8px; border-radius: 12px; font-size: 12px;">${feature}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; margin: 15px 0;">
+                        <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                        <span><strong>${service.rating}</strong> (${service.reviews} opiniones)</span>
+                    </div>
+                    ${actionsHtml}
+                </div>
+            `, 'success');
         }
-        
-        function showAddPetModal() {
-            if (!currentUser || currentUser.role !== 'owner') {
-                showMessage('Solo los dueños de mascotas pueden agregar mascotas', 'error');
-                return;
-            }
+
+        // Actualizar las funciones de servicios para usar persistencia
+        function addServiceWithPersistence() {
+            addService();
+            saveToStorage();
             
-            editingPet = null;
-            document.getElementById('petModalTitle').textContent = 'Agregar Mascota';
-            clearPetForm();
-            document.getElementById('petModal').style.display = 'block';
-        }
-        
-        function editPet(petId) {
-            const pet = getUserPets(currentUser.id).find(p => p.id === petId);
-            if (!pet) {
-                showMessage('Mascota no encontrada', 'error');
-                return;
-            }
-            
-            editingPet = pet;
-            document.getElementById('petModalTitle').textContent = 'Editar Mascota';
-            
-            // Fill form with pet data
-            document.getElementById('petName').value = pet.name || '';
-            document.getElementById('petAge').value = pet.age || '';
-            document.getElementById('petAnimalType').value = pet.animalType || '';
-            document.getElementById('petBreed').value = pet.breed || '';
-            document.getElementById('petWeight').value = pet.weight || '';
-            document.getElementById('petSpecialNeeds').value = pet.specialNeeds || '';
-            
-            // Show photo if exists
-            if (pet.photoUrl) {
-                document.getElementById('petPhotoImg').src = pet.photoUrl;
-                document.getElementById('petPhotoPreview').style.display = 'block';
-            }
-            
-            document.getElementById('petModal').style.display = 'block';
-        }
-        
-        function deletePet(petId) {
-            const pet = getUserPets(currentUser.id).find(p => p.id === petId);
-            if (!pet) {
-                showMessage('Mascota no encontrada', 'error');
-                return;
-            }
-            
-            if (confirm(`¿Estás seguro de que quieres eliminar a ${pet.name}? Esta acción no se puede deshacer.`)) {
-                if (deletePetFromUser(petId)) {
-                    showMessage(`${pet.name} ha sido eliminado correctamente`, 'success');
-                    loadPets();
-                } else {
-                    showMessage('Error al eliminar la mascota', 'error');
-                }
-            }
-        }
-        
-        function closePetModal() {
-            document.getElementById('petModal').style.display = 'none';
-            editingPet = null;
-            clearPetForm();
-        }
-        
-        function clearPetForm() {
-            document.getElementById('petName').value = '';
-            document.getElementById('petAge').value = '';
-            document.getElementById('petAnimalType').value = '';
-            document.getElementById('petBreed').value = '';
-            document.getElementById('petWeight').value = '';
-            document.getElementById('petSpecialNeeds').value = '';
-            document.getElementById('petPhoto').value = '';
-            document.getElementById('petPhotoPreview').style.display = 'none';
-            document.getElementById('petPhotoImg').src = '';
-        }
-        
-        function savePet() {
-            const petData = {
-                name: document.getElementById('petName').value.trim(),
-                age: parseInt(document.getElementById('petAge').value) || 0,
-                animalType: document.getElementById('petAnimalType').value,
-                breed: document.getElementById('petBreed').value.trim(),
-                weight: document.getElementById('petWeight').value.trim(),
-                specialNeeds: document.getElementById('petSpecialNeeds').value.trim(),
-                photoUrl: document.getElementById('petPhotoImg').src || ''
-            };
-            
-            // If editing, maintain ID and creation date
-            if (editingPet) {
-                petData.id = editingPet.id;
-                petData.createdAt = editingPet.createdAt;
-            }
-            
-            // Validate data
-            const errors = validatePetData(petData);
-            if (errors.length > 0) {
-                showMessage(errors.join('. '), 'error');
-                return;
-            }
-            
-            try {
-                const savedPet = savePetToUser(petData);
-                const action = editingPet ? 'actualizado' : 'agregado';
-                showMessage(`${savedPet.name} ha sido ${action} correctamente`, 'success');
-                
-                closePetModal();
-                loadPets();
-            } catch (error) {
-                showMessage('Error al guardar la mascota: ' + error.message, 'error');
-            }
-        }
-        
-        function previewPetPhoto(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            // Validate file type
-            if (!file.type.startsWith('image/')) {
-                showMessage('Por favor selecciona un archivo de imagen válido', 'error');
-                event.target.value = '';
-                return;
-            }
-            
-            // Validate file size (5MB max)
-            if (file.size > 5 * 1024 * 1024) {
-                showMessage('La imagen es muy grande. Por favor selecciona una imagen menor a 5MB', 'error');
-                event.target.value = '';
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('petPhotoImg').src = e.target.result;
-                document.getElementById('petPhotoPreview').style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        }
-        
-        function removePetPhoto() {
-            document.getElementById('petPhoto').value = '';
-            document.getElementById('petPhotoImg').src = '';
-            document.getElementById('petPhotoPreview').style.display = 'none';
-        }
-        
-        function addPetPhoto(petId) {
-            editPet(petId);
-        }
-        
-        // Basic app functions
-        function showScreen(screenName) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-            
-            document.querySelectorAll('.nav-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.getElementById(screenName + 'Screen').classList.add('active');
-            event.target.classList.add('active');
-            
-            // Load screen-specific content
-            if (screenName === 'pets') {
-                loadPets();
-            }
-        }
-        
-        function showMessage(message, type = 'success') {
-            const messagesContainer = document.getElementById('messages');
-            const messageDiv = document.createElement('div');
-            messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
-            messageDiv.textContent = message;
-            
-            messagesContainer.appendChild(messageDiv);
-            
+            // Actualizar todas las pantallas para mostrar el nuevo servicio
             setTimeout(() => {
-                if (messageDiv.parentNode) {
-                    messageDiv.parentNode.removeChild(messageDiv);
-                }
-            }, 5000);
+                loadFeaturedServices();
+                loadAllServices();
+            }, 100);
         }
-        
-        function saveToStorage() {
-            if (currentUser) {
-                localStorage.setItem('petcare_current_user', JSON.stringify(currentUser));
+
+        function deleteServiceWithPersistence(serviceId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este servicio?')) {
+                testServices = testServices.filter(service => service.id !== serviceId);
+                saveToStorage();
+                showMessage('Servicio eliminado correctamente', 'success');
+                loadMyServices();
+                loadFeaturedServices();
+                loadAllServices();
             }
         }
-        
-        function loadFromStorage() {
-            const savedUser = localStorage.getItem('petcare_current_user');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                updateUserInterface();
-            }
-        }
-        
-        function updateUserInterface() {
-            const userGreeting = document.getElementById('userGreeting');
-            const userRole = document.getElementById('userRole');
-            const authBtn = document.getElementById('authBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
-            
-            // Role-specific elements
-            const caregiverElements = document.querySelectorAll('.caregiver-only');
-            const ownerElements = document.querySelectorAll('.owner-only');
-            
-            if (currentUser) {
-                userGreeting.textContent = `Hola, ${currentUser.name}`;
-                userRole.textContent = currentUser.role === 'owner' ? 'Dueño' : 'Cuidador';
-                userRole.style.display = 'inline-block';
-                authBtn.style.display = 'none';
-                logoutBtn.style.display = 'inline-block';
-                
-                // Show/hide role-specific elements
-                if (currentUser.role === 'caregiver') {
-                    caregiverElements.forEach(el => el.style.display = 'block');
-                    ownerElements.forEach(el => el.style.display = 'none');
-                } else {
-                    caregiverElements.forEach(el => el.style.display = 'none');
-                    ownerElements.forEach(el => el.style.display = 'block');
-                }
+
+        // Forzar actualización del cache en móviles
+        function forceUpdate() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                    }
+                    window.location.reload(true);
+                });
             } else {
-                userGreeting.textContent = 'Bienvenido';
-                userRole.style.display = 'none';
-                authBtn.style.display = 'inline-block';
-                logoutBtn.style.display = 'none';
-                
-                // Hide all role-specific elements
-                caregiverElements.forEach(el => el.style.display = 'none');
-                ownerElements.forEach(el => el.style.display = 'none');
+                window.location.reload(true);
             }
         }
-        
-        // Mock auth functions for demo
-        function showAuthModal() {
-            // For demo purposes, create a mock user
-            currentUser = {
-                id: 1,
-                name: 'Usuario Demo',
-                email: 'demo@petcare.com',
-                role: 'owner',
-                pets: []
-            };
-            updateUserInterface();
-            showMessage('¡Sesión iniciada como usuario demo!', 'success');
-        }
-        
-        function logout() {
-            currentUser = null;
-            localStorage.removeItem('petcare_current_user');
-            updateUserInterface();
-            showMessage('Sesión cerrada correctamente', 'success');
-            showScreen('home');
-        }
-        
-        // Initialize app
+
+        // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
+            // Cargar datos desde localStorage
             loadFromStorage();
-            updateFavoritesDisplay();
+            
+            loadFeaturedServices();
+            updateUserInterface();
+            
+            // Configurar fechas mínimas para reservas
+            const today = new Date().toISOString().split('T')[0];
+            const dateInputs = document.querySelectorAll('input[type="date"]');
+            dateInputs.forEach(input => {
+                input.min = today;
+            });
+            
+            // Agregar botón de actualización forzada para móviles
+            if (navigator.userAgent.match(/Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i)) {
+                const updateBtn = document.createElement('button');
+                updateBtn.textContent = '🔄 Actualizar';
+                updateBtn.className = 'btn btn-secondary';
+                updateBtn.style.position = 'fixed';
+                updateBtn.style.bottom = '20px';
+                updateBtn.style.right = '20px';
+                updateBtn.style.zIndex = '999';
+                updateBtn.onclick = forceUpdate;
+                document.body.appendChild(updateBtn);
+            }
+            
             showMessage('¡Bienvenido a PetCare Marketplace!', 'success');
         });
     </script>
