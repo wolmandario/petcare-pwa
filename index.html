@@ -1487,6 +1487,15 @@
         
         // Variables para favoritos
         let userFavorites = [];
+        
+        // Helper function para renderizar botón de favoritos
+        function renderFavoriteButton(serviceId) {
+            const isFav = userFavorites.includes(serviceId);
+            const heartIcon = isFav ? '❤️' : '🤍';
+            const title = isFav ? 'Quitar de favoritos' : 'Agregar a favoritos';
+            const cssClass = isFav ? 'favorite-btn favorited' : 'favorite-btn not-favorited';
+            return `<button class="${cssClass}" data-service-id="${serviceId}" onclick="toggleFavorite(${serviceId})" title="${title}">${heartIcon}</button>`;
+        }
 
         // Pet Management System
         let editingPet = null;
@@ -3199,6 +3208,11 @@
                 } else {
                     caregiverElements.forEach(el => el.style.display = 'none');
                     ownerElements.forEach(el => el.style.display = 'block');
+                    
+                    // Cargar favoritos para dueños
+                    loadUserFavorites().then(() => {
+                        setTimeout(updateFavoriteButtons, 100);
+                    });
                 }
             } else {
                 userGreeting.textContent = 'Bienvenido';
@@ -3285,6 +3299,9 @@
                     </div>
                 </div>
             `).join('');
+            
+            // Actualizar botones de favoritos después de renderizar
+            setTimeout(() => updateFavoriteButtons(), 100);
         }
 
         function loadAllServices() {
@@ -3323,6 +3340,9 @@
                     </div>
                 </div>
             `).join('');
+            
+            // Actualizar botones de favoritos después de renderizar
+            setTimeout(() => updateFavoriteButtons(), 100);
         }
 
         // Funciones de reseñas
@@ -3928,24 +3948,55 @@
         }
 
         function calculatePrice() {
-            if (!selectedService) return;
+            if (!selectedService) {
+                console.log('❌ calculatePrice: No hay servicio seleccionado');
+                return;
+            }
             
             const duration = parseInt(document.getElementById('bookingDuration').value);
             const basePrice = selectedService.price;
             let totalPrice = basePrice;
             
+            console.log(`💰 INICIO CÁLCULO: Servicio=${selectedService.title}, Base=$${basePrice}, Duración=${duration}, Unidad=${selectedService.priceUnit}`);
+            
             // Calcular precio según el tipo de servicio
             if (selectedService.priceUnit === 'hora') {
                 totalPrice = basePrice * duration;
-            } else if (selectedService.priceUnit === 'día' && duration >= 8) {
-                totalPrice = basePrice * Math.ceil(duration / 24);
+                console.log(`💰 Cálculo por HORA: $${basePrice} × ${duration} = $${totalPrice}`);
+            } else if (selectedService.priceUnit === 'día') {
+                const days = Math.ceil(duration / 24);
+                totalPrice = basePrice * days;
+                console.log(`💰 Cálculo por DÍA: $${basePrice} × ${days} días = $${totalPrice}`);
             } else if (selectedService.priceUnit === 'sesión') {
-                totalPrice = basePrice; // Precio fijo por sesión
+                totalPrice = basePrice;
+                console.log(`💰 Precio fijo por SESIÓN: $${totalPrice}`);
+            } else if (selectedService.priceUnit === 'consulta') {
+                totalPrice = basePrice;
+                console.log(`💰 Precio fijo por CONSULTA: $${totalPrice}`);
+            } else if (selectedService.priceUnit === 'paseo') {
+                totalPrice = basePrice;
+                console.log(`💰 Precio fijo por PASEO: $${totalPrice}`);
             }
             
-            document.getElementById('basePrice').textContent = `$${basePrice}`;
-            document.getElementById('durationText').textContent = `${duration} hora${duration > 1 ? 's' : ''}`;
-            document.getElementById('totalPrice').textContent = `$${totalPrice}`;
+            // Aplicar descuentos por duración larga
+            let discount = 0;
+            if (selectedService.priceUnit === 'hora' && duration >= 8) {
+                discount = Math.floor(totalPrice * 0.1); // 10% descuento por 8+ horas
+                console.log(`💰 Descuento aplicado: -$${discount}`);
+            }
+            
+            const finalPrice = totalPrice - discount;
+            
+            // Actualizar UI
+            const basePriceEl = document.getElementById('basePrice');
+            const durationTextEl = document.getElementById('durationText');
+            const totalPriceEl = document.getElementById('totalPrice');
+            
+            if (basePriceEl) basePriceEl.textContent = `$${basePrice}`;
+            if (durationTextEl) durationTextEl.textContent = `${duration} hora${duration > 1 ? 's' : ''}`;
+            if (totalPriceEl) totalPriceEl.textContent = `$${finalPrice}`;
+            
+            console.log(`💰 RESULTADO FINAL: Base=$${basePrice}, Total=$${finalPrice}, UI actualizada`);
         }
 
         async function confirmBooking() {
@@ -5347,27 +5398,33 @@
             document.getElementById('petModal').style.display = 'block';
         }
         
-        function editPet(petId) {
-            const pet = getUserPets(currentUser.id).find(p => p.id === petId);
-            if (!pet) {
-                showMessage('Mascota no encontrada', 'error');
-                return;
+        async function editPet(petId) {
+            try {
+                const userPets = await getUserPets(currentUser.id);
+                const pet = userPets.find(p => p.id === petId);
+                if (!pet) {
+                    showMessage('Mascota no encontrada', 'error');
+                    return;
+                }
+                editingPet = pet;
+                document.getElementById('petModalTitle').textContent = 'Editar Mascota';
+                // Fill form with pet data
+                document.getElementById('petName').value = pet.name || '';
+                document.getElementById('petAge').value = pet.age || '';
+                document.getElementById('petAnimalType').value = pet.animalType || '';
+                document.getElementById('petBreed').value = pet.breed || '';
+                document.getElementById('petWeight').value = pet.weight || '';
+                document.getElementById('petSpecialNeeds').value = pet.specialNeeds || '';
+                // Show photo if exists
+                if (pet.photoUrl) {
+                    document.getElementById('petPhotoImg').src = pet.photoUrl;
+                    document.getElementById('petPhotoPreview').style.display = 'block';
+                }
+                document.getElementById('petModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error cargando mascota para editar:', error);
+                showMessage('Error al cargar la mascota', 'error');
             }
-            editingPet = pet;
-            document.getElementById('petModalTitle').textContent = 'Editar Mascota';
-            // Fill form with pet data
-            document.getElementById('petName').value = pet.name || '';
-            document.getElementById('petAge').value = pet.age || '';
-            document.getElementById('petAnimalType').value = pet.animalType || '';
-            document.getElementById('petBreed').value = pet.breed || '';
-            document.getElementById('petWeight').value = pet.weight || '';
-            document.getElementById('petSpecialNeeds').value = pet.specialNeeds || '';
-            // Show photo if exists
-            if (pet.photoUrl) {
-                document.getElementById('petPhotoImg').src = pet.photoUrl;
-                document.getElementById('petPhotoPreview').style.display = 'block';
-            }
-            document.getElementById('petModal').style.display = 'block';
         }
         
         async function deletePet(petId) {
@@ -5473,8 +5530,8 @@
             document.getElementById('petPhotoPreview').style.display = 'none';
         }
         
-        function addPetPhoto(petId) {
-            editPet(petId);
+        async function addPetPhoto(petId) {
+            await editPet(petId);
         }
 
         // Función para mostrar mensajes
