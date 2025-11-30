@@ -6278,6 +6278,101 @@
             applyAllFilters();
         }
 
+        function clearServiceFilters() {
+            console.log('🧹 Limpiando filtros...');
+            
+            // Resetear filtros
+            currentFilters = {
+                category: '',
+                petSize: '',
+                minPrice: 0,
+                maxPrice: 10000,
+                minCapacity: 0
+            };
+            
+            // Remover clase active de todos los botones de filtro
+            document.querySelectorAll('[data-category]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('[data-pet-size]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('[data-price-range]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Resetear selects si existen
+            const priceSelect = document.getElementById('filterPrice');
+            const capacitySelect = document.getElementById('filterCapacity');
+            if (priceSelect) priceSelect.value = '';
+            if (capacitySelect) capacitySelect.value = '';
+            
+            // Recargar todos los servicios
+            applyAllFilters();
+            
+            console.log('✅ Filtros limpiados');
+        }
+
+        // Función para migrar servicios existentes con datos faltantes
+        async function migrateServicesData() {
+            console.log('🔄 Verificando servicios para migración...');
+            
+            try {
+                let needsUpdate = false;
+                
+                // Migrar testServices en memoria
+                testServices.forEach(service => {
+                    let serviceUpdated = false;
+                    
+                    // Agregar acceptedPetSizes si no existe
+                    if (!service.acceptedPetSizes) {
+                        service.acceptedPetSizes = {
+                            small: true,
+                            medium: true,
+                            large: true
+                        };
+                        serviceUpdated = true;
+                    }
+                    
+                    // Agregar capacity si no existe o es 0
+                    if (!service.capacity || service.capacity === 0) {
+                        if (service.category === 'nanny') {
+                            service.capacity = 2;
+                        } else if (service.category === 'daycare') {
+                            service.capacity = 5;
+                        } else if (service.category === 'boarding') {
+                            service.capacity = 3;
+                        } else {
+                            service.capacity = 1;
+                        }
+                        serviceUpdated = true;
+                    }
+                    
+                    // Agregar minCapacity si no existe
+                    if (!service.minCapacity) {
+                        service.minCapacity = 1;
+                        serviceUpdated = true;
+                    }
+                    
+                    if (serviceUpdated) {
+                        console.log(`  ✓ Servicio ${service.id} actualizado`);
+                        needsUpdate = true;
+                    }
+                });
+                
+                // Si hubo cambios, guardar en Firebase y localStorage
+                if (needsUpdate) {
+                    await saveData('services', testServices);
+                    console.log('✅ Servicios migrados y guardados');
+                } else {
+                    console.log('✅ Todos los servicios ya tienen los datos necesarios');
+                }
+                
+            } catch (error) {
+                console.error('❌ Error en migración de servicios:', error);
+            }
+        }
+
         function clearAllFilters() {
             currentFilters = {
                 category: '',
@@ -6846,6 +6941,9 @@
             
             // Inicializar todos los datos desde Firebase
             await initializeData();
+            
+            // 🔧 Migrar servicios existentes con datos faltantes
+            await migrateServicesData();
             
             // Cargar usuario actual si existe
             const savedUser = loadCurrentUser();
