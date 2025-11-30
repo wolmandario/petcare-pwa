@@ -4078,7 +4078,7 @@
                     <div style="margin: 10px 0;">
                         <strong>Características:</strong>
                         <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;">
-                            ${service.features.map(feature => `<span style="background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${feature}</span>`).join('')}
+                            ${(service.features && Array.isArray(service.features)) ? service.features.map(feature => `<span style="background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${feature}</span>`).join('') : ''}
                         </div>
                     </div>
                     <div class="service-meta">
@@ -6541,7 +6541,7 @@
                     <div style="margin: 10px 0;">
                         <strong>Características:</strong>
                         <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;">
-                            ${service.features.map(feature => `<span style="background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${feature}</span>`).join('')}
+                            ${(service.features && Array.isArray(service.features)) ? service.features.map(feature => `<span style="background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${feature}</span>`).join('') : ''}
                         </div>
                     </div>
                     <div class="service-meta">
@@ -7003,7 +7003,7 @@
                         <div style="margin: 10px 0;">
                             <strong>Características:</strong>
                             <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;">
-                                ${service.features.map(feature => `<span style="background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${feature}</span>`).join('')}
+                                ${(service.features && Array.isArray(service.features)) ? service.features.map(feature => `<span style="background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${feature}</span>`).join('') : ''}
                             </div>
                         </div>
                         <div class="service-meta">
