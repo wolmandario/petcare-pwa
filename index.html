@@ -4624,12 +4624,33 @@
             try {
                 const savedService = await saveService(serviceData);
                 
-                // Update local testServices array
-                const existingIndex = testServices.findIndex(s => s.id === savedService.id);
-                if (existingIndex >= 0) {
-                    testServices[existingIndex] = savedService;
-                } else {
-                    testServices.push(savedService);
+                // 🔄 RECARGAR TODOS los servicios desde Firebase para mantener sincronización
+                console.log('🔄 Recargando servicios desde Firebase...');
+                try {
+                    const allServices = await loadData('services');
+                    if (allServices && Array.isArray(allServices)) {
+                        testServices.length = 0; // Limpiar array
+                        testServices.push(...allServices); // Cargar todos desde Firebase
+                        console.log('✅ testServices actualizado desde Firebase:', testServices.length, 'servicios');
+                    } else {
+                        console.log('⚠️ No se pudieron cargar servicios desde Firebase, usando método local');
+                        // Fallback al método anterior
+                        const existingIndex = testServices.findIndex(s => s.id === savedService.id);
+                        if (existingIndex >= 0) {
+                            testServices[existingIndex] = savedService;
+                        } else {
+                            testServices.push(savedService);
+                        }
+                    }
+                } catch (reloadError) {
+                    console.error('❌ Error recargando servicios:', reloadError);
+                    // Fallback al método anterior
+                    const existingIndex = testServices.findIndex(s => s.id === savedService.id);
+                    if (existingIndex >= 0) {
+                        testServices[existingIndex] = savedService;
+                    } else {
+                        testServices.push(savedService);
+                    }
                 }
                 
                 console.log('✅ Servicio guardado:', savedService);
