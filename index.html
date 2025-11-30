@@ -988,8 +988,7 @@
     <div class="header">
         <div class="header-content">
             <div class="logo">
-                <img src="assets/petcare-logo.svg" alt="PetCare Logo">
-                <span>PetCare</span>
+                <img src="assets/petcare-logo.svg" alt="PetCare Logo" style="height: 50px; width: auto;">
             </div>
             <div class="user-info">
                 <span id="userGreeting">Bienvenido</span>
@@ -1028,7 +1027,7 @@
                     <div style="flex: 1; min-width: 200px;">
                         <select id="quickCategory" class="form-input">
                             <option value="">Selecciona una categoría</option>
-                            <option value="nanny">👶 Niñera</option>
+                            <option value="nanny">🐕 Niñera</option>
                             <option value="daycare">🎾 Guardería</option>
                             <option value="boarding">🏠 Hospedaje</option>
                         </select>
@@ -1133,7 +1132,7 @@
                                 Todas
                             </button>
                             <button class="distance-btn" data-category="nanny" onclick="filterByCategory('nanny')">
-                                👶 Niñera
+                                🐕 Niñera
                             </button>
                             <button class="distance-btn" data-category="daycare" onclick="filterByCategory('daycare')">
                                 🎾 Guardería
@@ -1404,7 +1403,7 @@
                     <label class="form-label">Tipo de Servicio *</label>
                     <div class="category-selector" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
                         <div class="category-option" data-category="nanny" onclick="selectServiceCategory('nanny')">
-                            <div class="category-icon">👶</div>
+                            <div class="category-icon">🐕</div>
                             <div class="category-name">Niñera</div>
                             <div class="category-desc">1-3 mascotas</div>
                         </div>
@@ -1741,7 +1740,7 @@
             nanny: {
                 id: 'nanny',
                 name: 'Niñera',
-                icon: '👶',
+                icon: '🐕',
                 maxCapacity: 3,
                 minCapacity: 1,
                 requiresLocation: true,
@@ -3149,7 +3148,7 @@
                 id: 1,
                 title: 'Cuidado Personalizado Luna',
                 category: 'nanny',
-                icon: '👶',
+                icon: '🐕',
                 price: 800,
                 priceUnit: 'día',
                 description: 'Servicio de niñera profesional para hasta 3 mascotas. Cuidado personalizado en casa del cuidador o del dueño.',
