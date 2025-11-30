@@ -3,20 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🐾 PetCare Marketplace</title>
+    <title>PetCare - Cuidado de Mascotas en Uruguay</title>
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#667eea">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="PetCare">
-    <meta name="description" content="Encuentra el mejor cuidado para tu mascota en Uruguay">
+    <meta name="description" content="Encuentra el mejor cuidado para tu mascota en Uruguay - Servicios de Niñera, Guardería y Hospedaje">
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="pwa-manifest.json">
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/petcare-favicon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/petcare-logo-192.png">
+    
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🐾%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="assets/petcare-logo-192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/petcare-logo-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="assets/petcare-logo-512.png">
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -62,7 +68,18 @@
             padding: 0 20px;
         }
         
-        .logo { font-size: 28px; font-weight: bold; }
+        .logo { 
+            font-size: 28px; 
+            font-weight: bold; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo img {
+            height: 40px;
+            width: 40px;
+        }
         
         .user-info { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
         
@@ -753,6 +770,99 @@
         .nav-tabs::-webkit-scrollbar { display: none; }
         .nav-tabs { -ms-overflow-style: none; scrollbar-width: none; }
         
+        /* Category Selector Styles */
+        .category-selector {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .category-option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+        
+        .category-option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+        
+        .category-option.selected {
+            border-color: #667eea;
+            background: #e3f2fd;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .category-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        .category-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+        
+        .category-desc {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        /* Schedule Selector Styles */
+        .schedule-day {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .schedule-day label {
+            min-width: 80px;
+            font-weight: 500;
+        }
+        
+        .schedule-day input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .schedule-day input[type="time"] {
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .schedule-day.disabled {
+            opacity: 0.5;
+        }
+        
+        .schedule-day.disabled input[type="time"] {
+            background: #e9ecef;
+            cursor: not-allowed;
+        }
+        
+        /* Form validation styles */
+        .form-input.error {
+            border-color: #dc3545;
+        }
+        
+        .form-input.success {
+            border-color: #28a745;
+        }
+        
         /* Pet Management System Styles */
         .pet-card {
             background: white;
@@ -877,7 +987,10 @@
     <!-- Header -->
     <div class="header">
         <div class="header-content">
-            <div class="logo">🐾 PetCare Marketplace</div>
+            <div class="logo">
+                <img src="assets/petcare-logo.svg" alt="PetCare Logo">
+                <span>PetCare</span>
+            </div>
             <div class="user-info">
                 <span id="userGreeting">Bienvenido</span>
                 <span id="userRole" class="user-role" style="display: none;"></span>
@@ -915,12 +1028,9 @@
                     <div style="flex: 1; min-width: 200px;">
                         <select id="quickCategory" class="form-input">
                             <option value="">Selecciona una categoría</option>
-                            <option value="veterinary">🏥 Veterinarias</option>
-                            <option value="boarding">🏠 Hospedaje</option>
+                            <option value="nanny">👶 Niñera</option>
                             <option value="daycare">🎾 Guardería</option>
-                            <option value="grooming">✂️ Peluquería</option>
-                            <option value="walking">🚶 Paseo</option>
-                            <option value="training">🎓 Entrenamiento</option>
+                            <option value="boarding">🏠 Hospedaje</option>
                         </select>
                     </div>
                     <div style="flex: 1; min-width: 200px;">
@@ -1013,45 +1123,99 @@
             <div class="card">
                 <h2>🔍 Buscar Servicios</h2>
                 
-                <!-- Filtros avanzados -->
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
-                    <select id="filterCategory" class="form-input">
-                        <option value="">Todas las categorías</option>
-                        <option value="veterinary">🏥 Veterinarias</option>
-                        <option value="boarding">🏠 Hospedaje</option>
-                        <option value="daycare">🎾 Guardería</option>
-                        <option value="grooming">✂️ Peluquería</option>
-                        <option value="walking">🚶 Paseo</option>
-                        <option value="training">🎓 Entrenamiento</option>
-                    </select>
+                <!-- Service Filters Component -->
+                <div id="serviceFilters" style="margin-bottom: 20px;">
+                    <!-- Category Filter Buttons -->
+                    <div style="margin-bottom: 15px;">
+                        <label class="form-label">Categoría de Servicio</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="distance-btn active" data-category="" onclick="filterByCategory('')">
+                                Todas
+                            </button>
+                            <button class="distance-btn" data-category="nanny" onclick="filterByCategory('nanny')">
+                                👶 Niñera
+                            </button>
+                            <button class="distance-btn" data-category="daycare" onclick="filterByCategory('daycare')">
+                                🎾 Guardería
+                            </button>
+                            <button class="distance-btn" data-category="boarding" onclick="filterByCategory('boarding')">
+                                🏠 Hospedaje
+                            </button>
+                        </div>
+                    </div>
                     
-                    <select id="filterLocation" class="form-input">
-                        <option value="">Todas las ubicaciones</option>
-                        <option value="Centro">Centro</option>
-                        <option value="Pocitos">Pocitos</option>
-                        <option value="Carrasco">Carrasco</option>
-                        <option value="Punta Gorda">Punta Gorda</option>
-                        <option value="Malvín">Malvín</option>
-                        <option value="Cordón">Cordón</option>
-                    </select>
+                    <!-- Pet Size Filter -->
+                    <div style="margin-bottom: 15px;">
+                        <label class="form-label">Tamaño de Mascota</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="distance-btn active" data-petsize="" onclick="filterByPetSize('')">
+                                Todos
+                            </button>
+                            <button class="distance-btn" data-petsize="small" onclick="filterByPetSize('small')">
+                                🐕 Pequeña
+                            </button>
+                            <button class="distance-btn" data-petsize="medium" onclick="filterByPetSize('medium')">
+                                🐕 Mediana
+                            </button>
+                            <button class="distance-btn" data-petsize="large" onclick="filterByPetSize('large')">
+                                🐕 Grande
+                            </button>
+                        </div>
+                    </div>
                     
-                    <select id="filterPrice" class="form-input">
-                        <option value="">Cualquier precio</option>
-                        <option value="0-500">$0 - $500</option>
-                        <option value="500-1000">$500 - $1000</option>
-                        <option value="1000-2000">$1000 - $2000</option>
-                        <option value="2000+">$2000+</option>
-                    </select>
+                    <!-- Price Range Filter -->
+                    <div style="margin-bottom: 15px;">
+                        <label class="form-label">Rango de Precio</label>
+                        <select id="filterPrice" class="form-input" onchange="applyServiceFilters()">
+                            <option value="">Cualquier precio</option>
+                            <option value="0-400">$0 - $400</option>
+                            <option value="400-600">$400 - $600</option>
+                            <option value="600-800">$600 - $800</option>
+                            <option value="800+">$800+</option>
+                        </select>
+                    </div>
                     
-                    <select id="filterRating" class="form-input">
-                        <option value="">Cualquier calificación</option>
-                        <option value="4.5">4.5+ estrellas</option>
-                        <option value="4.0">4.0+ estrellas</option>
-                        <option value="3.5">3.5+ estrellas</option>
-                    </select>
+                    <!-- Capacity Filter -->
+                    <div style="margin-bottom: 15px;">
+                        <label class="form-label">Capacidad Mínima</label>
+                        <select id="filterCapacity" class="form-input" onchange="applyServiceFilters()">
+                            <option value="">Cualquier capacidad</option>
+                            <option value="1">1+ mascotas</option>
+                            <option value="3">3+ mascotas</option>
+                            <option value="5">5+ mascotas</option>
+                            <option value="10">10+ mascotas</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Additional Filters -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                        <select id="filterLocation" class="form-input" onchange="applyServiceFilters()">
+                            <option value="">Todas las ubicaciones</option>
+                            <option value="Centro">Centro</option>
+                            <option value="Pocitos">Pocitos</option>
+                            <option value="Carrasco">Carrasco</option>
+                            <option value="Punta Gorda">Punta Gorda</option>
+                            <option value="Malvín">Malvín</option>
+                            <option value="Cordón">Cordón</option>
+                        </select>
+                        
+                        <select id="filterRating" class="form-input" onchange="applyServiceFilters()">
+                            <option value="">Cualquier calificación</option>
+                            <option value="4.5">4.5+ estrellas</option>
+                            <option value="4.0">4.0+ estrellas</option>
+                            <option value="3.5">3.5+ estrellas</option>
+                        </select>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="applyServiceFilters()">🔍 Buscar</button>
+                        <button class="btn btn-secondary" onclick="clearServiceFilters()">🔄 Limpiar Filtros</button>
+                    </div>
                 </div>
                 
-                <button class="btn btn-primary" onclick="applyFilters()">Aplicar Filtros</button>
+                <div id="servicesResultsInfo" style="margin: 15px 0; padding: 10px; background: #f8f9fa; border-radius: 8px; display: none;">
+                    <span id="servicesCount">0 servicios encontrados</span>
+                </div>
                 
                 <div id="servicesList" style="margin-top: 20px;">
                     <!-- Los servicios filtrados aparecen aquí -->
@@ -1235,67 +1399,167 @@
                 <button class="modal-close" onclick="closeAddServiceModal()">&times;</button>
             </div>
             <div class="modal-body">
+                <!-- Step 1: Category Selection -->
                 <div class="form-group">
-                    <label class="form-label">Tipo de Servicio</label>
-                    <select id="serviceType" class="form-input">
-                        <option value="">Selecciona el tipo</option>
-                        <option value="veterinary">🏥 Veterinaria</option>
-                        <option value="boarding">🏠 Hospedaje</option>
-                        <option value="daycare">🎾 Guardería</option>
-                        <option value="grooming">✂️ Peluquería</option>
-                        <option value="walking">🚶 Paseo</option>
-                        <option value="training">🎓 Entrenamiento</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Nombre del Servicio</label>
-                    <input type="text" id="serviceName" class="form-input" placeholder="Ej: Veterinaria San Martín">
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Descripción</label>
-                    <textarea id="serviceDescription" class="form-input" rows="3" placeholder="Describe tu servicio..."></textarea>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <div class="form-group">
-                        <label class="form-label">Precio</label>
-                        <input type="number" id="servicePrice" class="form-input" placeholder="800">
+                    <label class="form-label">Tipo de Servicio *</label>
+                    <div class="category-selector" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px;">
+                        <div class="category-option" data-category="nanny" onclick="selectServiceCategory('nanny')">
+                            <div class="category-icon">👶</div>
+                            <div class="category-name">Niñera</div>
+                            <div class="category-desc">1-3 mascotas</div>
+                        </div>
+                        <div class="category-option" data-category="daycare" onclick="selectServiceCategory('daycare')">
+                            <div class="category-icon">🎾</div>
+                            <div class="category-name">Guardería</div>
+                            <div class="category-desc">4+ mascotas</div>
+                        </div>
+                        <div class="category-option" data-category="boarding" onclick="selectServiceCategory('boarding')">
+                            <div class="category-icon">🏠</div>
+                            <div class="category-name">Hospedaje</div>
+                            <div class="category-desc">4+ mascotas</div>
+                        </div>
                     </div>
+                    <input type="hidden" id="serviceType" value="">
+                    <div id="categoryError" class="form-error" style="display: none;"></div>
+                </div>
+                
+                <!-- Common Fields -->
+                <div id="commonFields" style="display: none;">
                     <div class="form-group">
-                        <label class="form-label">Unidad</label>
-                        <select id="servicePriceUnit" class="form-input">
-                            <option value="consulta">por consulta</option>
-                            <option value="día">por día</option>
-                            <option value="hora">por hora</option>
-                            <option value="sesión">por sesión</option>
-                            <option value="paseo">por paseo</option>
+                        <label class="form-label">Nombre del Servicio *</label>
+                        <input type="text" id="serviceName" class="form-input" placeholder="Ej: Cuidado Personalizado Max">
+                        <div id="nameError" class="form-error" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Descripción *</label>
+                        <textarea id="serviceDescription" class="form-input" rows="3" placeholder="Describe tu servicio..."></textarea>
+                        <div id="descriptionError" class="form-error" style="display: none;"></div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label class="form-label">Precio por día (UYU) *</label>
+                            <input type="number" id="servicePrice" class="form-input" placeholder="800" min="1">
+                            <div id="priceError" class="form-error" style="display: none;"></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Capacidad *</label>
+                            <input type="number" id="serviceCapacity" class="form-input" placeholder="1" min="1">
+                            <small id="capacityHint" style="color: #666; font-size: 12px;"></small>
+                            <div id="capacityError" class="form-error" style="display: none;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Barrio/Ubicación *</label>
+                        <select id="serviceNeighborhood" class="form-input">
+                            <option value="">Selecciona ubicación</option>
+                            <option value="Centro">Centro</option>
+                            <option value="Pocitos">Pocitos</option>
+                            <option value="Carrasco">Carrasco</option>
+                            <option value="Punta Gorda">Punta Gorda</option>
+                            <option value="Malvín">Malvín</option>
+                            <option value="Cordón">Cordón</option>
                         </select>
+                        <div id="neighborhoodError" class="form-error" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tamaños de mascotas aceptados *</label>
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="petSizeSmall" value="small">
+                                <span>🐕 Pequeña (hasta 10kg)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="petSizeMedium" value="medium">
+                                <span>🐕 Mediana (10-25kg)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="petSizeLarge" value="large">
+                                <span>🐕 Grande (más de 25kg)</span>
+                            </label>
+                        </div>
+                        <div id="petSizesError" class="form-error" style="display: none;"></div>
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label class="form-label">Ubicación</label>
-                    <select id="serviceLocation" class="form-input" onchange="toggleCustomAddress()">
-                        <option value="">Selecciona ubicación</option>
-                        <option value="Centro">Centro</option>
-                        <option value="Pocitos">Pocitos</option>
-                        <option value="Carrasco">Carrasco</option>
-                        <option value="Punta Gorda">Punta Gorda</option>
-                        <option value="Malvín">Malvín</option>
-                        <option value="Cordón">Cordón</option>
-                        <option value="custom">📍 Dirección personalizada</option>
-                    </select>
+                <!-- Nanny Specific Fields -->
+                <div id="nannyFields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">¿Dónde se presta el servicio? *</label>
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="locationCaregiverHome" value="caregiverHome">
+                                <span>🏠 En mi casa (casa del cuidador)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="locationClientHome" value="clientHome">
+                                <span>🏡 En casa del dueño</span>
+                            </label>
+                        </div>
+                        <div id="serviceLocationError" class="form-error" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Horarios de trabajo *</label>
+                        <div id="scheduleContainer" style="margin-top: 10px;">
+                            <!-- Schedule will be dynamically generated -->
+                        </div>
+                        <div id="scheduleError" class="form-error" style="display: none;"></div>
+                    </div>
                 </div>
                 
-                <div id="customAddressGroup" class="form-group" style="display: none;">
-                    <label class="form-label">Dirección Completa</label>
-                    <input type="text" id="customAddress" class="form-input" placeholder="Ej: Av. 18 de Julio 1234, Montevideo">
-                    <small style="color: #666; font-size: 12px;">Se usarán coordenadas aproximadas del Centro si no se puede geocodificar</small>
+                <!-- Daycare Specific Fields -->
+                <div id="daycareFields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Dirección física *</label>
+                        <input type="text" id="daycareAddress" class="form-input" placeholder="Ej: Av. 18 de Julio 1234, Montevideo">
+                        <small style="color: #666; font-size: 12px;">La dirección física es obligatoria para guarderías</small>
+                        <div id="addressError" class="form-error" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Horarios de trabajo (diurnos) *</label>
+                        <div id="daycareScheduleContainer" style="margin-top: 10px;">
+                            <!-- Schedule will be dynamically generated -->
+                        </div>
+                        <small style="color: #856404; background: #fff3cd; padding: 8px; border-radius: 4px; display: block; margin-top: 10px;">
+                            ⚠️ Guardería no incluye hospedaje nocturno
+                        </small>
+                        <div id="daycareScheduleError" class="form-error" style="display: none;"></div>
+                    </div>
                 </div>
                 
-                <button class="btn btn-primary" onclick="addService()" style="width: 100%;">Publicar Servicio</button>
+                <!-- Boarding Specific Fields -->
+                <div id="boardingFields" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Dirección física *</label>
+                        <input type="text" id="boardingAddress" class="form-input" placeholder="Ej: Av. 18 de Julio 1234, Montevideo">
+                        <small style="color: #666; font-size: 12px;">La dirección física es obligatoria para hospedaje</small>
+                        <div id="boardingAddressError" class="form-error" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Tipo de alojamiento *</label>
+                        <select id="accommodationType" class="form-input">
+                            <option value="">Selecciona el tipo</option>
+                            <option value="individual">🛏️ Habitaciones Individuales</option>
+                            <option value="shared">🏠 Caniles Compartidos</option>
+                            <option value="mixed">🔄 Sistema Mixto</option>
+                        </select>
+                        <div id="accommodationError" class="form-error" style="display: none;"></div>
+                    </div>
+                    
+                    <div style="background: #e3f2fd; padding: 12px; border-radius: 6px; margin-top: 10px;">
+                        <small style="color: #1976d2;">
+                            ℹ️ Servicio de hospedaje disponible 24/7
+                        </small>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" onclick="addService()" style="width: 100%; margin-top: 20px;">Publicar Servicio</button>
             </div>
         </div>
     </div>
@@ -1469,7 +1733,218 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Variables globales
+        // ========================================
+        // SERVICE CATEGORY CONFIGURATION
+        // ========================================
+        
+        const SERVICE_CATEGORIES = {
+            nanny: {
+                id: 'nanny',
+                name: 'Niñera',
+                icon: '👶',
+                maxCapacity: 3,
+                minCapacity: 1,
+                requiresLocation: true,
+                allowsHomeService: true,
+                allowsClientHome: true,
+                requiresSchedule: true,
+                requiresPetSizes: true,
+                requiresPrice: true,
+                requiresAddress: false, // Puede ser en casa del cuidador o del dueño
+                overnightStay: false
+            },
+            daycare: {
+                id: 'daycare',
+                name: 'Guardería',
+                icon: '🎾',
+                maxCapacity: null, // Sin límite superior
+                minCapacity: 4,
+                requiresLocation: true,
+                allowsHomeService: false,
+                allowsClientHome: false,
+                requiresSchedule: true,
+                requiresPetSizes: true,
+                requiresPrice: true,
+                requiresAddress: true, // Siempre requiere dirección física
+                overnightStay: false
+            },
+            boarding: {
+                id: 'boarding',
+                name: 'Hospedaje',
+                icon: '🏠',
+                maxCapacity: null, // Sin límite superior
+                minCapacity: 4,
+                requiresLocation: true,
+                allowsHomeService: false,
+                allowsClientHome: false,
+                requiresSchedule: false, // 24/7 típicamente
+                requiresPetSizes: true,
+                requiresPrice: true,
+                requiresAddress: true,
+                requiresAccommodationType: true,
+                overnightStay: true
+            }
+        };
+
+        const ACCOMMODATION_TYPES = {
+            individual: 'Habitaciones Individuales',
+            shared: 'Caniles Compartidos',
+            mixed: 'Sistema Mixto'
+        };
+
+        const PET_SIZES = {
+            small: 'Pequeña (hasta 10kg)',
+            medium: 'Mediana (10-25kg)',
+            large: 'Grande (más de 25kg)'
+        };
+
+        // ========================================
+        // HELPER FUNCTIONS FOR CATEGORIES
+        // ========================================
+        
+        // Filter services to only show allowed categories
+        function filterAllowedCategories(services) {
+            const allowedCategories = ['nanny', 'daycare', 'boarding'];
+            return services.filter(service => 
+                allowedCategories.includes(service.category) && 
+                service.active !== false && 
+                service.hidden !== true
+            );
+        }
+        
+        // Validate service category
+        function isValidCategory(category) {
+            return ['nanny', 'daycare', 'boarding'].includes(category);
+        }
+        
+        // Get category configuration
+        function getCategoryConfig(categoryId) {
+            return SERVICE_CATEGORIES[categoryId] || null;
+        }
+
+        // ========================================
+        // FORMATTING FUNCTIONS FOR SERVICE DISPLAY
+        // ========================================
+        
+        /**
+         * Format schedule object to human-readable string
+         * @param {Object} schedule - Schedule object with day keys
+         * @returns {string} - Formatted schedule string
+         */
+        function formatSchedule(schedule) {
+            if (!schedule || typeof schedule !== 'object') {
+                return 'No especificado';
+            }
+            
+            const dayNames = {
+                monday: 'Lun',
+                tuesday: 'Mar',
+                wednesday: 'Mié',
+                thursday: 'Jue',
+                friday: 'Vie',
+                saturday: 'Sáb',
+                sunday: 'Dom'
+            };
+            
+            const availableDays = [];
+            let commonHours = null;
+            let allSameHours = true;
+            
+            for (const [day, info] of Object.entries(schedule)) {
+                if (info && info.available) {
+                    availableDays.push(dayNames[day] || day);
+                    const hours = `${info.start || '08:00'}-${info.end || '18:00'}`;
+                    if (commonHours === null) {
+                        commonHours = hours;
+                    } else if (commonHours !== hours) {
+                        allSameHours = false;
+                    }
+                }
+            }
+            
+            if (availableDays.length === 0) {
+                return 'No disponible';
+            }
+            
+            if (availableDays.length === 7) {
+                return allSameHours ? `Todos los días ${commonHours}` : 'Todos los días (horarios variables)';
+            }
+            
+            if (availableDays.length === 5 && !availableDays.includes('Sáb') && !availableDays.includes('Dom')) {
+                return allSameHours ? `Lun-Vie ${commonHours}` : 'Lun-Vie (horarios variables)';
+            }
+            
+            return allSameHours ? `${availableDays.join(', ')} ${commonHours}` : `${availableDays.join(', ')} (horarios variables)`;
+        }
+        
+        /**
+         * Format accepted pet sizes to human-readable string
+         * @param {Object} acceptedPetSizes - Object with small, medium, large booleans
+         * @returns {string} - Formatted pet sizes string
+         */
+        function formatPetSizes(acceptedPetSizes) {
+            if (!acceptedPetSizes || typeof acceptedPetSizes !== 'object') {
+                return 'No especificado';
+            }
+            
+            const sizes = [];
+            if (acceptedPetSizes.small) sizes.push('Pequeñas');
+            if (acceptedPetSizes.medium) sizes.push('Medianas');
+            if (acceptedPetSizes.large) sizes.push('Grandes');
+            
+            if (sizes.length === 0) {
+                return 'No especificado';
+            }
+            
+            if (sizes.length === 3) {
+                return 'Todos los tamaños';
+            }
+            
+            return sizes.join(', ');
+        }
+        
+        /**
+         * Format service location for nanny services
+         * @param {Object} serviceLocation - Object with caregiverHome and clientHome booleans
+         * @returns {string} - Formatted service location string
+         */
+        function formatServiceLocation(serviceLocation) {
+            if (!serviceLocation || typeof serviceLocation !== 'object') {
+                return 'No especificado';
+            }
+            
+            const locations = [];
+            if (serviceLocation.caregiverHome) locations.push('Casa del cuidador');
+            if (serviceLocation.clientHome) locations.push('Casa del dueño');
+            
+            if (locations.length === 0) {
+                return 'No especificado';
+            }
+            
+            if (locations.length === 2) {
+                return 'Ambas ubicaciones';
+            }
+            
+            return locations[0];
+        }
+        
+        /**
+         * Format accommodation type for boarding services
+         * @param {string} accommodationType - Type of accommodation (individual, shared, mixed)
+         * @returns {string} - Formatted accommodation type string
+         */
+        function formatAccommodationType(accommodationType) {
+            if (!accommodationType) {
+                return 'No especificado';
+            }
+            
+            return ACCOMMODATION_TYPES[accommodationType] || accommodationType;
+        }
+
+        // ========================================
+        // GLOBAL VARIABLES
+        // ========================================
+        
         let deferredPrompt;
         let currentUser = null;
         let selectedRole = null;
@@ -2549,7 +3024,7 @@
                         phone: '098 765 432',
                         role: 'caregiver',
                         avatar: '👨‍⚕️',
-                        services: ['veterinary', 'grooming'],
+                        services: ['nanny', 'daycare'],
                         rating: 4.8,
                         experience: '5 años de experiencia'
                     },
@@ -2668,66 +3143,70 @@
         let testReviews = [];
         let testChats = [];
 
-        // Datos por defecto
+        // Datos por defecto - SOLO 3 CATEGORÍAS PERMITIDAS
         const defaultServices = [
             {
                 id: 1,
-                title: 'Veterinaria San Martín',
-                category: 'veterinary',
-                icon: '🏥',
+                title: 'Cuidado Personalizado Luna',
+                category: 'nanny',
+                icon: '👶',
                 price: 800,
-                priceUnit: 'consulta',
-                description: 'Atención veterinaria completa con más de 20 años de experiencia. Consultas, vacunación, cirugías menores y emergencias.',
+                priceUnit: 'día',
+                description: 'Servicio de niñera profesional para hasta 3 mascotas. Cuidado personalizado en casa del cuidador o del dueño.',
                 location: 'Centro',
-                coordinates: [-56.1645, -34.9011], // Centro de Montevideo
+                address: 'Av. 18 de Julio 1234, Montevideo',
+                coordinates: [-56.1645, -34.9011],
+                capacity: 3,
+                serviceLocation: {
+                    caregiverHome: true,
+                    clientHome: true
+                },
+                schedule: {
+                    monday: { available: true, start: '08:00', end: '18:00' },
+                    tuesday: { available: true, start: '08:00', end: '18:00' },
+                    wednesday: { available: true, start: '08:00', end: '18:00' },
+                    thursday: { available: true, start: '08:00', end: '18:00' },
+                    friday: { available: true, start: '08:00', end: '18:00' },
+                    saturday: { available: false },
+                    sunday: { available: false }
+                },
+                acceptedPetSizes: {
+                    small: true,
+                    medium: true,
+                    large: false
+                },
                 rating: 4.8,
                 reviews: 127,
-                caregiver: 'Dr. Carlos Rodríguez',
-                caregiverId: 2,
-                features: ['Emergencias 24h', 'Cirugías', 'Vacunación', 'Análisis clínicos']
+                caregiver: 'María González',
+                caregiverId: 1,
+                features: ['Cuidado personalizado', 'Reportes diarios', 'Experiencia con cachorros']
             },
             {
                 id: 2,
-                title: 'Hotel Canino Pocitos',
-                category: 'boarding',
-                icon: '🏠',
-                price: 600,
-                priceUnit: 'día',
-                description: 'Hospedaje para mascotas con amplios espacios verdes, cuidado personalizado las 24 horas y actividades recreativas.',
-                location: 'Pocitos',
-                coordinates: [-56.1644, -34.9089], // Pocitos
-                rating: 4.9,
-                reviews: 89,
-                caregiver: 'Ana Martínez',
-                caregiverId: 3,
-                features: ['Espacios verdes', 'Cuidado 24h', 'Actividades', 'Cámaras de seguridad']
-            },
-            {
-                id: 3,
-                title: 'Peluquería Canina Bella',
-                category: 'grooming',
-                icon: '✂️',
-                price: 450,
-                priceUnit: 'sesión',
-                description: 'Corte, baño, uñas y limpieza de oídos. Productos premium para el cuidado de tu mascota.',
-                location: 'Carrasco',
-                coordinates: [-56.0333, -34.8833], // Carrasco
-                rating: 4.7,
-                reviews: 156,
-                caregiver: 'Laura Fernández',
-                caregiverId: 4,
-                features: ['Productos premium', 'Corte especializado', 'Spa para mascotas']
-            },
-            {
-                id: 4,
-                title: 'Guardería Divertida',
+                title: 'Guardería Happy Pets',
                 category: 'daycare',
                 icon: '🎾',
                 price: 400,
                 priceUnit: 'día',
-                description: 'Guardería diurna con actividades, socialización y cuidado profesional mientras trabajas.',
+                description: 'Guardería diurna con actividades, socialización y cuidado profesional. Capacidad para múltiples mascotas.',
                 location: 'Punta Gorda',
-                coordinates: [-56.1167, -34.8667], // Punta Gorda
+                address: 'Rambla República de México 5678, Montevideo',
+                coordinates: [-56.1167, -34.8667],
+                capacity: 10,
+                schedule: {
+                    monday: { available: true, start: '07:00', end: '19:00' },
+                    tuesday: { available: true, start: '07:00', end: '19:00' },
+                    wednesday: { available: true, start: '07:00', end: '19:00' },
+                    thursday: { available: true, start: '07:00', end: '19:00' },
+                    friday: { available: true, start: '07:00', end: '19:00' },
+                    saturday: { available: true, start: '08:00', end: '14:00' },
+                    sunday: { available: false }
+                },
+                acceptedPetSizes: {
+                    small: true,
+                    medium: true,
+                    large: true
+                },
                 rating: 4.6,
                 reviews: 203,
                 caregiver: 'Roberto Silva',
@@ -2735,36 +3214,28 @@
                 features: ['Socialización', 'Actividades', 'Monitoreo', 'Alimentación incluida']
             },
             {
-                id: 5,
-                title: 'Paseos Profesionales',
-                category: 'walking',
-                icon: '🚶',
-                price: 250,
-                priceUnit: 'paseo',
-                description: 'Paseos individuales o grupales con cuidadores certificados. Reportes con fotos incluidos.',
-                location: 'Malvín',
-                coordinates: [-56.0833, -34.8833], // Malvín
-                rating: 4.5,
-                reviews: 78,
-                caregiver: 'Diego López',
-                caregiverId: 6,
-                features: ['Reportes con fotos', 'GPS tracking', 'Paseos personalizados']
-            },
-            {
-                id: 6,
-                title: 'Entrenamiento Canino Pro',
-                category: 'training',
-                icon: '🎓',
-                price: 1200,
-                priceUnit: 'sesión',
-                description: 'Entrenamiento profesional para obediencia básica, problemas de comportamiento y trucos.',
-                location: 'Cordón',
-                coordinates: [-56.1889, -34.9056], // Cordón
+                id: 3,
+                title: 'Hotel Canino Pocitos',
+                category: 'boarding',
+                icon: '🏠',
+                price: 600,
+                priceUnit: 'día',
+                description: 'Hospedaje para mascotas con amplios espacios verdes, cuidado personalizado las 24 horas y actividades recreativas.',
+                location: 'Pocitos',
+                address: 'Calle Benito Blanco 1234, Montevideo',
+                coordinates: [-56.1644, -34.9089],
+                capacity: 8,
+                accommodationType: 'mixed',
+                acceptedPetSizes: {
+                    small: true,
+                    medium: true,
+                    large: true
+                },
                 rating: 4.9,
-                reviews: 45,
-                caregiver: 'Patricia Vega',
-                caregiverId: 7,
-                features: ['Entrenador certificado', 'Métodos positivos', 'Seguimiento personalizado']
+                reviews: 89,
+                caregiver: 'Ana Martínez',
+                caregiverId: 3,
+                features: ['Espacios verdes', 'Cuidado 24h', 'Actividades', 'Cámaras de seguridad']
             }
         ];
 
@@ -2772,25 +3243,25 @@
             {
                 id: 1,
                 serviceId: 1,
-                serviceName: 'Veterinaria San Martín',
+                serviceName: 'Cuidado Personalizado Luna',
                 date: '2024-12-20',
-                time: '14:00',
-                duration: 1,
+                time: '08:00',
+                duration: 8,
                 status: 'pending',
                 price: 800,
                 petName: 'Max',
-                caregiverId: 2,
-                ownerId: 1,
-                ownerName: 'María González',
-                caregiverName: 'Dr. Carlos Rodríguez',
+                caregiverId: 1,
+                ownerId: 2,
+                ownerName: 'Carlos Rodríguez',
+                caregiverName: 'María González',
                 canRate: false,
                 ownerRated: false,
                 caregiverRated: false,
-                notes: 'Consulta de rutina para Max'
+                notes: 'Cuidado diurno para Max'
             }
         ];
 
-        // 🔧 USUARIOS POR DEFECTO CON IDs NUMÉRICOS COMO CLAVES
+        // 🔧 USUARIOS POR DEFECTO CON IDs NUMÉRICOS COMO CLAVES - SOLO 3 CATEGORÍAS
         const defaultUsers = {
             '1': {
                 id: 1,
@@ -2798,8 +3269,11 @@
                 email: 'maria@petcare.com',
                 password: '123456',
                 phone: '099 123 456',
-                role: 'owner',
+                role: 'caregiver',
                 avatar: '👩',
+                services: ['nanny'],
+                rating: 4.8,
+                experience: '5 años cuidando mascotas',
                 pets: [
                     { 
                         name: 'Max', 
@@ -2825,11 +3299,9 @@
                 email: 'carlos@petcare.com',
                 password: '123456',
                 phone: '098 765 432',
-                role: 'caregiver',
-                avatar: '👨‍⚕️',
-                services: ['veterinary', 'grooming'],
-                rating: 4.8,
-                experience: '5 años de experiencia'
+                role: 'owner',
+                avatar: '👨',
+                pets: []
             },
             '3': {
                 id: 3,
@@ -2842,6 +3314,18 @@
                 services: ['boarding', 'daycare'],
                 rating: 4.9,
                 experience: '8 años de experiencia'
+            },
+            '5': {
+                id: 5,
+                name: 'Roberto Silva',
+                email: 'roberto@petcare.com',
+                password: '123456',
+                phone: '095 111 222',
+                role: 'caregiver',
+                avatar: '👨‍⚕️',
+                services: ['daycare'],
+                rating: 4.6,
+                experience: '3 años en cuidado de mascotas'
             }
         };
 
@@ -3270,7 +3754,9 @@
         // Funciones de servicios
         function loadFeaturedServices() {
             const container = document.getElementById('featuredServices');
-            const featured = testServices.slice(0, 3);
+            // Filter to only show allowed categories
+            const allowedServices = filterAllowedCategories(testServices);
+            const featured = allowedServices.slice(0, 3);
             
             container.innerHTML = featured.map(service => `
                 <div class="service-card">
@@ -3307,7 +3793,10 @@
         function loadAllServices() {
             const container = document.getElementById('servicesList');
             
-            container.innerHTML = testServices.map(service => `
+            // Filter to only show allowed categories
+            const allowedServices = filterAllowedCategories(testServices);
+            
+            container.innerHTML = allowedServices.map(service => `
                 <div class="service-card">
                     <div class="service-header">
                         <div class="service-icon">${service.icon}</div>
@@ -3410,8 +3899,10 @@
                 return;
             }
             
-            // Filtrar servicios del usuario actual
-            const myServices = testServices.filter(service => service.caregiverId === currentUser.id);
+            // Filtrar servicios del usuario actual (solo categorías permitidas)
+            const myServices = testServices
+                .filter(service => service.caregiverId === currentUser.id)
+                .filter(service => isValidCategory(service.category));
             
             if (myServices.length === 0) {
                 container.innerHTML = '<p>No tienes servicios publicados aún. ¡Agrega tu primer servicio!</p>';
@@ -3464,126 +3955,649 @@
             }
         }
 
-        function toggleCustomAddress() {
-            const locationSelect = document.getElementById('serviceLocation');
-            const customAddressGroup = document.getElementById('customAddressGroup');
+        // ========================================
+        // DYNAMIC FORM FUNCTIONS
+        // ========================================
+        
+        /**
+         * Select service category and show relevant fields
+         */
+        function selectServiceCategory(categoryId) {
+            // Update hidden input
+            document.getElementById('serviceType').value = categoryId;
             
-            if (locationSelect.value === 'custom') {
-                customAddressGroup.style.display = 'block';
+            // Update visual selection
+            document.querySelectorAll('.category-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            document.querySelector(`[data-category="${categoryId}"]`).classList.add('selected');
+            
+            // Clear previous errors
+            document.getElementById('categoryError').style.display = 'none';
+            
+            // Show common fields
+            document.getElementById('commonFields').style.display = 'block';
+            
+            // Hide all category-specific fields first
+            document.getElementById('nannyFields').style.display = 'none';
+            document.getElementById('daycareFields').style.display = 'none';
+            document.getElementById('boardingFields').style.display = 'none';
+            
+            // Get category config
+            const category = SERVICE_CATEGORIES[categoryId];
+            
+            // Update capacity hint
+            const capacityHint = document.getElementById('capacityHint');
+            if (category.maxCapacity) {
+                capacityHint.textContent = `Capacidad: ${category.minCapacity}-${category.maxCapacity} mascotas`;
             } else {
-                customAddressGroup.style.display = 'none';
+                capacityHint.textContent = `Capacidad mínima: ${category.minCapacity} mascotas`;
+            }
+            
+            // Set capacity min/max attributes
+            const capacityInput = document.getElementById('serviceCapacity');
+            capacityInput.min = category.minCapacity;
+            if (category.maxCapacity) {
+                capacityInput.max = category.maxCapacity;
+            } else {
+                capacityInput.removeAttribute('max');
+            }
+            
+            // Show category-specific fields
+            if (categoryId === 'nanny') {
+                document.getElementById('nannyFields').style.display = 'block';
+                generateScheduleSelector('scheduleContainer');
+            } else if (categoryId === 'daycare') {
+                document.getElementById('daycareFields').style.display = 'block';
+                generateScheduleSelector('daycareScheduleContainer');
+            } else if (categoryId === 'boarding') {
+                document.getElementById('boardingFields').style.display = 'block';
+            }
+        }
+        
+        /**
+         * Generate schedule selector for days and hours
+         */
+        function generateScheduleSelector(containerId) {
+            const container = document.getElementById(containerId);
+            const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            const dayKeys = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            
+            let html = '';
+            days.forEach((day, index) => {
+                const dayKey = dayKeys[index];
+                html += `
+                    <div class="schedule-day" id="schedule-${dayKey}">
+                        <label style="min-width: 80px; font-weight: 500;">${day}</label>
+                        <input type="checkbox" id="schedule-${dayKey}-available" 
+                               onchange="toggleScheduleDay('${dayKey}')" 
+                               style="width: 18px; height: 18px; cursor: pointer;">
+                        <input type="time" id="schedule-${dayKey}-start" 
+                               value="08:00" 
+                               disabled
+                               style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                        <span>a</span>
+                        <input type="time" id="schedule-${dayKey}-end" 
+                               value="18:00" 
+                               disabled
+                               style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        /**
+         * Toggle schedule day availability
+         */
+        function toggleScheduleDay(dayKey) {
+            const checkbox = document.getElementById(`schedule-${dayKey}-available`);
+            const startInput = document.getElementById(`schedule-${dayKey}-start`);
+            const endInput = document.getElementById(`schedule-${dayKey}-end`);
+            const dayContainer = document.getElementById(`schedule-${dayKey}`);
+            
+            if (checkbox.checked) {
+                startInput.disabled = false;
+                endInput.disabled = false;
+                dayContainer.classList.remove('disabled');
+            } else {
+                startInput.disabled = true;
+                endInput.disabled = true;
+                dayContainer.classList.add('disabled');
             }
         }
 
         function clearServiceForm() {
+            // Clear category selection
             document.getElementById('serviceType').value = '';
+            document.querySelectorAll('.category-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            
+            // Hide all field sections
+            document.getElementById('commonFields').style.display = 'none';
+            document.getElementById('nannyFields').style.display = 'none';
+            document.getElementById('daycareFields').style.display = 'none';
+            document.getElementById('boardingFields').style.display = 'none';
+            
+            // Clear common fields
             document.getElementById('serviceName').value = '';
             document.getElementById('serviceDescription').value = '';
             document.getElementById('servicePrice').value = '';
-            document.getElementById('servicePriceUnit').value = 'consulta';
-            document.getElementById('serviceLocation').value = '';
+            document.getElementById('serviceCapacity').value = '';
+            document.getElementById('serviceNeighborhood').value = '';
+            
+            // Clear pet sizes
+            document.getElementById('petSizeSmall').checked = false;
+            document.getElementById('petSizeMedium').checked = false;
+            document.getElementById('petSizeLarge').checked = false;
+            
+            // Clear nanny fields
+            if (document.getElementById('locationCaregiverHome')) {
+                document.getElementById('locationCaregiverHome').checked = false;
+                document.getElementById('locationClientHome').checked = false;
+            }
+            
+            // Clear daycare fields
+            if (document.getElementById('daycareAddress')) {
+                document.getElementById('daycareAddress').value = '';
+            }
+            
+            // Clear boarding fields
+            if (document.getElementById('boardingAddress')) {
+                document.getElementById('boardingAddress').value = '';
+                document.getElementById('accommodationType').value = '';
+            }
+            
+            // Clear all errors
+            clearAllFormErrors();
+        }
+
+        // ========================================
+        // SERVICE DATA MODEL VALIDATION
+        // ========================================
+        
+        /**
+         * Validates service data according to category requirements
+         * @param {Object} serviceData - The service data to validate
+         * @returns {Object} - Object with isValid boolean and errors array
+         */
+        /**
+         * Validate service data according to category requirements
+         * @param {Object} serviceData - The service data to validate
+         * @returns {Object} - Object with isValid boolean and errors array
+         */
+        function validateServiceData(serviceData) {
+            const errors = [];
+            
+            // Step 1: Validate category is allowed
+            const allowedCategories = ['nanny', 'daycare', 'boarding'];
+            if (!serviceData.category || !allowedCategories.includes(serviceData.category)) {
+                errors.push(SERVICE_ERROR_MESSAGES.INVALID_CATEGORY);
+                return { isValid: false, errors };
+            }
+            
+            const category = SERVICE_CATEGORIES[serviceData.category];
+            if (!category) {
+                errors.push(SERVICE_ERROR_MESSAGES.INVALID_CATEGORY);
+                return { isValid: false, errors };
+            }
+            
+            // Step 2: Validate common required fields
+            if (!serviceData.title || typeof serviceData.title !== 'string' || serviceData.title.trim().length === 0) {
+                errors.push(SERVICE_ERROR_MESSAGES.MISSING_NAME);
+            } else if (serviceData.title.length > 100) {
+                errors.push('El nombre del servicio no puede exceder 100 caracteres');
+            }
+            
+            if (!serviceData.description || typeof serviceData.description !== 'string' || serviceData.description.trim().length === 0) {
+                errors.push(SERVICE_ERROR_MESSAGES.MISSING_DESCRIPTION);
+            } else if (serviceData.description.length > 500) {
+                errors.push('La descripción no puede exceder 500 caracteres');
+            }
+            
+            // Step 3: Validate price format
+            if (!serviceData.price || typeof serviceData.price !== 'number' || serviceData.price <= 0) {
+                errors.push(SERVICE_ERROR_MESSAGES.INVALID_PRICE);
+            } else if (serviceData.price > 100000) {
+                errors.push('El precio no puede exceder $100,000');
+            }
+            
+            if (!serviceData.location || typeof serviceData.location !== 'string' || serviceData.location.trim().length === 0) {
+                errors.push(SERVICE_ERROR_MESSAGES.MISSING_LOCATION);
+            }
+            
+            // Step 4: Validate capacity according to category
+            if (!serviceData.capacity || typeof serviceData.capacity !== 'number' || serviceData.capacity < category.minCapacity) {
+                errors.push(`${SERVICE_ERROR_MESSAGES.INVALID_CAPACITY_MIN} (mínimo: ${category.minCapacity} para ${category.name})`);
+            }
+            
+            if (category.maxCapacity && serviceData.capacity > category.maxCapacity) {
+                errors.push(`${SERVICE_ERROR_MESSAGES.INVALID_CAPACITY_MAX} (máximo: ${category.maxCapacity} para ${category.name})`);
+            }
+            
+            // Step 5: Validate category-specific requirements
+            if (category.requiresAddress && (!serviceData.address || typeof serviceData.address !== 'string' || serviceData.address.trim().length === 0)) {
+                errors.push(SERVICE_ERROR_MESSAGES.MISSING_ADDRESS);
+            }
+            
+            // Nanny-specific validation
+            if (category.id === 'nanny') {
+                if (!serviceData.serviceLocation || typeof serviceData.serviceLocation !== 'object') {
+                    errors.push(SERVICE_ERROR_MESSAGES.MISSING_SERVICE_LOCATION);
+                } else if (!serviceData.serviceLocation.caregiverHome && !serviceData.serviceLocation.clientHome) {
+                    errors.push(SERVICE_ERROR_MESSAGES.MISSING_SERVICE_LOCATION);
+                }
+                
+                // Validate schedule for nanny
+                if (category.requiresSchedule && (!serviceData.schedule || typeof serviceData.schedule !== 'object')) {
+                    errors.push('Debe especificar los horarios de trabajo');
+                }
+            }
+            
+            // Daycare-specific validation
+            if (category.id === 'daycare') {
+                // Validate schedule for daycare
+                if (category.requiresSchedule && (!serviceData.schedule || typeof serviceData.schedule !== 'object')) {
+                    errors.push('Debe especificar los horarios de trabajo');
+                }
+            }
+            
+            // Boarding-specific validation
+            if (category.requiresAccommodationType) {
+                const validAccommodationTypes = ['individual', 'shared', 'mixed'];
+                if (!serviceData.accommodationType || !validAccommodationTypes.includes(serviceData.accommodationType)) {
+                    errors.push(SERVICE_ERROR_MESSAGES.MISSING_ACCOMMODATION);
+                }
+            }
+            
+            // Step 6: Validate pet sizes format
+            if (category.requiresPetSizes) {
+                if (!serviceData.acceptedPetSizes || typeof serviceData.acceptedPetSizes !== 'object') {
+                    errors.push(SERVICE_ERROR_MESSAGES.MISSING_PET_SIZES);
+                } else if (!serviceData.acceptedPetSizes.small && !serviceData.acceptedPetSizes.medium && !serviceData.acceptedPetSizes.large) {
+                    errors.push(SERVICE_ERROR_MESSAGES.MISSING_PET_SIZES);
+                }
+            }
+            
+            return {
+                isValid: errors.length === 0,
+                errors
+            };
+        }
+        
+        // ========================================
+        // ERROR MESSAGES FOR SERVICE VALIDATION
+        // ========================================
+        
+        const SERVICE_ERROR_MESSAGES = {
+            INVALID_CATEGORY: 'Categoría de servicio inválida',
+            INVALID_CAPACITY_MIN: 'La capacidad es menor al mínimo permitido',
+            INVALID_CAPACITY_MAX: 'La capacidad excede el máximo permitido',
+            MISSING_ADDRESS: 'La dirección es requerida para este tipo de servicio',
+            MISSING_ACCOMMODATION: 'Debe especificar el tipo de alojamiento',
+            MISSING_SERVICE_LOCATION: 'Debe especificar dónde se presta el servicio',
+            MISSING_PET_SIZES: 'Debe seleccionar al menos un tamaño de mascota',
+            INVALID_PRICE: 'El precio debe ser mayor a 0',
+            FIREBASE_ERROR: 'Error al guardar en la base de datos',
+            MISSING_NAME: 'El nombre del servicio es obligatorio',
+            MISSING_DESCRIPTION: 'La descripción es obligatoria',
+            MISSING_LOCATION: 'El barrio/ubicación es obligatorio'
+        };
+        
+        /**
+         * Handle service-related errors
+         * @param {Error} error - The error object
+         * @param {string} context - Context where error occurred
+         */
+        function handleServiceError(error, context = 'servicio') {
+            console.error(`Error en ${context}:`, error);
+            const message = error.message || SERVICE_ERROR_MESSAGES.FIREBASE_ERROR;
+            showMessage(message, 'error');
+        }
+        
+        // ========================================
+        // SAVE SERVICE FUNCTION WITH VALIDATION
+        // ========================================
+        
+        /**
+         * Save a service to Firebase with full validation
+         * @param {Object} serviceData - The service data to save
+         * @returns {Promise<Object>} - The saved service object
+         * @throws {Error} - If validation fails or save fails
+         */
+        async function saveService(serviceData) {
+            try {
+                console.log('💾 Iniciando guardado de servicio...', serviceData);
+                
+                // Step 1: Validate data before saving
+                const validation = validateServiceData(serviceData);
+                if (!validation.isValid) {
+                    const errorMessage = validation.errors.join(', ');
+                    throw new Error(errorMessage);
+                }
+                
+                // Step 2: Generate unique ID if new service
+                if (!serviceData.id) {
+                    serviceData.id = `service_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                    serviceData.createdAt = new Date().toISOString();
+                    console.log('🆕 Nuevo servicio con ID:', serviceData.id);
+                } else {
+                    console.log('✏️ Actualizando servicio existente:', serviceData.id);
+                }
+                
+                // Step 3: Add/update timestamps
+                serviceData.updatedAt = new Date().toISOString();
+                
+                // Step 4: Ensure caregiver information is set
+                if (!serviceData.caregiverId && currentUser) {
+                    serviceData.caregiverId = currentUser.id;
+                    serviceData.caregiver = currentUser.name;
+                }
+                
+                // Step 5: Load existing services
+                let allServices = await loadData('services') || [];
+                
+                // Ensure allServices is an array
+                if (!Array.isArray(allServices)) {
+                    console.warn('⚠️ Services data is not an array, converting...');
+                    allServices = Object.values(allServices);
+                }
+                
+                // Step 6: Add or update service in array
+                const existingIndex = allServices.findIndex(s => s.id === serviceData.id);
+                if (existingIndex >= 0) {
+                    allServices[existingIndex] = serviceData;
+                    console.log('✏️ Servicio actualizado en posición:', existingIndex);
+                } else {
+                    allServices.push(serviceData);
+                    console.log('➕ Servicio agregado a la lista');
+                }
+                
+                // Step 7: Save to Firebase using PUT
+                const saveSuccess = await saveData('services', allServices);
+                
+                if (!saveSuccess) {
+                    // Fallback to localStorage if Firebase fails
+                    console.warn('⚠️ Firebase falló, guardando en localStorage...');
+                    saveToStorage('services', allServices);
+                }
+                
+                console.log('✅ Servicio guardado exitosamente:', serviceData.id);
+                return serviceData;
+                
+            } catch (error) {
+                console.error('❌ Error guardando servicio:', error);
+                
+                // Try to save to localStorage as last resort
+                try {
+                    let localServices = loadFromStorage('services', []);
+                    if (!Array.isArray(localServices)) {
+                        localServices = Object.values(localServices);
+                    }
+                    
+                    const existingIndex = localServices.findIndex(s => s.id === serviceData.id);
+                    if (existingIndex >= 0) {
+                        localServices[existingIndex] = serviceData;
+                    } else {
+                        localServices.push(serviceData);
+                    }
+                    
+                    saveToStorage('services', localServices);
+                    console.log('💾 Servicio guardado en localStorage como fallback');
+                    return serviceData;
+                } catch (fallbackError) {
+                    console.error('❌ Error en fallback a localStorage:', fallbackError);
+                    throw new Error('No se pudo guardar el servicio. Por favor intenta nuevamente.');
+                }
+            }
+        }
+        
+        /**
+         * Creates a complete service data model with all required fields
+         * @param {Object} formData - Form data from user input
+         * @returns {Object} - Complete service object
+         */
+        function createServiceDataModel(formData) {
+            const category = SERVICE_CATEGORIES[formData.category];
+            const categoryIcon = category ? category.icon : '🐾';
+            
+            // Base service object with common fields
+            const service = {
+                id: formData.id || Date.now(),
+                title: formData.title,
+                category: formData.category,
+                icon: categoryIcon,
+                price: parseInt(formData.price),
+                priceUnit: formData.priceUnit || 'día',
+                description: formData.description,
+                location: formData.location,
+                address: formData.address || formData.location,
+                coordinates: formData.coordinates || [-56.1645, -34.9011],
+                capacity: parseInt(formData.capacity),
+                rating: formData.rating || 5.0,
+                reviews: formData.reviews || 0,
+                caregiver: formData.caregiver || (currentUser ? currentUser.name : 'Cuidador'),
+                caregiverId: formData.caregiverId || (currentUser ? currentUser.id : null),
+                features: formData.features || [],
+                createdAt: formData.createdAt || new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            };
+            
+            // Add serviceLocation for nanny services
+            if (formData.category === 'nanny') {
+                service.serviceLocation = {
+                    caregiverHome: formData.serviceLocation?.caregiverHome || false,
+                    clientHome: formData.serviceLocation?.clientHome || false
+                };
+            }
+            
+            // Add accommodationType for boarding services
+            if (formData.category === 'boarding') {
+                service.accommodationType = formData.accommodationType || 'mixed';
+            }
+            
+            // Add schedule for nanny and daycare services
+            if (formData.category === 'nanny' || formData.category === 'daycare') {
+                service.schedule = formData.schedule || {
+                    monday: { available: true, start: '08:00', end: '18:00' },
+                    tuesday: { available: true, start: '08:00', end: '18:00' },
+                    wednesday: { available: true, start: '08:00', end: '18:00' },
+                    thursday: { available: true, start: '08:00', end: '18:00' },
+                    friday: { available: true, start: '08:00', end: '18:00' },
+                    saturday: { available: false },
+                    sunday: { available: false }
+                };
+            }
+            
+            // Add acceptedPetSizes for all services
+            service.acceptedPetSizes = {
+                small: formData.acceptedPetSizes?.small || false,
+                medium: formData.acceptedPetSizes?.medium || false,
+                large: formData.acceptedPetSizes?.large || false
+            };
+            
+            return service;
         }
 
         async function addService() {
-            const type = document.getElementById('serviceType').value;
-            const name = document.getElementById('serviceName').value;
-            const description = document.getElementById('serviceDescription').value;
-            const price = document.getElementById('servicePrice').value;
-            const priceUnit = document.getElementById('servicePriceUnit').value;
-            const location = document.getElementById('serviceLocation').value;
-            const customAddress = document.getElementById('customAddress').value;
+            // Clear all previous errors
+            clearAllFormErrors();
             
-            if (!type || !name || !description || !price || !location) {
-                showMessage('Por favor completa todos los campos', 'error');
+            // Get category
+            const category = document.getElementById('serviceType').value;
+            
+            // Validate category selection
+            if (!category) {
+                showFormError('categoryError', 'Debe seleccionar una categoría de servicio');
                 return;
             }
             
-            if (location === 'custom' && !customAddress) {
-                showMessage('Por favor ingresa la dirección personalizada', 'error');
+            // Collect common form data
+            const formData = {
+                category: category,
+                title: document.getElementById('serviceName').value.trim(),
+                description: document.getElementById('serviceDescription').value.trim(),
+                price: parseInt(document.getElementById('servicePrice').value),
+                capacity: parseInt(document.getElementById('serviceCapacity').value),
+                location: document.getElementById('serviceNeighborhood').value,
+                priceUnit: 'día'
+            };
+            
+            // Collect pet sizes
+            formData.acceptedPetSizes = {
+                small: document.getElementById('petSizeSmall').checked,
+                medium: document.getElementById('petSizeMedium').checked,
+                large: document.getElementById('petSizeLarge').checked
+            };
+            
+            // Collect category-specific data
+            if (category === 'nanny') {
+                formData.serviceLocation = {
+                    caregiverHome: document.getElementById('locationCaregiverHome').checked,
+                    clientHome: document.getElementById('locationClientHome').checked
+                };
+                formData.schedule = collectScheduleData('scheduleContainer');
+            } else if (category === 'daycare') {
+                formData.address = document.getElementById('daycareAddress').value.trim();
+                formData.schedule = collectScheduleData('daycareScheduleContainer');
+            } else if (category === 'boarding') {
+                formData.address = document.getElementById('boardingAddress').value.trim();
+                formData.accommodationType = document.getElementById('accommodationType').value;
+            }
+            
+            // Create complete service data model
+            const serviceData = createServiceDataModel(formData);
+            
+            // Validate the service data
+            const validation = validateServiceData(serviceData);
+            
+            if (!validation.isValid) {
+                // Show all validation errors
+                displayValidationErrors(validation.errors);
+                showMessage('Por favor corrige los errores en el formulario', 'error');
                 return;
             }
             
-            if (parseInt(price) <= 0) {
-                showMessage('El precio debe ser mayor a 0', 'error');
-                return;
+            // Save the service using the new saveService function
+            try {
+                const savedService = await saveService(serviceData);
+                
+                // Update local testServices array
+                const existingIndex = testServices.findIndex(s => s.id === savedService.id);
+                if (existingIndex >= 0) {
+                    testServices[existingIndex] = savedService;
+                } else {
+                    testServices.push(savedService);
+                }
+                
+                closeAddServiceModal();
+                showMessage('¡Servicio agregado exitosamente!', 'success');
+                loadMyServices();
+            } catch (error) {
+                handleServiceError(error, 'guardar servicio');
             }
-            
-            const icons = {
-                'veterinary': '🏥',
-                'boarding': '🏠',
-                'daycare': '🎾',
-                'grooming': '✂️',
-                'walking': '🚶',
-                'training': '🎓'
-            };
-            
-            const defaultFeatures = {
-                'veterinary': ['Consultas generales', 'Vacunación', 'Atención profesional'],
-                'boarding': ['Cuidado 24h', 'Espacios amplios', 'Alimentación incluida'],
-                'daycare': ['Socialización', 'Actividades', 'Supervisión constante'],
-                'grooming': ['Baño completo', 'Corte profesional', 'Productos de calidad'],
-                'walking': ['Paseos seguros', 'Ejercicio adecuado', 'Cuidador responsable'],
-                'training': ['Métodos positivos', 'Entrenador certificado', 'Seguimiento personalizado']
-            };
-            
-            // Coordenadas por defecto según ubicación (lng, lat)
-            const defaultCoordinates = {
-                'Centro': [-56.1645, -34.9011],
-                'Pocitos': [-56.1644, -34.9089],
-                'Carrasco': [-56.0333, -34.8833],
-                'Punta Gorda': [-56.1167, -34.8667],
-                'Malvín': [-56.0833, -34.8833],
-                'Cordón': [-56.1889, -34.9056]
-            };
-            
-            // Determinar ubicación y coordenadas
-            let finalLocation = location;
-            let finalCoordinates = defaultCoordinates[location] || [-56.1645, -34.9011];
-            
-            if (location === 'custom') {
-                finalLocation = customAddress;
-                // Geocodificación simple para direcciones personalizadas
-                finalCoordinates = getCoordinatesForAddress(customAddress);
-            }
-
-            const newService = {
-                id: Date.now(),
-                title: name,
-                category: type,
-                icon: icons[type],
-                price: parseInt(price),
-                priceUnit: priceUnit,
-                description: description,
-                location: finalLocation,
-                coordinates: finalCoordinates,
-                customAddress: location === 'custom' ? customAddress : null,
-                rating: 5.0,
-                reviews: 0,
-                caregiver: currentUser.name,
-                caregiverId: currentUser.id,
-                features: defaultFeatures[type] || ['Servicio de calidad', 'Atención personalizada']
-            };
-            
-            testServices.push(newService);
-            await saveData('services', testServices);
-            closeAddServiceModal();
-            showMessage('¡Servicio agregado exitosamente!', 'success');
-            loadMyServices();
-            
-            // Actualizar servicios del usuario
-            if (!currentUser.services) {
-                currentUser.services = [];
-            }
-            if (!currentUser.services.includes(type)) {
-                currentUser.services.push(type);
-            }
-            
-            // Actualizar usuarios en storage
-            saveToStorage('petcare_users', testUsers);
-            // Refrescar servicios en todas las pantallas
-            loadFeaturedServices();
-            loadAllServices();
         }
+        
+        /**
+         * Collect schedule data from form
+         */
+        function collectScheduleData(containerId) {
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            const schedule = {};
+            
+            days.forEach(day => {
+                const available = document.getElementById(`schedule-${day}-available`)?.checked || false;
+                const start = document.getElementById(`schedule-${day}-start`)?.value || '08:00';
+                const end = document.getElementById(`schedule-${day}-end`)?.value || '18:00';
+                
+                schedule[day] = {
+                    available: available,
+                    start: available ? start : null,
+                    end: available ? end : null
+                };
+            });
+            
+            return schedule;
+        }
+        
+        /**
+         * Clear all form errors
+         */
+        function clearAllFormErrors() {
+            const errorElements = document.querySelectorAll('.form-error');
+            errorElements.forEach(el => {
+                el.style.display = 'none';
+                el.textContent = '';
+            });
+            
+            const inputElements = document.querySelectorAll('.form-input');
+            inputElements.forEach(el => {
+                el.classList.remove('error');
+            });
+        }
+        
+        /**
+         * Show form error for specific field
+         */
+        function showFormError(errorId, message) {
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.textContent = message;
+                errorElement.style.display = 'block';
+            }
+        }
+        
+        /**
+         * Display validation errors in the form
+         */
+        function displayValidationErrors(errors) {
+            errors.forEach(error => {
+                // Map error messages to form fields
+                if (error.includes('nombre')) {
+                    showFormError('nameError', error);
+                    document.getElementById('serviceName').classList.add('error');
+                } else if (error.includes('descripción')) {
+                    showFormError('descriptionError', error);
+                    document.getElementById('serviceDescription').classList.add('error');
+                } else if (error.includes('precio')) {
+                    showFormError('priceError', error);
+                    document.getElementById('servicePrice').classList.add('error');
+                } else if (error.includes('capacidad')) {
+                    showFormError('capacityError', error);
+                    document.getElementById('serviceCapacity').classList.add('error');
+                } else if (error.includes('dirección')) {
+                    if (document.getElementById('daycareAddress')) {
+                        showFormError('addressError', error);
+                        document.getElementById('daycareAddress').classList.add('error');
+                    }
+                    if (document.getElementById('boardingAddress')) {
+                        showFormError('boardingAddressError', error);
+                        document.getElementById('boardingAddress').classList.add('error');
+                    }
+                } else if (error.includes('ubicación de servicio')) {
+                    showFormError('serviceLocationError', error);
+                } else if (error.includes('alojamiento')) {
+                    showFormError('accommodationError', error);
+                    document.getElementById('accommodationType').classList.add('error');
+                } else if (error.includes('tamaño de mascota')) {
+                    showFormError('petSizesError', error);
+                } else if (error.includes('Barrio')) {
+                    showFormError('neighborhoodError', error);
+                    document.getElementById('serviceNeighborhood').classList.add('error');
+                }
+            });
+        }
+        
+        /**
+         * Check if category is valid (only nanny, daycare, boarding allowed)
+         */
+        function isValidCategory(category) {
+            return ['nanny', 'daycare', 'boarding'].includes(category);
+        }
+        
+
 
         function editService(serviceId) {
             const service = testServices.find(s => s.id === serviceId);
@@ -3636,6 +4650,12 @@
                 return;
             }
             
+            // Validate category is allowed
+            if (!isValidCategory(type)) {
+                showMessage('Categoría de servicio no válida. Solo se permiten: Niñera, Guardería y Hospedaje', 'error');
+                return;
+            }
+            
             // Coordenadas por defecto según ubicación (lng, lat)
             const defaultCoordinates = {
                 'Centro': [-56.1645, -34.9011],
@@ -3648,27 +4668,71 @@
             
             // Determinar ubicación y coordenadas
             let finalLocation = location;
+            let finalAddress = location;
             let finalCoordinates = defaultCoordinates[location] || [-56.1645, -34.9011];
             
             if (location === 'custom') {
                 finalLocation = customAddress;
+                finalAddress = customAddress;
                 finalCoordinates = getCoordinatesForAddress(customAddress);
             }
             
-            // Encontrar y actualizar el servicio
+            // Encontrar el servicio existente
             const serviceIndex = testServices.findIndex(s => s.id === serviceId);
             if (serviceIndex !== -1) {
-                testServices[serviceIndex] = {
-                    ...testServices[serviceIndex],
+                const existingService = testServices[serviceIndex];
+                const categoryConfig = getCategoryConfig(type);
+                
+                // Create updated service data model
+                const serviceFormData = {
+                    id: serviceId,
                     title: name,
                     category: type,
                     price: parseInt(price),
                     priceUnit: priceUnit,
                     description: description,
                     location: finalLocation,
+                    address: finalAddress,
                     coordinates: finalCoordinates,
-                    customAddress: location === 'custom' ? customAddress : null
+                    capacity: existingService.capacity || (categoryConfig ? categoryConfig.minCapacity : 1),
+                    caregiver: existingService.caregiver,
+                    caregiverId: existingService.caregiverId,
+                    features: existingService.features,
+                    rating: existingService.rating,
+                    reviews: existingService.reviews,
+                    createdAt: existingService.createdAt,
+                    // Preserve or initialize new fields
+                    serviceLocation: existingService.serviceLocation || (type === 'nanny' ? {
+                        caregiverHome: true,
+                        clientHome: false
+                    } : undefined),
+                    accommodationType: existingService.accommodationType || (type === 'boarding' ? 'mixed' : undefined),
+                    schedule: existingService.schedule || ((type === 'nanny' || type === 'daycare') ? {
+                        monday: { available: true, start: '08:00', end: '18:00' },
+                        tuesday: { available: true, start: '08:00', end: '18:00' },
+                        wednesday: { available: true, start: '08:00', end: '18:00' },
+                        thursday: { available: true, start: '08:00', end: '18:00' },
+                        friday: { available: true, start: '08:00', end: '18:00' },
+                        saturday: { available: false },
+                        sunday: { available: false }
+                    } : undefined),
+                    acceptedPetSizes: existingService.acceptedPetSizes || {
+                        small: true,
+                        medium: true,
+                        large: true
+                    }
                 };
+                
+                const updatedService = createServiceDataModel(serviceFormData);
+                
+                // Validate the updated service data
+                const validation = validateServiceData(updatedService);
+                if (!validation.isValid) {
+                    showMessage(validation.errors.join('. '), 'error');
+                    return;
+                }
+                
+                testServices[serviceIndex] = updatedService;
                 
                 await saveData('services', testServices);
                 closeAddServiceModal();
@@ -3804,7 +4868,8 @@
             const price = document.getElementById('filterPrice').value;
             const rating = document.getElementById('filterRating').value;
             
-            let filtered = testServices;
+            // Start with only allowed categories
+            let filtered = filterAllowedCategories(testServices);
             
             if (category) {
                 filtered = filtered.filter(service => service.category === category);
@@ -3860,12 +4925,9 @@
 
         function getCategoryName(category) {
             const categories = {
-                'veterinary': 'Veterinarias',
-                'boarding': 'Hospedaje',
+                'nanny': 'Niñera',
                 'daycare': 'Guardería',
-                'grooming': 'Peluquería',
-                'walking': 'Paseo',
-                'training': 'Entrenamiento'
+                'boarding': 'Hospedaje'
             };
             return categories[category] || category;
         }
@@ -5008,8 +6070,9 @@
             serviceMarkers.forEach(marker => map.removeLayer(marker));
             serviceMarkers = [];
             
-            // Agregar marcadores de servicios
-            testServices.forEach(service => {
+            // Agregar marcadores de servicios (solo categorías permitidas)
+            const allowedServices = filterAllowedCategories(testServices);
+            allowedServices.forEach(service => {
                 if (!service.coordinates) return;
                 
                 const [lng, lat] = service.coordinates; // coordinates están en formato [lng, lat]
@@ -5082,8 +6145,9 @@
                 return;
             }
             
-            // Calcular distancias y filtrar
-            const servicesWithDistance = testServices
+            // Calcular distancias y filtrar (solo categorías permitidas)
+            const allowedServices = filterAllowedCategories(testServices);
+            const servicesWithDistance = allowedServices
                 .map(service => {
                     if (!service.coordinates) return null;
                     const [lng, lat] = service.coordinates; // coordinates están en formato [lng, lat]
@@ -5616,8 +6680,11 @@
                 input.min = today;
             });
             
-            showMessage('¡Bienvenido a PetCare Marketplace!', 'success');
+            showMessage('¡Bienvenido a PetCare!', 'success');
         });
     </script>
+    
+    <!-- Service Filters Component -->
+    <script src="service-filters.js"></script>
 </body>
 </html>
