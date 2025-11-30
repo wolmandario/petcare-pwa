@@ -6117,7 +6117,17 @@
             return R * c;
         }
 
+        // Variables globales para filtros
+        let currentFilters = {
+            category: '',
+            petSize: '',
+            minPrice: 0,
+            maxPrice: 10000
+        };
+
         function filterByCategory(category) {
+            currentFilters.category = category;
+            
             // Actualizar botones activos
             document.querySelectorAll('[data-category]').forEach(btn => {
                 btn.classList.remove('active');
@@ -6127,19 +6137,181 @@
                 activeBtn.classList.add('active');
             }
             
-            // Filtrar servicios por categoría
-            const servicesList = document.getElementById('servicesList');
-            if (!servicesList) return;
+            // Aplicar todos los filtros
+            applyAllFilters();
+        }
+
+        function filterByPetSize(size) {
+            currentFilters.petSize = size;
             
-            const allServices = servicesList.querySelectorAll('.service-card');
-            allServices.forEach(card => {
-                const serviceCategory = card.dataset.category;
-                if (category === '' || serviceCategory === category) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
+            // Actualizar botones activos
+            document.querySelectorAll('[data-pet-size]').forEach(btn => {
+                btn.classList.remove('active');
             });
+            const activeBtn = document.querySelector(`[data-pet-size="${size}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            // Aplicar todos los filtros
+            applyAllFilters();
+        }
+
+        function filterByPrice(min, max) {
+            currentFilters.minPrice = min;
+            currentFilters.maxPrice = max;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('[data-price-range]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.querySelector(`[data-price-range="${min}-${max}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            // Aplicar todos los filtros
+            applyAllFilters();
+        }
+
+        function applyAllFilters() {
+            const container = document.getElementById('servicesList');
+            if (!container) return;
+            
+            // Filtrar servicios según todos los criterios
+            let filtered = filterAllowedCategories(testServices);
+            
+            // Filtro por categoría
+            if (currentFilters.category) {
+                filtered = filtered.filter(s => s.category === currentFilters.category);
+            }
+            
+            // Filtro por tamaño de mascota
+            if (currentFilters.petSize) {
+                filtered = filtered.filter(s => s.acceptedPetSizes && s.acceptedPetSizes[currentFilters.petSize]);
+            }
+            
+            // Filtro por precio
+            filtered = filtered.filter(s => s.price >= currentFilters.minPrice && s.price <= currentFilters.maxPrice);
+            
+            // Filtro por capacidad
+            if (currentFilters.minCapacity && currentFilters.minCapacity > 0) {
+                filtered = filtered.filter(s => s.capacity >= currentFilters.minCapacity);
+            }
+            
+            // Renderizar servicios filtrados
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="card"><p style="text-align: center; padding: 20px;">No se encontraron servicios con los filtros seleccionados.</p></div>';
+                return;
+            }
+            
+            container.innerHTML = filtered.map(service => `
+                <div class="service-card" data-category="${service.category}">
+                    <div class="service-header">
+                        <div class="service-icon">${service.icon}</div>
+                        <div class="service-info">
+                            <h3>${service.title}</h3>
+                            <div class="service-price">$${service.price}/${service.priceUnit}</div>
+                        </div>
+                    </div>
+                    <div class="service-description">${service.description}</div>
+                    <div style="margin: 10px 0;">
+                        <strong>Características:</strong>
+                        <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px;">
+                            ${service.features.map(feature => `<span style="background: #e3f2fd; padding: 2px 8px; border-radius: 12px; font-size: 12px;">${feature}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="service-meta">
+                        <div class="rating">
+                            <span>${'⭐'.repeat(Math.floor(service.rating))}</span>
+                            <span>${service.rating} (${service.reviews} reseñas)</span>
+                        </div>
+                        <span>📍 ${service.location}</span>
+                    </div>
+                    <div class="service-actions" style="margin-top: 15px;">
+                        ${currentUser && currentUser.role === 'owner' ? 
+                            `<button class="btn btn-primary" onclick="selectService(${service.id})">📅 Reservar</button>
+                             <button class="favorite-btn" data-service-id="${service.id}" onclick="toggleFavorite(${service.id})" title="Agregar a favoritos">🤍</button>` : 
+                            ''
+                        }
+                        <button class="btn btn-secondary" onclick="showReviews(${service.id})">👁️ Ver Reseñas</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Actualizar botones de favoritos
+            setTimeout(() => updateFavoriteButtons(), 100);
+        }
+
+        function applyServiceFilters() {
+            // Leer valores de los selects
+            const priceSelect = document.getElementById('filterPrice');
+            const capacitySelect = document.getElementById('filterCapacity');
+            
+            if (priceSelect && priceSelect.value) {
+                const priceRange = priceSelect.value;
+                if (priceRange === '0-400') {
+                    currentFilters.minPrice = 0;
+                    currentFilters.maxPrice = 400;
+                } else if (priceRange === '400-600') {
+                    currentFilters.minPrice = 400;
+                    currentFilters.maxPrice = 600;
+                } else if (priceRange === '600-800') {
+                    currentFilters.minPrice = 600;
+                    currentFilters.maxPrice = 800;
+                } else if (priceRange === '800+') {
+                    currentFilters.minPrice = 800;
+                    currentFilters.maxPrice = 10000;
+                } else {
+                    currentFilters.minPrice = 0;
+                    currentFilters.maxPrice = 10000;
+                }
+            }
+            
+            if (capacitySelect && capacitySelect.value) {
+                currentFilters.minCapacity = parseInt(capacitySelect.value) || 0;
+            } else {
+                currentFilters.minCapacity = 0;
+            }
+            
+            // Aplicar todos los filtros
+            applyAllFilters();
+        }
+
+        function clearAllFilters() {
+            currentFilters = {
+                category: '',
+                petSize: '',
+                minPrice: 0,
+                maxPrice: 10000,
+                minCapacity: 0
+            };
+            
+            // Limpiar botones activos
+            document.querySelectorAll('[data-category], [data-petsize], [data-price-range]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Limpiar selects
+            const priceSelect = document.getElementById('filterPrice');
+            const capacitySelect = document.getElementById('filterCapacity');
+            if (priceSelect) priceSelect.value = '';
+            if (capacitySelect) capacitySelect.value = '';
+            
+            // Activar botón "Todas" en categorías
+            const allCategoriesBtn = document.querySelector('[data-category=""]');
+            if (allCategoriesBtn) {
+                allCategoriesBtn.classList.add('active');
+            }
+            
+            // Activar botón "Todos" en tamaños
+            const allSizesBtn = document.querySelector('[data-petsize=""]');
+            if (allSizesBtn) {
+                allSizesBtn.classList.add('active');
+            }
+            
+            // Aplicar filtros (mostrará todos)
+            applyAllFilters();
         }
 
         function setDistanceFilter(distance) {
