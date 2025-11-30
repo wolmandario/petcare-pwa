@@ -795,9 +795,10 @@
         }
         
         .category-option.selected {
-            border-color: #667eea;
-            background: #e3f2fd;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #667eea !important;
+            background: #e3f2fd !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+            transform: scale(1.02);
         }
         
         .category-icon {
@@ -1147,16 +1148,16 @@
                     <div style="margin-bottom: 15px;">
                         <label class="form-label">Tamaño de Mascota</label>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button class="distance-btn active" data-petsize="" onclick="filterByPetSize('')">
+                            <button class="distance-btn active" data-pet-size="" onclick="filterByPetSize('')">
                                 Todos
                             </button>
-                            <button class="distance-btn" data-petsize="small" onclick="filterByPetSize('small')">
+                            <button class="distance-btn" data-pet-size="small" onclick="filterByPetSize('small')">
                                 🐕 Pequeña
                             </button>
-                            <button class="distance-btn" data-petsize="medium" onclick="filterByPetSize('medium')">
+                            <button class="distance-btn" data-pet-size="medium" onclick="filterByPetSize('medium')">
                                 🐕 Mediana
                             </button>
-                            <button class="distance-btn" data-petsize="large" onclick="filterByPetSize('large')">
+                            <button class="distance-btn" data-pet-size="large" onclick="filterByPetSize('large')">
                                 🐕 Grande
                             </button>
                         </div>
@@ -4494,6 +4495,17 @@
                 closeAddServiceModal();
                 showMessage('¡Servicio agregado exitosamente!', 'success');
                 loadMyServices();
+                
+                // Recargar otras vistas si están activas
+                if (document.getElementById('servicesScreen')?.classList.contains('active')) {
+                    loadAllServices();
+                }
+                if (document.getElementById('mapScreen')?.classList.contains('active')) {
+                    setTimeout(() => {
+                        initializeMap();
+                        updateNearbyServices();
+                    }, 500);
+                }
             } catch (error) {
                 handleServiceError(error, 'guardar servicio');
             }
@@ -6300,6 +6312,18 @@
             document.querySelectorAll('[data-price-range]').forEach(btn => {
                 btn.classList.remove('active');
             });
+            
+            // Activar botón "Todos" de categoría
+            const allCategoryBtn = document.querySelector('[data-category=""]');
+            if (allCategoryBtn) {
+                allCategoryBtn.classList.add('active');
+            }
+            
+            // Activar botón "Todos" de tamaño
+            const allSizeBtn = document.querySelector('[data-pet-size=""]');
+            if (allSizeBtn) {
+                allSizeBtn.classList.add('active');
+            }
             
             // Resetear selects si existen
             const priceSelect = document.getElementById('filterPrice');
