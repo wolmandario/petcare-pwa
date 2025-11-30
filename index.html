@@ -3842,24 +3842,31 @@
                 console.log(`💾 Guardando ${fixed} servicios corregidos...`);
                 await saveData('services', services);
                 
-                // Actualizar variable global
+                // Actualizar variable global PRIMERO
                 testServices.length = 0;
                 testServices.push(...services);
+                console.log('✅ testServices actualizado:', testServices.length, 'servicios');
+                
+                // Esperar un momento para asegurar que testServices esté listo
+                await new Promise(resolve => setTimeout(resolve, 100));
                 
                 // Recargar todas las vistas
+                console.log('🔄 Recargando vistas...');
                 loadFeaturedServices();
-                loadAllServices();
-                if (currentUser && currentUser.role === 'caregiver') {
-                    loadMyServices();
-                }
+                
+                // Esperar un poco más antes de cargar todas las vistas
                 setTimeout(() => {
+                    loadAllServices();
+                    if (currentUser && currentUser.role === 'caregiver') {
+                        loadMyServices();
+                    }
                     if (typeof initializeMap === 'function') {
                         initializeMap();
                         if (typeof updateNearbyServices === 'function') {
                             updateNearbyServices();
                         }
                     }
-                }, 500);
+                }, 200);
                 
                 showMessage(`✅ ${fixed} servicios corregidos exitosamente!`, 'success');
                 console.log(`✅ Corrección completada! ${fixed} servicios actualizados.`);
