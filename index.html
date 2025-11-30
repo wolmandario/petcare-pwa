@@ -1805,6 +1805,12 @@
         
         // Filter services to only show allowed categories
         function filterAllowedCategories(services) {
+            // 🛡️ Validación defensiva: asegurar que services es un array
+            if (!services || !Array.isArray(services)) {
+                console.warn('⚠️ filterAllowedCategories recibió datos inválidos:', services);
+                return [];
+            }
+            
             console.log('🔍 Filtrando servicios permitidos de', services.length, 'servicios');
             const allowedCategories = ['nanny', 'daycare', 'boarding'];
             const filtered = services.filter(service => {
@@ -2638,10 +2644,16 @@
                 
                 // Cargar servicios desde Firebase
                 const storedServices = await loadData('services');
-                if (storedServices && storedServices.length > 0) {
+                console.log('🔍 Servicios cargados desde Firebase:', storedServices);
+                console.log('🔍 Tipo de datos:', typeof storedServices);
+                console.log('🔍 Es array:', Array.isArray(storedServices));
+                console.log('🔍 Longitud:', storedServices ? storedServices.length : 'N/A');
+                
+                if (storedServices && Array.isArray(storedServices) && storedServices.length > 0) {
                     testServices = storedServices;
                     console.log(`✅ ${testServices.length} servicios cargados desde Firebase`);
                 } else {
+                    console.warn('⚠️ No se pudieron cargar servicios desde Firebase, usando servicios por defecto');
                     testServices = [...defaultServices];
                     await saveData('services', testServices);
                     console.log('📝 Servicios por defecto guardados en Firebase');
@@ -3916,6 +3928,13 @@
         }
 
         function loadAllServices() {
+            // 🛡️ Validación: asegurar que testServices está cargado
+            if (!testServices || !Array.isArray(testServices)) {
+                console.warn('⚠️ testServices no está cargado, esperando...');
+                setTimeout(loadAllServices, 500); // Reintentar después de 500ms
+                return;
+            }
+            
             console.log('📋 Cargando todos los servicios...', testServices.length, 'servicios en total');
             
             // Usar applyAllFilters que ya maneja filtros correctamente
@@ -6356,6 +6375,13 @@
         function applyAllFilters() {
             const container = document.getElementById('servicesList');
             if (!container) return;
+            
+            // 🛡️ Validación: asegurar que testServices está cargado
+            if (!testServices || !Array.isArray(testServices) || testServices.length === 0) {
+                console.warn('⚠️ testServices no está cargado o está vacío');
+                container.innerHTML = '<div class="card"><p style="text-align: center; padding: 20px;">Cargando servicios...</p></div>';
+                return;
+            }
             
             // Filtrar servicios según todos los criterios
             let filtered = filterAllowedCategories(testServices);
