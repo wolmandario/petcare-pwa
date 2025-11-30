@@ -198,6 +198,8 @@
         .btn-secondary:hover { background: #667eea; color: white; }
         .btn-success { background: #28a745; color: white; }
         .btn-success:hover { background: #218838; }
+        .btn-warning { background: #ffc107; color: #000; }
+        .btn-warning:hover { background: #e0a800; }
         .btn-danger { background: #dc3545; color: white; }
         .btn-danger:hover { background: #c82333; }
         
@@ -997,6 +999,7 @@
                 <button id="authBtn" class="btn btn-secondary" onclick="showAuthModal()">Iniciar Sesión</button>
                 <button id="logoutBtn" class="btn btn-secondary" onclick="logout()" style="display: none;">Cerrar Sesión</button>
                 <button id="resetDataBtn" class="btn btn-danger" onclick="resetAllData()" title="Resetear datos de servicios">🔄 Reset</button>
+                <button id="fixCategoriesBtn" class="btn btn-warning" onclick="fixMissingCategories()" title="Arreglar categorías faltantes">🔧 Arreglar Categorías</button>
                 <button id="installBtn" class="install-btn">📱 Instalar App</button>
             </div>
         </div>
@@ -3775,6 +3778,95 @@
             } catch (error) {
                 console.error('❌ Error durante reset:', error);
                 showMessage('Error al resetear datos: ' + error.message, 'error');
+            }
+        }
+
+        // 🔧 Función para arreglar categorías faltantes en servicios existentes
+        async function fixMissingCategories() {
+            console.log('🔧 Iniciando corrección de categorías...');
+            
+            try {
+                // Cargar servicios desde Firebase
+                const storedServices = await loadData('services');
+                
+                if (!storedServices || !Array.isArray(storedServices)) {
+                    showMessage('❌ No se pudieron cargar los servicios', 'error');
+                    return;
+                }
+                
+                const services = storedServices;
+                const allowedCategories = ['nanny', 'daycare', 'boarding'];
+                const categoryIcons = {
+                    'nanny': '👤',
+                    'daycare': '🏠',
+                    'boarding': '🏨'
+                };
+                
+                let fixed = 0;
+                
+                services.forEach((service, index) => {
+                    if (!service) return;
+                    
+                    const hasValidCategory = service.category && allowedCategories.includes(service.category);
+                    
+                    if (!hasValidCategory) {
+                        console.log(`🔧 Servicio ${index}: "${service.title}" - Sin categoría válida`);
+                        
+                        // Asignar categoría inteligente basada en título, descripción o capacidad
+                        const title = (service.title || '').toLowerCase();
+                        const desc = (service.description || '').toLowerCase();
+                        
+                        if (title.includes('guardería') || desc.includes('guardería') || service.capacity >= 4) {
+                            service.category = 'daycare';
+                        } else if (title.includes('hospedaje') || desc.includes('hospedaje') || title.includes('hotel')) {
+                            service.category = 'boarding';
+                        } else {
+                            service.category = 'nanny';
+                        }
+                        
+                        service.icon = categoryIcons[service.category];
+                        service.active = true; // Asegurar que esté activo
+                        
+                        console.log(`✅ Categoría asignada: ${service.category} ${service.icon}`);
+                        fixed++;
+                    }
+                });
+                
+                if (fixed === 0) {
+                    showMessage('✅ Todos los servicios ya tienen categoría válida', 'success');
+                    console.log('✅ No se necesitaron correcciones');
+                    return;
+                }
+                
+                // Guardar servicios corregidos
+                console.log(`💾 Guardando ${fixed} servicios corregidos...`);
+                await saveData('services', services);
+                
+                // Actualizar variable global
+                testServices.length = 0;
+                testServices.push(...services);
+                
+                // Recargar todas las vistas
+                loadFeaturedServices();
+                loadAllServices();
+                if (currentUser && currentUser.role === 'caregiver') {
+                    loadMyServices();
+                }
+                setTimeout(() => {
+                    if (typeof initializeMap === 'function') {
+                        initializeMap();
+                        if (typeof updateNearbyServices === 'function') {
+                            updateNearbyServices();
+                        }
+                    }
+                }, 500);
+                
+                showMessage(`✅ ${fixed} servicios corregidos exitosamente!`, 'success');
+                console.log(`✅ Corrección completada! ${fixed} servicios actualizados.`);
+                
+            } catch (error) {
+                console.error('❌ Error al arreglar categorías:', error);
+                showMessage('Error al arreglar categorías: ' + error.message, 'error');
             }
         }
 
