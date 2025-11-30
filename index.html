@@ -3807,6 +3807,7 @@
                 services.forEach((service, index) => {
                     if (!service) return;
                     
+                    let needsFix = false;
                     const hasValidCategory = service.category && allowedCategories.includes(service.category);
                     
                     if (!hasValidCategory) {
@@ -3826,10 +3827,28 @@
                         
                         service.icon = categoryIcons[service.category];
                         service.active = true; // Asegurar que esté activo
+                        needsFix = true;
                         
                         console.log(`✅ Categoría asignada: ${service.category} ${service.icon}`);
-                        fixed++;
                     }
+                    
+                    // 🔧 Asegurar que tenga features (aunque sea vacío)
+                    if (!service.features || !Array.isArray(service.features)) {
+                        service.features = [];
+                        needsFix = true;
+                    }
+                    
+                    // 🔧 Asegurar que tenga rating y reviews
+                    if (!service.rating) {
+                        service.rating = 5.0;
+                        needsFix = true;
+                    }
+                    if (!service.reviews) {
+                        service.reviews = 0;
+                        needsFix = true;
+                    }
+                    
+                    if (needsFix) fixed++;
                 });
                 
                 if (fixed === 0) {
