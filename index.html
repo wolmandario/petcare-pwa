@@ -1804,12 +1804,29 @@
         
         // Filter services to only show allowed categories
         function filterAllowedCategories(services) {
+            console.log('🔍 Filtrando servicios permitidos de', services.length, 'servicios');
             const allowedCategories = ['nanny', 'daycare', 'boarding'];
-            return services.filter(service => 
-                allowedCategories.includes(service.category) && 
-                service.active !== false && 
-                service.hidden !== true
-            );
+            const filtered = services.filter(service => {
+                const categoryOk = allowedCategories.includes(service.category);
+                const activeOk = service.active !== false;
+                const notHidden = service.hidden !== true;
+                const passes = categoryOk && activeOk && notHidden;
+                
+                if (!passes) {
+                    console.log('❌ Servicio filtrado:', service.title, {
+                        category: service.category,
+                        categoryOk,
+                        active: service.active,
+                        activeOk,
+                        hidden: service.hidden,
+                        notHidden
+                    });
+                }
+                
+                return passes;
+            });
+            console.log('✅ Servicios permitidos:', filtered.length);
+            return filtered;
         }
         
         // Validate service category
@@ -3791,6 +3808,13 @@
         }
 
         function loadAllServices() {
+            console.log('📋 Cargando todos los servicios...', testServices.length, 'servicios en total');
+            
+            // Usar applyAllFilters que ya maneja filtros correctamente
+            applyAllFilters();
+        }
+        
+        function loadAllServicesOLD() {
             const container = document.getElementById('servicesList');
             
             // Filter to only show allowed categories
@@ -4290,6 +4314,14 @@
                 // Step 3: Add/update timestamps
                 serviceData.updatedAt = new Date().toISOString();
                 
+                // Step 3.5: Ensure service is active and visible
+                if (serviceData.active === undefined) {
+                    serviceData.active = true;
+                }
+                if (serviceData.hidden === undefined) {
+                    serviceData.hidden = false;
+                }
+                
                 // Step 4: Ensure caregiver information is set
                 if (!serviceData.caregiverId && currentUser) {
                     serviceData.caregiverId = currentUser.id;
@@ -4492,11 +4524,17 @@
                     testServices.push(savedService);
                 }
                 
+                console.log('✅ Servicio guardado:', savedService);
+                console.log('📊 Total servicios ahora:', testServices.length);
+                
                 closeAddServiceModal();
                 showMessage('¡Servicio agregado exitosamente!', 'success');
-                loadMyServices();
                 
-                // Recargar otras vistas si están activas
+                // Recargar TODAS las vistas para asegurar que se muestre
+                loadMyServices();
+                loadFeaturedServices(); // Recargar inicio
+                
+                // Si estamos en otras pantallas, recargarlas también
                 if (document.getElementById('servicesScreen')?.classList.contains('active')) {
                     loadAllServices();
                 }
