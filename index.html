@@ -996,6 +996,7 @@
                 <span id="userRole" class="user-role" style="display: none;"></span>
                 <button id="authBtn" class="btn btn-secondary" onclick="showAuthModal()">Iniciar Sesión</button>
                 <button id="logoutBtn" class="btn btn-secondary" onclick="logout()" style="display: none;">Cerrar Sesión</button>
+                <button id="resetDataBtn" class="btn btn-danger" onclick="resetAllData()" title="Resetear datos de servicios">🔄 Reset</button>
                 <button id="installBtn" class="install-btn">📱 Instalar App</button>
             </div>
         </div>
@@ -3656,6 +3657,113 @@
             loadAllServices();
             // Actualizar botones de favoritos
             setTimeout(updateFavoriteButtons, 100);
+        }
+
+        // Función para resetear todos los datos de servicios
+        async function resetAllData() {
+            if (!confirm('⚠️ ADVERTENCIA: Esto borrará TODOS los servicios y cargará datos de prueba limpios.\n\n¿Estás seguro?')) {
+                return;
+            }
+            
+            console.log('🔄 Iniciando reset completo de datos...');
+            
+            const cleanServices = [
+                {
+                    id: 1, title: 'Cuidado Personalizado Luna', category: 'nanny', icon: '🐕',
+                    price: 800, priceUnit: 'día',
+                    description: 'Servicio de niñera profesional para hasta 3 mascotas.',
+                    location: 'Centro', address: 'Av. 18 de Julio 1234',
+                    coordinates: [-56.1645, -34.9011], capacity: 3, minCapacity: 1,
+                    serviceLocation: { caregiverHome: true, clientHome: true },
+                    schedule: {
+                        monday: { available: true, start: '08:00', end: '18:00' },
+                        tuesday: { available: true, start: '08:00', end: '18:00' },
+                        wednesday: { available: true, start: '08:00', end: '18:00' },
+                        thursday: { available: true, start: '08:00', end: '18:00' },
+                        friday: { available: true, start: '08:00', end: '18:00' },
+                        saturday: { available: false }, sunday: { available: false }
+                    },
+                    acceptedPetSizes: { small: true, medium: true, large: false },
+                    rating: 4.8, reviews: 127, caregiver: 'María González', caregiverId: 1,
+                    features: ['Cuidado personalizado', 'Reportes diarios'],
+                    active: true, hidden: false,
+                    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 2, title: 'Guardería Happy Pets', category: 'daycare', icon: '🎾',
+                    price: 400, priceUnit: 'día',
+                    description: 'Guardería diurna con actividades y socialización.',
+                    location: 'Punta Gorda', address: 'Rambla República de México 5678',
+                    coordinates: [-56.1167, -34.8667], capacity: 10, minCapacity: 1,
+                    schedule: {
+                        monday: { available: true, start: '07:00', end: '19:00' },
+                        tuesday: { available: true, start: '07:00', end: '19:00' },
+                        wednesday: { available: true, start: '07:00', end: '19:00' },
+                        thursday: { available: true, start: '07:00', end: '19:00' },
+                        friday: { available: true, start: '07:00', end: '19:00' },
+                        saturday: { available: true, start: '08:00', end: '14:00' },
+                        sunday: { available: false }
+                    },
+                    acceptedPetSizes: { small: true, medium: true, large: true },
+                    rating: 4.6, reviews: 203, caregiver: 'Roberto Silva', caregiverId: 5,
+                    features: ['Socialización', 'Actividades', 'Monitoreo'],
+                    active: true, hidden: false,
+                    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+                },
+                {
+                    id: 3, title: 'Hotel Canino Pocitos', category: 'boarding', icon: '🏠',
+                    price: 600, priceUnit: 'día',
+                    description: 'Hospedaje con espacios verdes y cuidado 24h.',
+                    location: 'Pocitos', address: 'Calle Benito Blanco 1234',
+                    coordinates: [-56.1644, -34.9089], capacity: 8, minCapacity: 1,
+                    accommodationType: 'mixed',
+                    acceptedPetSizes: { small: true, medium: true, large: true },
+                    rating: 4.9, reviews: 89, caregiver: 'Ana Martínez', caregiverId: 3,
+                    features: ['Espacios verdes', 'Cuidado 24h'],
+                    active: true, hidden: false,
+                    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+                }
+            ];
+            
+            try {
+                // Limpiar localStorage
+                localStorage.removeItem('services');
+                console.log('✅ localStorage limpiado');
+                
+                // Limpiar Firebase
+                if (typeof firebase !== 'undefined' && firebase.database) {
+                    await firebase.database().ref('services').remove();
+                    await firebase.database().ref('services').set(cleanServices);
+                    console.log('✅ Firebase actualizado');
+                }
+                
+                // Actualizar localStorage
+                localStorage.setItem('services', JSON.stringify(cleanServices));
+                
+                // Actualizar variable global
+                testServices.length = 0;
+                testServices.push(...cleanServices);
+                console.log('✅ testServices actualizado:', testServices.length);
+                
+                // Recargar todas las vistas
+                loadFeaturedServices();
+                loadAllServices();
+                setTimeout(() => {
+                    if (typeof initializeMap === 'function') {
+                        initializeMap();
+                        if (typeof updateNearbyServices === 'function') {
+                            updateNearbyServices();
+                        }
+                    }
+                }, 500);
+                
+                showMessage('✅ Datos reseteados exitosamente! 3 servicios de prueba cargados.', 'success');
+                console.log('✅ Reset completado! Ve a Inicio, Servicios o Mapa para verificar.');
+                
+            } catch (error) {
+                console.error('❌ Error durante reset:', error);
+                showMessage('Error al resetear datos: ' + error.message, 'error');
+            }
         }
 
         function clearFormData() {
