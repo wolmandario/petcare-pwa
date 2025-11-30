@@ -16,13 +16,13 @@
     <link rel="manifest" href="pwa-manifest.json">
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="assets/petcare-favicon.svg">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/petcare-logo-192.png">
+    <link rel="icon" type="image/png" href="assets/petcare-logo.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/petcare-logo.png">
     
     <!-- Apple Touch Icons -->
-    <link rel="apple-touch-icon" href="assets/petcare-logo-192.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="assets/petcare-logo-192.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="assets/petcare-logo-512.png">
+    <link rel="apple-touch-icon" href="assets/petcare-logo.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="assets/petcare-logo.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="assets/petcare-logo.png">
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -6115,6 +6115,31 @@
                     Math.sin(dLng/2) * Math.sin(dLng/2);
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             return R * c;
+        }
+
+        function filterByCategory(category) {
+            // Actualizar botones activos
+            document.querySelectorAll('[data-category]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.querySelector(`[data-category="${category}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+            
+            // Filtrar servicios por categoría
+            const servicesList = document.getElementById('servicesList');
+            if (!servicesList) return;
+            
+            const allServices = servicesList.querySelectorAll('.service-card');
+            allServices.forEach(card => {
+                const serviceCategory = card.dataset.category;
+                if (category === '' || serviceCategory === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
 
         function setDistanceFilter(distance) {
