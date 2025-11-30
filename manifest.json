@@ -1,5 +1,5 @@
 {
-  "name": "PetCare Marketplace",
+  "name": "PetCare",
   "short_name": "PetCare",
   "description": "Encuentra el mejor cuidado para tu mascota en Uruguay",
   "start_url": "/petcare-pwa/",
@@ -12,16 +12,28 @@
   "categories": ["lifestyle", "utilities", "business"],
   "icons": [
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23667eea'/%3E%3Ctext x='50' y='65' font-size='40' text-anchor='middle' fill='white'%3E🐾%3C/text%3E%3C/svg%3E",
+      "src": "assets/petcare-logo.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23667eea'/%3E%3Ctext x='50' y='65' font-size='40' text-anchor='middle' fill='white'%3E🐾%3C/text%3E%3C/svg%3E",
+      "src": "assets/petcare-logo.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/petcare-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/petcare-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ],
   "screenshots": [
