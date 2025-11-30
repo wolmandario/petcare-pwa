@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PetCare - Service Migration Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #2c3e50;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .warning-box h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .warning-box ul {
+            margin-left: 20px;
+            color: #856404;
+        }
+        
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .info-box h3 {
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+            color: #0c5460;
+        }
+        
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .checkbox-group label {
+            cursor: pointer;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .console-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 500px;
+            overflow-y: auto;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .console-output:empty {
+            display: none;
+        }
+        
+        .console-output .log-info {
+            color: #4fc3f7;
+        }
+        
+        .console-output .log-success {
+            color: #81c784;
+        }
+        
+        .console-output .log-warning {
+            color: #ffb74d;
+        }
+        
+        .console-output .log-error {
+            color: #e57373;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        
+        .status-idle {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+        
+        .status-running {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            🔄 Service Migration Tool
+            <span id="statusBadge" class="status-badge status-idle">Idle</span>
+        </h1>
+        <p class="subtitle">Migrate old service categories to the new PetCare system</p>
+        
+        <div class="warning-box">
+            <h3>⚠️ Important Information</h3>
+            <ul>
+                <li>This tool will mark services with old categories as <strong>inactive/hidden</strong></li>
+                <li>No data will be deleted - all services are preserved for historical purposes</li>
+                <li>A backup will be created automatically before migration</li>
+                <li>Only services with categories: veterinary, grooming, walking, training will be affected</li>
+            </ul>
+        </div>
+        
+        <div class="info-box">
+            <h3>ℹ️ Allowed Categories</h3>
+            <ul>
+                <li><strong>Niñera (nanny)</strong> - Pet sitting services</li>
+                <li><strong>Guardería (daycare)</strong> - Daytime pet care facilities</li>
+                <li><strong>Hospedaje (boarding)</strong> - Overnight pet boarding</li>
+            </ul>
+        </div>
+        
+        <div class="config-section">
+            <h3 style="margin-bottom: 15px;">🔧 Configuration</h3>
+            
+            <div class="form-group">
+                <label class="form-label">Firebase Database URL</label>
+                <input 
+                    type="text" 
+                    id="firebaseUrl" 
+                    class="form-input" 
+                    value="https://petcare-uruguay-default-rtdb.firebaseio.com/"
+                    placeholder="https://your-project.firebaseio.com/"
+                >
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="dryRunMode" checked>
+                <label for="dryRunMode">
+                    <strong>Dry Run Mode</strong> - Preview changes without saving (recommended for first run)
+                </label>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="createBackup" checked>
+                <label for="createBackup">
+                    <strong>Create Backup</strong> - Save a backup before migration
+                </label>
+            </div>
+        </div>
+        
+        <div class="button-group">
+            <button id="analyzeBtn" class="btn btn-primary" onclick="analyzeServices()">
+                <span>🔍</span>
+                <span>Analyze Services</span>
+            </button>
+            
+            <button id="migrateBtn" class="btn btn-warning" onclick="runMigration()" disabled>
+                <span>🚀</span>
+                <span>Run Migration</span>
+            </button>
+            
+            <button id="clearBtn" class="btn btn-secondary" onclick="clearConsole()">
+                <span>🗑️</span>
+                <span>Clear Console</span>
+            </button>
+        </div>
+        
+        <div id="consoleOutput" class="console-output"></div>
+    </div>
+    
+    <script src="migrate-services.js"></script>
+    <script>
+        let migrationReady = false;
+        
+        // Custom console logger
+        function log(message, type = 'info') {
+            const output = document.getElementById('consoleOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = `log-${type}`;
+            
+            const line = document.createElement('div');
+            line.className = className;
+            line.textContent = `[${timestamp}] ${message}`;
+            
+            output.appendChild(line);
+            output.scrollTop = output.scrollHeight;
+        }
+        
+        // Override console methods
+        const originalConsole = {
+            log: console.log,
+            error: console.error,
+            warn: console.warn
+        };
+        
+        console.log = function(...args) {
+            originalConsole.log.apply(console, args);
+            log(args.join(' '), 'info');
+        };
+        
+        console.error = function(...args) {
+            originalConsole.error.apply(console, args);
+            log(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalConsole.warn.apply(console, args);
+            log(args.join(' '), 'warning');
+        };
+        
+        // Update Firebase URL in migration script
+        function updateFirebaseUrl() {
+            const url = document.getElementById('firebaseUrl').value;
+            if (window.ServiceMigration) {
+                // Update the FIREBASE_URL in the loaded script
+                window.FIREBASE_URL = url;
+            }
+        }
+        
+        // Set status badge
+        function setStatus(status) {
+            const badge = document.getElementById('statusBadge');
+            badge.className = `status-badge status-${status}`;
+            badge.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+        }
+        
+        // Analyze services
+        async function analyzeServices() {
+            try {
+                setStatus('running');
+                document.getElementById('analyzeBtn').disabled = true;
+                
+                updateFirebaseUrl();
+                
+                log('Starting service analysis...', 'info');
+                
+                const services = await window.ServiceMigration.loadAllServices();
+                const oldServices = window.ServiceMigration.identifyOldServices(services);
+                
+                if (oldServices.length > 0) {
+                    log(`✅ Analysis complete - ${oldServices.length} services need migration`, 'success');
+                    document.getElementById('migrateBtn').disabled = false;
+                    migrationReady = true;
+                } else {
+                    log('✅ No services need migration', 'success');
+                    migrationReady = false;
+                }
+                
+                setStatus('idle');
+            } catch (error) {
+                log(`❌ Analysis failed: ${error.message}`, 'error');
+                setStatus('error');
+            } finally {
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+        
+        // Run migration
+        async function runMigration() {
+            if (!migrationReady) {
+                log('⚠️ Please run analysis first', 'warning');
+                return;
+            }
+            
+            const dryRun = document.getElementById('dryRunMode').checked;
+            const createBackup = document.getElementById('createBackup').checked;
+            
+            if (!dryRun) {
+                const confirmed = confirm(
+                    '⚠️ WARNING: This will modify your Firebase database.\n\n' +
+                    'Are you sure you want to proceed with the migration?\n\n' +
+                    (createBackup ? '✅ A backup will be created first.' : '❌ No backup will be created.')
+                );
+                
+                if (!confirmed) {
+                    log('Migration cancelled by user', 'warning');
+                    return;
+                }
+            }
+            
+            try {
+                setStatus('running');
+                document.getElementById('migrateBtn').disabled = true;
+                document.getElementById('analyzeBtn').disabled = true;
+                
+                updateFirebaseUrl();
+                
+                log('Starting migration...', 'info');
+                
+                const result = await window.ServiceMigration.migrateServices({
+                    dryRun: dryRun,
+                    createBackupFirst: createBackup
+                });
+                
+                if (result.success) {
+                    log('✅ Migration completed successfully!', 'success');
+                    setStatus('success');
+                    
+                    if (dryRun) {
+                        log('⚠️ This was a DRY RUN - no changes were saved', 'warning');
+                        log('💡 Uncheck "Dry Run Mode" to apply changes', 'info');
+                    }
+                } else {
+                    log('❌ Migration failed', 'error');
+                    setStatus('error');
+                }
+                
+            } catch (error) {
+                log(`❌ Migration error: ${error.message}`, 'error');
+                setStatus('error');
+            } finally {
+                document.getElementById('migrateBtn').disabled = false;
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+        
+        // Clear console
+        function clearConsole() {
+            document.getElementById('consoleOutput').innerHTML = '';
+            log('Console cleared', 'info');
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('🚀 Service Migration Tool loaded', 'success');
+            log('💡 Click "Analyze Services" to start', 'info');
+        });
+    </script>
+</body>
+</html>
