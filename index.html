@@ -4918,29 +4918,201 @@
             const service = testServices.find(s => s.id === serviceId);
             if (!service) return;
             
-            // Llenar el formulario con los datos del servicio
-            document.getElementById('serviceType').value = service.category;
-            document.getElementById('serviceName').value = service.title;
-            document.getElementById('serviceDescription').value = service.description;
-            document.getElementById('servicePrice').value = service.price;
-            document.getElementById('servicePriceUnit').value = service.priceUnit;
-            
-            if (service.customAddress) {
-                document.getElementById('serviceLocation').value = 'custom';
-                document.getElementById('customAddress').value = service.customAddress;
-                toggleCustomAddress();
-            } else {
-                document.getElementById('serviceLocation').value = service.location;
-            }
-            
-            // Cambiar el botón para actualizar en lugar de crear
-            const submitBtn = document.querySelector('#addServiceModal .btn-primary');
-            submitBtn.textContent = 'Actualizar Servicio';
-            submitBtn.onclick = () => updateService(serviceId);
-            
+            // Abrir el modal primero
             showAddServiceModal();
+            
+            // Seleccionar la categoría
+            selectServiceCategory(service.category);
+            
+            // Esperar un momento para que se carguen los campos dinámicos
+            setTimeout(() => {
+                // Llenar campos comunes
+                document.getElementById('serviceName').value = service.title || '';
+                document.getElementById('serviceDescription').value = service.description || '';
+                document.getElementById('servicePrice').value = service.price || '';
+                document.getElementById('serviceCapacity').value = service.capacity || 1;
+                
+                // Llenar ubicación
+                const neighborhoodSelect = document.getElementById('serviceNeighborhood');
+                if (neighborhoodSelect) {
+                    neighborhoodSelect.value = service.location || '';
+                }
+                
+                // Llenar tamaños de mascotas
+                if (service.acceptedPetSizes) {
+                    document.getElementById('petSizeSmall').checked = service.acceptedPetSizes.small || false;
+                    document.getElementById('petSizeMedium').checked = service.acceptedPetSizes.medium || false;
+                    document.getElementById('petSizeLarge').checked = service.acceptedPetSizes.large || false;
+                }
+                
+                // Llenar campos específicos según categoría
+                if (service.category === 'nanny') {
+                    if (service.serviceLocation) {
+                        document.getElementById('locationCaregiverHome').checked = service.serviceLocation.caregiverHome || false;
+                        document.getElementById('locationClientHome').checked = service.serviceLocation.clientHome || false;
+                    }
+                    // Llenar horarios si existen
+                    if (service.schedule) {
+                        fillScheduleFields(service.schedule, 'schedule');
+                    }
+                } else if (service.category === 'daycare') {
+                    const addressField = document.getElementById('daycareAddress');
+                    if (addressField) {
+                        addressField.value = service.address || '';
+                    }
+                    if (service.schedule) {
+                        fillScheduleFields(service.schedule, 'daycareSchedule');
+                    }
+                } else if (service.category === 'boarding') {
+                    const addressField = document.getElementById('boardingAddress');
+                    if (addressField) {
+                        addressField.value = service.address || '';
+                    }
+                    const accommodationSelect = document.getElementById('accommodationType');
+                    if (accommodationSelect && service.accommodationType) {
+                        accommodationSelect.value = service.accommodationType;
+                    }
+                }
+                
+                // Cambiar el título del modal
+                const modalTitle = document.querySelector('#addServiceModal .modal-header h2');
+                if (modalTitle) {
+                    modalTitle.textContent = 'Editar Servicio';
+                }
+                
+                // Cambiar el botón para actualizar en lugar de crear
+                const submitBtn = document.querySelector('#addServiceModal .btn-primary');
+                if (submitBtn) {
+                    submitBtn.textContent = 'Actualizar Servicio';
+                    submitBtn.onclick = () => updateServiceFromForm(serviceId);
+                }
+            }, 100);
+        }
+        
+        // Helper function to fill schedule fields
+        function fillScheduleFields(schedule, prefix) {
+            const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+            days.forEach(day => {
+                if (schedule[day]) {
+                    const checkbox = document.getElementById(`${prefix}_${day}`);
+                    const startTime = document.getElementById(`${prefix}_${day}_start`);
+                    const endTime = document.getElementById(`${prefix}_${day}_end`);
+                    
+                    if (checkbox) checkbox.checked = schedule[day].available || false;
+                    if (startTime) startTime.value = schedule[day].start || '08:00';
+                    if (endTime) endTime.value = schedule[day].end || '18:00';
+                }
+            });
         }
 
+        async function updateServiceFromForm(serviceId) {
+            // Clear all previous errors
+            clearAllFormErrors();
+            
+            // Get category
+            const category = document.getElementById('serviceType').value;
+            
+            // Validate category selection
+            if (!category) {
+                showFormError('categoryError', 'Debe seleccionar una categoría de servicio');
+                return;
+            }
+            
+            // Collect common form data
+            const formData = {
+                category: category,
+                title: document.getElementById('serviceName').value.trim(),
+                description: document.getElementById('serviceDescription').value.trim(),
+                price: parseInt(document.getElementById('servicePrice').value),
+                capacity: parseInt(document.getElementById('serviceCapacity').value),
+                location: document.getElementById('serviceNeighborhood').value,
+                priceUnit: 'día'
+            };
+            
+            // Collect pet sizes
+            formData.acceptedPetSizes = {
+                small: document.getElementById('petSizeSmall').checked,
+                medium: document.getElementById('petSizeMedium').checked,
+                large: document.getElementById('petSizeLarge').checked
+            };
+            
+            // Collect category-specific data
+            if (category === 'nanny') {
+                formData.serviceLocation = {
+                    caregiverHome: document.getElementById('locationCaregiverHome').checked,
+                    clientHome: document.getElementById('locationClientHome').checked
+                };
+                formData.schedule = collectScheduleData('scheduleContainer');
+            } else if (category === 'daycare') {
+                formData.address = document.getElementById('daycareAddress').value.trim();
+                formData.schedule = collectScheduleData('daycareScheduleContainer');
+            } else if (category === 'boarding') {
+                formData.address = document.getElementById('boardingAddress').value.trim();
+                formData.accommodationType = document.getElementById('accommodationType').value;
+            }
+            
+            // Get existing service to preserve some fields
+            const existingService = testServices.find(s => s.id === serviceId);
+            if (!existingService) {
+                showMessage('Servicio no encontrado', 'error');
+                return;
+            }
+            
+            // Merge with existing data
+            formData.id = serviceId;
+            formData.caregiver = existingService.caregiver;
+            formData.caregiverId = existingService.caregiverId;
+            formData.rating = existingService.rating;
+            formData.reviews = existingService.reviews;
+            formData.createdAt = existingService.createdAt;
+            
+            // Create complete service data model
+            const serviceData = createServiceDataModel(formData);
+            
+            // Validate the service data
+            const validation = validateServiceData(serviceData);
+            
+            if (!validation.isValid) {
+                // Show all validation errors
+                displayValidationErrors(validation.errors);
+                showMessage('Por favor corrige los errores en el formulario', 'error');
+                return;
+            }
+            
+            // Update the service
+            try {
+                const serviceIndex = testServices.findIndex(s => s.id === serviceId);
+                if (serviceIndex !== -1) {
+                    testServices[serviceIndex] = serviceData;
+                    await saveData('services', testServices);
+                    
+                    console.log('✅ Servicio actualizado:', serviceData);
+                    
+                    closeAddServiceModal();
+                    showMessage('¡Servicio actualizado exitosamente!', 'success');
+                    
+                    // Recargar vistas
+                    loadMyServices();
+                    loadFeaturedServices();
+                    loadAllServices();
+                    
+                    // Restaurar el botón y título del modal
+                    const modalTitle = document.querySelector('#addServiceModal .modal-header h2');
+                    if (modalTitle) {
+                        modalTitle.textContent = 'Agregar Nuevo Servicio';
+                    }
+                    const submitBtn = document.querySelector('#addServiceModal .btn-primary');
+                    if (submitBtn) {
+                        submitBtn.textContent = 'Publicar Servicio';
+                        submitBtn.onclick = addService;
+                    }
+                }
+            } catch (error) {
+                console.error('❌ Error actualizando servicio:', error);
+                showMessage('Error al actualizar el servicio', 'error');
+            }
+        }
+        
         async function updateService(serviceId) {
             const type = document.getElementById('serviceType').value;
             const name = document.getElementById('serviceName').value;
@@ -6542,6 +6714,16 @@
                 });
             }
             
+            // Filtro por rating
+            if (currentFilters.minRating && currentFilters.minRating > 0) {
+                console.log('⭐ Filtrando por rating mínimo:', currentFilters.minRating);
+                filtered = filtered.filter(service => {
+                    const passes = service.rating >= currentFilters.minRating;
+                    console.log(`  - ${service.title}: ${service.rating} >= ${currentFilters.minRating} = ${passes}`);
+                    return passes;
+                });
+            }
+            
             // Renderizar servicios filtrados
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="card"><p style="text-align: center; padding: 20px;">No se encontraron servicios con los filtros seleccionados.</p></div>';
@@ -6624,6 +6806,13 @@
                 console.log('📍 Filtro de ubicación seleccionado:', currentFilters.location);
             }
             
+            // Leer filtro de rating
+            const ratingSelect = document.getElementById('filterRating');
+            if (ratingSelect) {
+                currentFilters.minRating = parseFloat(ratingSelect.value) || 0;
+                console.log('⭐ Filtro de rating seleccionado:', currentFilters.minRating);
+            }
+            
             // Aplicar todos los filtros
             applyAllFilters();
         }
@@ -6638,7 +6827,8 @@
                 minPrice: 0,
                 maxPrice: 10000,
                 minCapacity: 0,
-                location: 'all'
+                location: 'all',
+                minRating: 0
             };
             
             // Remover clase active de todos los botones de filtro
@@ -6668,9 +6858,11 @@
             const priceSelect = document.getElementById('filterPrice');
             const capacitySelect = document.getElementById('filterCapacity');
             const locationSelect = document.getElementById('filterLocation');
+            const ratingSelect = document.getElementById('filterRating');
             if (priceSelect) priceSelect.value = '';
             if (capacitySelect) capacitySelect.value = '';
             if (locationSelect) locationSelect.value = '';
+            if (ratingSelect) ratingSelect.value = '';
             
             // Recargar todos los servicios
             applyAllFilters();
