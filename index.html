@@ -1026,7 +1026,7 @@
         <div id="homeScreen" class="screen active">
             <div class="card">
                 <h2>Encuentra el mejor cuidado para tu mascota</h2>
-                <p>Conectamos dueños de mascotas con cuidadores profesionales verificados en todo Uruguay.</p>
+                <p style="display: none;">Conectamos dueños de mascotas con cuidadores profesionales verificados en todo Uruguay.</p>
                 
                 <div style="display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap;">
                     <div style="flex: 1; min-width: 200px;">
@@ -1100,7 +1100,7 @@
                         <span style="font-weight: 600; margin-right: 10px;">Distancia:</span>
                         <button class="distance-btn active" onclick="setDistanceFilter(5)" data-distance="5">5km</button>
                         <button class="distance-btn" onclick="setDistanceFilter(10)" data-distance="10">10km</button>
-                        <button class="distance-btn" onclick="setDistanceFilter(25)" data-distance="25">25km</button>
+                        <button class="distance-btn" onclick="setDistanceFilter(25)" data-distance="25" style="display:none;">25km</button>
                         <button class="distance-btn" onclick="setDistanceFilter(0)" data-distance="0">Todos</button>
                     </div>
                 </div>
@@ -1504,6 +1504,13 @@
                             </label>
                         </div>
                         <div id="serviceLocationError" class="form-error" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Dirección física (opcional)</label>
+                        <input type="text" id="nannyAddress" class="form-input" placeholder="Ej: Av. 18 de Julio 1234, Montevideo">
+                        <small style="color: #666; font-size: 12px;">Si ofreces el servicio en tu casa, puedes agregar tu dirección para aparecer en el mapa</small>
+                        <div id="nannyAddressError" class="form-error" style="display: none;"></div>
                     </div>
                     
                     <div class="form-group">
@@ -3965,7 +3972,48 @@
             }
         }
 
-        // 🗺️ FUNCIÓN DE GEOCODIFICACIÓN SIMPLE
+        // 🗺️ FUNCIÓN DE GEOCODIFICACIÓN CON NOMINATIM (OpenStreetMap)
+        async function geocodeAddress(address) {
+            try {
+                console.log(`🔍 Geocodificando dirección: ${address}`);
+                
+                // Agregar "Montevideo, Uruguay" si no está en la dirección
+                let fullAddress = address;
+                if (!address.toLowerCase().includes('montevideo')) {
+                    fullAddress = `${address}, Montevideo, Uruguay`;
+                }
+                
+                // Usar Nominatim API (OpenStreetMap)
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1`;
+                
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'PetCare-App/1.0' // Nominatim requiere User-Agent
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Error en la geocodificación');
+                }
+                
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    const lat = parseFloat(data[0].lat);
+                    const lon = parseFloat(data[0].lon);
+                    console.log(`✅ Coordenadas encontradas: [${lon}, ${lat}]`);
+                    return [lon, lat]; // Formato [lng, lat]
+                } else {
+                    console.log('⚠️ No se encontraron coordenadas, usando fallback');
+                    return getCoordinatesForAddress(address); // Fallback a método simple
+                }
+            } catch (error) {
+                console.error('❌ Error en geocodificación:', error);
+                return getCoordinatesForAddress(address); // Fallback a método simple
+            }
+        }
+        
+        // 🗺️ FUNCIÓN DE GEOCODIFICACIÓN SIMPLE (FALLBACK)
         function getCoordinatesForAddress(address) {
             // Geocodificación simple basada en palabras clave
             const addressLower = address.toLowerCase();
@@ -4736,12 +4784,24 @@
                     clientHome: document.getElementById('locationClientHome').checked
                 };
                 formData.schedule = collectScheduleData('scheduleContainer');
+                // Agregar dirección opcional para niñera
+                const nannyAddress = document.getElementById('nannyAddress').value.trim();
+                if (nannyAddress) {
+                    formData.address = nannyAddress;
+                }
             } else if (category === 'daycare') {
                 formData.address = document.getElementById('daycareAddress').value.trim();
                 formData.schedule = collectScheduleData('daycareScheduleContainer');
             } else if (category === 'boarding') {
                 formData.address = document.getElementById('boardingAddress').value.trim();
                 formData.accommodationType = document.getElementById('accommodationType').value;
+            }
+            
+            // Geocodificar dirección si existe
+            if (formData.address) {
+                console.log('🗺️ Geocodificando dirección:', formData.address);
+                formData.coordinates = await geocodeAddress(formData.address);
+                console.log('📍 Coordenadas obtenidas:', formData.coordinates);
             }
             
             // Create complete service data model
@@ -4951,6 +5011,11 @@
                         document.getElementById('locationCaregiverHome').checked = service.serviceLocation.caregiverHome || false;
                         document.getElementById('locationClientHome').checked = service.serviceLocation.clientHome || false;
                     }
+                    // Llenar dirección si existe
+                    const nannyAddressField = document.getElementById('nannyAddress');
+                    if (nannyAddressField && service.address) {
+                        nannyAddressField.value = service.address;
+                    }
                     // Llenar horarios si existen
                     if (service.schedule) {
                         fillScheduleFields(service.schedule, 'schedule');
@@ -5043,6 +5108,11 @@
                     clientHome: document.getElementById('locationClientHome').checked
                 };
                 formData.schedule = collectScheduleData('scheduleContainer');
+                // Agregar dirección opcional para niñera
+                const nannyAddress = document.getElementById('nannyAddress').value.trim();
+                if (nannyAddress) {
+                    formData.address = nannyAddress;
+                }
             } else if (category === 'daycare') {
                 formData.address = document.getElementById('daycareAddress').value.trim();
                 formData.schedule = collectScheduleData('daycareScheduleContainer');
@@ -5065,6 +5135,13 @@
             formData.rating = existingService.rating;
             formData.reviews = existingService.reviews;
             formData.createdAt = existingService.createdAt;
+            
+            // Geocodificar dirección si existe
+            if (formData.address) {
+                console.log('🗺️ Geocodificando dirección:', formData.address);
+                formData.coordinates = await geocodeAddress(formData.address);
+                console.log('📍 Coordenadas obtenidas:', formData.coordinates);
+            }
             
             // Create complete service data model
             const serviceData = createServiceDataModel(formData);
