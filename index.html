@@ -1508,9 +1508,17 @@
                     
                     <div class="form-group">
                         <label class="form-label">Dirección física (opcional)</label>
-                        <input type="text" id="nannyAddress" class="form-input" placeholder="Ej: Av. 18 de Julio 1234, Montevideo">
-                        <small style="color: #666; font-size: 12px;">Si ofreces el servicio en tu casa, puedes agregar tu dirección para aparecer en el mapa</small>
+                        <input type="text" id="nannyAddress" class="form-input" placeholder="Ej: Av. 18 de Julio 1234, Montevideo" oninput="searchAddressOnMap('nanny')">
+                        <small style="color: #666; font-size: 12px;">Si ofreces el servicio en tu casa, puedes agregar tu dirección para aparecer en el mapa. Haz clic en el mapa para seleccionar una ubicación.</small>
                         <div id="nannyAddressError" class="form-error" style="display: none;"></div>
+                        
+                        <!-- Mapa interactivo -->
+                        <div id="nannyMapContainer" style="margin-top: 10px; display: none;">
+                            <div id="nannyMap" style="height: 300px; border-radius: 8px; border: 1px solid #ddd;"></div>
+                            <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+                                📍 Haz clic en el mapa para seleccionar la ubicación exacta
+                            </small>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -1526,9 +1534,17 @@
                 <div id="daycareFields" style="display: none;">
                     <div class="form-group">
                         <label class="form-label">Dirección física *</label>
-                        <input type="text" id="daycareAddress" class="form-input" placeholder="Ej: Av. 18 de Julio 1234, Montevideo">
-                        <small style="color: #666; font-size: 12px;">La dirección física es obligatoria para guarderías</small>
+                        <input type="text" id="daycareAddress" class="form-input" placeholder="Ej: Av. 18 de Julio 1234, Montevideo" oninput="searchAddressOnMap('daycare')">
+                        <small style="color: #666; font-size: 12px;">La dirección física es obligatoria para guarderías. Haz clic en el mapa para seleccionar una ubicación.</small>
                         <div id="addressError" class="form-error" style="display: none;"></div>
+                        
+                        <!-- Mapa interactivo -->
+                        <div id="daycareMapContainer" style="margin-top: 10px;">
+                            <div id="daycareMap" style="height: 300px; border-radius: 8px; border: 1px solid #ddd;"></div>
+                            <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+                                📍 Haz clic en el mapa para seleccionar la ubicación exacta
+                            </small>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -1547,9 +1563,17 @@
                 <div id="boardingFields" style="display: none;">
                     <div class="form-group">
                         <label class="form-label">Dirección física *</label>
-                        <input type="text" id="boardingAddress" class="form-input" placeholder="Ej: Av. 18 de Julio 1234, Montevideo">
-                        <small style="color: #666; font-size: 12px;">La dirección física es obligatoria para hospedaje</small>
+                        <input type="text" id="boardingAddress" class="form-input" placeholder="Ej: Av. 18 de Julio 1234, Montevideo" oninput="searchAddressOnMap('boarding')">
+                        <small style="color: #666; font-size: 12px;">La dirección física es obligatoria para hospedaje. Haz clic en el mapa para seleccionar una ubicación.</small>
                         <div id="boardingAddressError" class="form-error" style="display: none;"></div>
+                        
+                        <!-- Mapa interactivo -->
+                        <div id="boardingMapContainer" style="margin-top: 10px;">
+                            <div id="boardingMap" style="height: 300px; border-radius: 8px; border: 1px solid #ddd;"></div>
+                            <small style="color: #666; font-size: 12px; display: block; margin-top: 5px;">
+                                📍 Haz clic en el mapa para seleccionar la ubicación exacta
+                            </small>
+                        </div>
                     </div>
                     
                     <div class="form-group">
@@ -4054,6 +4078,152 @@
             return [-56.1645, -34.9011];
         }
 
+        // 🗺️ MAPAS INTERACTIVOS PARA FORMULARIO
+        let addressMaps = {
+            nanny: null,
+            daycare: null,
+            boarding: null
+        };
+        let addressMarkers = {
+            nanny: null,
+            daycare: null,
+            boarding: null
+        };
+        let searchTimeout = null;
+
+        function initializeAddressMap(category) {
+            const mapId = `${category}Map`;
+            const mapContainer = document.getElementById(mapId);
+            
+            if (!mapContainer) return;
+            
+            // Si el mapa ya existe, no recrearlo
+            if (addressMaps[category]) {
+                return;
+            }
+            
+            // Crear mapa centrado en Montevideo
+            const defaultCenter = [-34.9011, -56.1645]; // [lat, lng]
+            addressMaps[category] = L.map(mapId).setView(defaultCenter, 13);
+            
+            // Agregar capa de OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(addressMaps[category]);
+            
+            // Agregar marcador inicial
+            addressMarkers[category] = L.marker(defaultCenter, {
+                draggable: true
+            }).addTo(addressMaps[category]);
+            
+            // Evento al hacer clic en el mapa
+            addressMaps[category].on('click', function(e) {
+                updateMarkerPosition(category, e.latlng.lat, e.latlng.lng);
+            });
+            
+            // Evento al arrastrar el marcador
+            addressMarkers[category].on('dragend', function(e) {
+                const position = e.target.getLatLng();
+                updateAddressFromCoordinates(category, position.lat, position.lng);
+            });
+            
+            console.log(`🗺️ Mapa inicializado para ${category}`);
+        }
+
+        function updateMarkerPosition(category, lat, lng) {
+            if (!addressMarkers[category]) return;
+            
+            // Actualizar posición del marcador
+            addressMarkers[category].setLatLng([lat, lng]);
+            
+            // Centrar mapa en la nueva posición
+            addressMaps[category].setView([lat, lng], addressMaps[category].getZoom());
+            
+            // Actualizar dirección desde coordenadas
+            updateAddressFromCoordinates(category, lat, lng);
+            
+            console.log(`📍 Marcador actualizado: [${lat}, ${lng}]`);
+        }
+
+        async function updateAddressFromCoordinates(category, lat, lng) {
+            try {
+                // Geocodificación inversa con Nominatim
+                const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`;
+                const response = await fetch(url, {
+                    headers: {
+                        'User-Agent': 'PetCare-App/1.0'
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Error en geocodificación inversa');
+                
+                const data = await response.json();
+                
+                if (data && data.display_name) {
+                    // Actualizar campo de dirección
+                    const addressFieldId = category === 'nanny' ? 'nannyAddress' : 
+                                          category === 'daycare' ? 'daycareAddress' : 
+                                          'boardingAddress';
+                    document.getElementById(addressFieldId).value = data.display_name;
+                    console.log(`📍 Dirección actualizada: ${data.display_name}`);
+                }
+            } catch (error) {
+                console.error('❌ Error en geocodificación inversa:', error);
+            }
+        }
+
+        async function searchAddressOnMap(category) {
+            // Mostrar mapa si es niñera y hay texto
+            if (category === 'nanny') {
+                const address = document.getElementById('nannyAddress').value;
+                const mapContainer = document.getElementById('nannyMapContainer');
+                if (address && address.length > 3) {
+                    mapContainer.style.display = 'block';
+                    if (!addressMaps[category]) {
+                        initializeAddressMap(category);
+                    }
+                } else {
+                    mapContainer.style.display = 'none';
+                    return;
+                }
+            }
+            
+            // Cancelar búsqueda anterior
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+            
+            // Esperar 500ms después de que el usuario deje de escribir
+            searchTimeout = setTimeout(async () => {
+                const addressFieldId = category === 'nanny' ? 'nannyAddress' : 
+                                      category === 'daycare' ? 'daycareAddress' : 
+                                      'boardingAddress';
+                const address = document.getElementById(addressFieldId).value;
+                
+                if (!address || address.length < 3) return;
+                
+                console.log(`🔍 Buscando dirección en mapa: ${address}`);
+                
+                try {
+                    // Geocodificar dirección
+                    const coords = await geocodeAddress(address);
+                    
+                    if (coords && coords.length === 2) {
+                        const [lng, lat] = coords;
+                        
+                        // Actualizar marcador y centrar mapa
+                        if (addressMarkers[category]) {
+                            addressMarkers[category].setLatLng([lat, lng]);
+                            addressMaps[category].setView([lat, lng], 15);
+                            console.log(`✅ Mapa actualizado: [${lat}, ${lng}]`);
+                        }
+                    }
+                } catch (error) {
+                    console.error('❌ Error buscando dirección:', error);
+                }
+            }, 500);
+        }
+
         // Funciones de servicios
         function loadFeaturedServices() {
             const container = document.getElementById('featuredServices');
@@ -4324,11 +4494,23 @@
             if (categoryId === 'nanny') {
                 document.getElementById('nannyFields').style.display = 'block';
                 generateScheduleSelector('scheduleContainer');
+                // Inicializar mapa para niñera (solo si hay dirección)
+                setTimeout(() => {
+                    const address = document.getElementById('nannyAddress').value;
+                    if (address) {
+                        document.getElementById('nannyMapContainer').style.display = 'block';
+                        initializeAddressMap('nanny');
+                    }
+                }, 100);
             } else if (categoryId === 'daycare') {
                 document.getElementById('daycareFields').style.display = 'block';
                 generateScheduleSelector('daycareScheduleContainer');
+                // Inicializar mapa para guardería
+                setTimeout(() => initializeAddressMap('daycare'), 100);
             } else if (categoryId === 'boarding') {
                 document.getElementById('boardingFields').style.display = 'block';
+                // Inicializar mapa para hospedaje
+                setTimeout(() => initializeAddressMap('boarding'), 100);
             }
         }
         
