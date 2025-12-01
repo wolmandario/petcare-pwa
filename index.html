@@ -1983,7 +1983,7 @@
         // Variables para mapa y geolocalización
         let map = null;
         let userLocation = null;
-        let currentDistanceFilter = 5; // km
+        let currentDistanceFilter = 0; // km (0 = sin límite, mostrar todos)
         let serviceMarkers = [];
         let userMarker = null;
         
@@ -6522,6 +6522,26 @@
                 filtered = filtered.filter(s => s.capacity >= currentFilters.minCapacity);
             }
             
+            // Filtro por ubicación
+            if (currentFilters.location && currentFilters.location !== 'all') {
+                console.log('🔍 Filtrando por ubicación:', currentFilters.location);
+                filtered = filtered.filter(service => {
+                    if (!service.location && !service.address) {
+                        return false;
+                    }
+                    
+                    const serviceLocation = (service.location || service.address || '').toLowerCase();
+                    const filterLocation = currentFilters.location.toLowerCase();
+                    
+                    // Buscar coincidencias flexibles
+                    const matches = serviceLocation.includes(filterLocation) || 
+                                   filterLocation.includes(serviceLocation);
+                    
+                    console.log(`  - ${service.title}: ${serviceLocation} vs ${filterLocation} = ${matches}`);
+                    return matches;
+                });
+            }
+            
             // Renderizar servicios filtrados
             if (filtered.length === 0) {
                 container.innerHTML = '<div class="card"><p style="text-align: center; padding: 20px;">No se encontraron servicios con los filtros seleccionados.</p></div>';
@@ -6570,6 +6590,7 @@
             // Leer valores de los selects
             const priceSelect = document.getElementById('filterPrice');
             const capacitySelect = document.getElementById('filterCapacity');
+            const locationSelect = document.getElementById('filterLocation');
             
             if (priceSelect && priceSelect.value) {
                 const priceRange = priceSelect.value;
@@ -6597,6 +6618,12 @@
                 currentFilters.minCapacity = 0;
             }
             
+            // Leer filtro de ubicación
+            if (locationSelect) {
+                currentFilters.location = locationSelect.value || 'all';
+                console.log('📍 Filtro de ubicación seleccionado:', currentFilters.location);
+            }
+            
             // Aplicar todos los filtros
             applyAllFilters();
         }
@@ -6610,7 +6637,8 @@
                 petSize: '',
                 minPrice: 0,
                 maxPrice: 10000,
-                minCapacity: 0
+                minCapacity: 0,
+                location: 'all'
             };
             
             // Remover clase active de todos los botones de filtro
@@ -6639,8 +6667,10 @@
             // Resetear selects si existen
             const priceSelect = document.getElementById('filterPrice');
             const capacitySelect = document.getElementById('filterCapacity');
+            const locationSelect = document.getElementById('filterLocation');
             if (priceSelect) priceSelect.value = '';
             if (capacitySelect) capacitySelect.value = '';
+            if (locationSelect) locationSelect.value = '';
             
             // Recargar todos los servicios
             applyAllFilters();
