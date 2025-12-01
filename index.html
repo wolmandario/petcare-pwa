@@ -998,8 +998,8 @@
                 <span id="userRole" class="user-role" style="display: none;"></span>
                 <button id="authBtn" class="btn btn-secondary" onclick="showAuthModal()">Iniciar Sesión</button>
                 <button id="logoutBtn" class="btn btn-secondary" onclick="logout()" style="display: none;">Cerrar Sesión</button>
-                <button id="resetDataBtn" class="btn btn-danger" onclick="resetAllData()" title="Resetear datos de servicios">🔄 Reset</button>
-                <button id="fixCategoriesBtn" class="btn btn-warning" onclick="fixMissingCategories()" title="Arreglar categorías faltantes">🔧 Arreglar Categorías</button>
+                <button id="resetDataBtn" class="btn btn-danger" onclick="resetAllData()" title="Resetear datos de servicios" style="display: none;">🔄 Reset</button>
+                <button id="fixCategoriesBtn" class="btn btn-warning" onclick="fixMissingCategories()" title="Arreglar categorías faltantes" style="display: none;">🔧 Arreglar Categorías</button>
                 <button id="installBtn" class="install-btn">📱 Instalar App</button>
             </div>
         </div>
@@ -4011,7 +4011,7 @@
             const container = document.getElementById('featuredServices');
             // Filter to only show allowed categories
             const allowedServices = filterAllowedCategories(testServices);
-            const featured = allowedServices.slice(0, 3);
+            const featured = allowedServices; // Mostrar todos los servicios permitidos
             
             container.innerHTML = featured.map(service => `
                 <div class="service-card">
